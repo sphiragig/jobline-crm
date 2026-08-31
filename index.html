@@ -1,0 +1,29 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Jobline - Screens</title>
+<style>
+  :root{--brand:#0F6CBD;--fg1:#242424;--fg3:#616161;--stroke2:#E8E8E8;--nbg2:#FAFAFA;}
+  *{box-sizing:border-box;}
+  body{margin:0;font-family:"Segoe UI",-apple-system,BlinkMacSystemFont,"Helvetica Neue",Arial,sans-serif;background:var(--nbg2);color:var(--fg1);padding:48px;}
+  h1{font-size:22px;font-weight:700;margin:0 0 6px;}
+  p{font-size:14px;color:var(--fg3);margin:0 0 28px;}
+  .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;max-width:900px;}
+  a.card{display:block;background:#fff;border:1px solid var(--stroke2);border-radius:8px;padding:20px;text-decoration:none;color:var(--fg1);font-weight:600;font-size:14px;box-shadow:0 0.3px 0.9px rgba(0,0,0,.11),0 1.6px 3.6px rgba(0,0,0,.13);}
+  a.card span{display:block;font-weight:400;color:var(--fg3);font-size:12px;margin-top:4px;}
+</style>
+</head>
+<body>
+  <h1>Jobline - screens</h1>
+  <p>Fluent 2, web brand blue. Six screens, one product.</p>
+  <div class="grid">
+    <a class="card" href="job-queue.html">1. Job Queue<span>Home / table view</span></a>
+    <a class="card" href="job-detail-drawer.html">2. Job Detail Drawer<span>Job Queue + side panel</span></a>
+    <a class="card" href="dispatch-board.html">3. Dispatch Board<span>Kanban</span></a>
+    <a class="card" href="customers-list.html">4. Customers List<span>Card grid</span></a>
+    <a class="card" href="customer-detail.html">5. Customer Detail<span>Profile + job history</span></a>
+    <a class="card" href="new-job-form.html">6. New Job Form<span>Create job</span></a>
+  </div>
+</body>
+</html>

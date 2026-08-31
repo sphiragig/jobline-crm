@@ -1,0 +1,239 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Jobline - Customer Detail</title>
+<style>
+:root{
+  --brand:#0F6CBD;--brand-hover:#115EA3;
+  --brand-tint-10:#F5FAFE;--brand-tint-20:#DEECF9;
+  --nbg1:#FFFFFF;--nbg2:#FAFAFA;
+  --stroke1:#D1D1D1;--stroke2:#E8E8E8;
+  --fg1:#242424;--fg2:#424242;--fg3:#616161;--fg-disabled:#BDBDBD;
+  --warning-bg:#FFF4CE;--warning-fg:#9D5D00;
+  --success-bg:#DFF6DD;--success-fg:#0E7C3F;
+  --teal-bg:#D6F5E8;--teal-fg:#0B6A4A;--plum-bg:#F5E1EE;--plum-fg:#8B3A73;
+  --shadow4:0 0.3px 0.9px rgba(0,0,0,.11),0 1.6px 3.6px rgba(0,0,0,.13);
+  --font:"Segoe UI","Segoe UI Web",-apple-system,BlinkMacSystemFont,"Helvetica Neue",Arial,sans-serif;
+}
+*{box-sizing:border-box;}
+body{margin:0;font-family:var(--font);color:var(--fg1);background:var(--nbg2);-webkit-font-smoothing:antialiased;}
+a{color:var(--brand);text-decoration:none;}
+a:hover{color:var(--brand-hover);}
+button{font-family:var(--font);cursor:pointer;}
+.rail-btn{width:40px;height:40px;border-radius:8px;border:none;background:transparent;color:var(--fg3);display:flex;align-items:center;justify-content:center;cursor:pointer;}
+.rail-btn.active{background:var(--brand-tint-20);color:var(--brand);}
+.avatar{border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;flex-shrink:0;}
+.badge{display:inline-flex;align-items:center;padding:3px 10px;border-radius:999px;font-size:12px;font-weight:600;line-height:16px;white-space:nowrap;}
+.ghost-btn{display:inline-flex;align-items:center;gap:6px;height:36px;padding:0 14px;border-radius:4px;border:1px solid var(--stroke1);background:var(--nbg1);color:var(--fg2);font-size:14px;font-weight:600;cursor:pointer;}
+.stat-card{background:#fff;border:1px solid var(--stroke2);border-radius:8px;padding:20px;box-shadow:var(--shadow4);text-align:center;}
+.stat-big{font-size:28px;font-weight:700;color:var(--brand);}
+.stat-lbl{font-size:12px;color:var(--fg3);margin-top:4px;}
+.card{background:#fff;border:1px solid var(--stroke2);border-radius:8px;padding:20px;box-shadow:var(--shadow4);}
+.card h3{margin:0 0 14px;font-size:14px;font-weight:700;color:var(--fg1);}
+.row{display:flex;justify-content:space-between;gap:16px;padding:7px 0;}
+.row .l{font-size:11px;color:var(--fg3);text-transform:uppercase;letter-spacing:.03em;flex-shrink:0;width:110px;}
+.row .v{font-size:13px;color:var(--fg1);font-weight:500;text-align:right;}
+.stats3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;}
+.two-col{display:grid;grid-template-columns:420px 1fr;gap:24px;align-items:start;}
+.jh-row{position:relative;display:grid;grid-template-columns:2fr 130px 120px 100px 90px;gap:12px;align-items:center;padding:10px 0;border-bottom:1px solid var(--stroke2);}
+.jh-head{display:grid;grid-template-columns:2fr 130px 120px 100px 90px;gap:12px;padding-bottom:10px;border-bottom:1px solid var(--stroke2);}
+.th{font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--fg3);}
+.row-link{position:absolute;inset:0;}
+@media (max-width:1180px){ main{padding:20px !important;} .two-col{grid-template-columns:1fr;} }
+@media (max-width:760px){ .rail{width:56px !important;} .stats3{grid-template-columns:1fr;} }
+@media (max-width:760px){#jobHistoryCard{overflow-x:auto;}.jh-head,.jh-row{min-width:650px;}}
+</style>
+</head>
+<body>
+<div style="display:flex;width:100%;min-height:100dvh;background:var(--nbg2);">
+  <nav class="rail" style="width:64px;flex-shrink:0;background:#FFFFFF;border-right:1px solid var(--stroke2);display:flex;flex-direction:column;align-items:center;padding:16px 0;">
+    <a href="job-queue.html" style="width:32px;height:32px;border-radius:8px;background:var(--brand);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:15px;">J</a>
+    <div style="display:flex;flex-direction:column;gap:8px;margin-top:32px;">
+      <a class="rail-btn" href="job-queue.html" title="Job Queue"><svg width="20" height="20" viewBox="0 0 20 20" fill="none"><rect x="3" y="4" width="3" height="3" rx="0.5" fill="currentColor"/><path d="M9 5.5H17" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><rect x="3" y="8.5" width="3" height="3" rx="0.5" fill="currentColor"/><path d="M9 10H17" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><rect x="3" y="13" width="3" height="3" rx="0.5" fill="currentColor"/><path d="M9 14.5H17" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></a>
+      <a class="rail-btn" href="dispatch-board.html" title="Dispatch Board"><svg width="20" height="20" viewBox="0 0 20 20" fill="none"><rect x="3" y="3" width="6" height="14" rx="1.5" stroke="currentColor" stroke-width="1.5"/><rect x="11" y="3" width="6" height="8" rx="1.5" stroke="currentColor" stroke-width="1.5"/></svg></a>
+      <a class="rail-btn active" href="customers-list.html" title="Customers"><svg width="20" height="20" viewBox="0 0 20 20" fill="none"><circle cx="7.5" cy="7" r="2.5" stroke="currentColor" stroke-width="1.5"/><path d="M2.5 16c0-2.5 2.2-4 5-4s5 1.5 5 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><circle cx="14.5" cy="6.5" r="2" stroke="currentColor" stroke-width="1.4"/><path d="M12.8 9.2c1.9-.3 4.7.6 4.7 3.3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg></a>
+    </div>
+    <div style="margin-top:auto;display:flex;flex-direction:column;align-items:center;gap:12px;">
+      <button class="rail-btn" style="width:36px;height:36px;" title="Settings"><svg width="18" height="18" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="2.5" stroke="currentColor" stroke-width="1.4"/><path d="M10 2.5v2M10 15.5v2M17.5 10h-2M4.5 10h-2M15.4 4.6l-1.4 1.4M6 12.6l-1.4 1.4M15.4 15.4l-1.4-1.4M6 7.4L4.6 6" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg></button>
+      <div class="avatar" style="width:32px;height:32px;background:var(--plum-bg);color:var(--plum-fg);font-size:12px;">DK</div>
+    </div>
+  </nav>
+  <main style="flex:1;min-width:0;padding:32px;display:flex;flex-direction:column;gap:20px;">
+    <div style="font-size:13px;color:var(--fg3);">
+      <a href="customers-list.html">Customers</a>
+      <svg width="10" height="10" viewBox="0 0 20 20" fill="none" style="margin:0 4px;vertical-align:middle;"><path d="M7 5L12 10L7 15" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <span id="customerBreadcrumb" style="color:var(--fg1);font-weight:600;">Alvarez Family</span>
+    </div>
+
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:24px;">
+      <div style="display:flex;align-items:center;gap:16px;">
+        <div class="avatar" id="customerAvatar" style="width:64px;height:64px;font-size:22px;background:var(--brand-tint-20);color:var(--brand);">AF</div>
+        <div>
+          <h1 id="customerName" style="margin:0;font-size:22px;font-weight:700;color:var(--fg1);">Alvarez Family</h1>
+          <div style="display:flex;align-items:center;gap:10px;margin-top:6px;">
+            <span class="badge" id="customerPlanBadge" style="background:var(--success-bg);color:var(--success-fg);">Active Plan</span>
+            <span id="customerMeta" style="font-size:13px;color:var(--fg3);">Customer since Mar 2022 &middot; Fairview Heights</span>
+          </div>
+        </div>
+      </div>
+      <div style="display:flex;gap:8px;flex-shrink:0;">
+        <a id="customerNewJob" href="new-job-form.html" style="display:inline-flex;align-items:center;gap:6px;height:36px;padding:0 16px;border-radius:4px;border:none;background:var(--brand);color:#fff;font-size:14px;font-weight:600;"><svg width="16" height="16" viewBox="0 0 20 20" fill="none"><path d="M10 4V16M4 10H16" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/></svg>New Job</a>
+      </div>
+    </div>
+
+    <div class="stats3">
+      <div class="stat-card"><div class="stat-big" id="customerJobs">14</div><div class="stat-lbl">Lifetime Jobs</div></div>
+      <div class="stat-card"><div class="stat-big" id="customerRevenue">$4,120</div><div class="stat-lbl">Lifetime Revenue</div></div>
+      <div class="stat-card"><div class="stat-big" id="customerRating">4.9</div><div class="stat-lbl">Avg Rating</div></div>
+    </div>
+
+    <div class="two-col">
+      <div style="display:flex;flex-direction:column;gap:16px;">
+        <div class="card">
+          <h3>Contact Info</h3>
+          <div class="row"><span class="l">Contact</span><span class="v" id="contactName">Elena Alvarez</span></div>
+          <div class="row"><span class="l">Phone</span><span class="v" id="contactPhone">(312) 555-0148</span></div>
+          <div class="row"><span class="l">Email</span><span class="v" id="contactEmail">elena.alvarez@fairviewmail.com</span></div>
+          <div class="row"><span class="l">Address</span><span class="v" id="contactAddress">214 Sycamore Lane, Unit B, Fairview Heights, IL 60443</span></div>
+        </div>
+        <div class="card">
+          <h3>Service Plan</h3>
+          <div class="row"><span class="l">Plan</span><span class="v" id="planName">HVAC Seasonal Care</span></div>
+          <div class="row"><span class="l">Rate</span><span class="v" id="planRate">$45 / mo</span></div>
+          <div class="row"><span class="l">Next visit</span><span class="v" id="planNext">Oct 12, 2026</span></div>
+          <div class="row"><span class="l">Renewal</span><span class="v" id="planRenewal">Mar 1, 2027</span></div>
+        </div>
+        <div class="card">
+          <h3>Notes</h3>
+          <div style="display:flex;gap:10px;">
+            <div class="avatar" style="width:26px;height:26px;font-size:10px;background:var(--teal-bg);color:var(--teal-fg);">DK</div>
+            <div>
+              <div style="display:flex;align-items:baseline;gap:8px;"><span style="font-size:13px;font-weight:600;">Dana Kim</span><span style="font-size:11px;color:var(--fg3);">Aug 12, 2026</span></div>
+              <p id="customerNote" style="margin:4px 0 0;font-size:13px;color:var(--fg2);">Customer prefers afternoon appointments after 1 PM. Has two dogs, use side gate.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" id="jobHistoryCard">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+          <h3 style="margin:0;">Job History</h3>
+          <a href="job-queue.html" style="font-size:13px;font-weight:600;">View all</a>
+        </div>
+        <div class="jh-head">
+          <span class="th">Job</span><span class="th">Type</span><span class="th">Status</span><span class="th">Date</span><span class="th" style="text-align:right;">Amount</span>
+        </div>
+        <div class="jh-row">
+          <a class="row-link" href="job-detail-drawer.html" aria-label="Open AC unit not cooling job detail"></a>
+          <span style="font-size:13px;color:var(--fg1);font-weight:500;">AC unit not cooling, urgent</span>
+          <span style="font-size:12px;color:var(--fg3);">New Job</span>
+          <span class="badge" style="background:var(--warning-bg);color:var(--warning-fg);">In Progress</span>
+          <span style="font-size:12px;color:var(--fg2);">Sep 3, 2026</span>
+          <span style="font-size:13px;font-weight:600;text-align:right;">$340</span>
+        </div>
+        <div class="jh-row">
+          <a class="row-link" href="job-detail-drawer.html" aria-label="Open Seasonal HVAC tune-up job detail"></a>
+          <span style="font-size:13px;color:var(--fg1);font-weight:500;">Seasonal HVAC tune-up</span>
+          <span style="font-size:12px;color:var(--fg3);">Recurring Visit</span>
+          <span class="badge" style="background:var(--brand-tint-20);color:var(--brand);">Scheduled</span>
+          <span style="font-size:12px;color:var(--fg2);">Sep 15, 2026</span>
+          <span style="font-size:13px;font-weight:600;text-align:right;">$145</span>
+        </div>
+        <div class="jh-row">
+          <a class="row-link" href="job-detail-drawer.html" aria-label="Open Replace outdoor unit fan motor job detail"></a>
+          <span style="font-size:13px;color:var(--fg1);font-weight:500;">Replace outdoor unit fan motor</span>
+          <span style="font-size:12px;color:var(--fg3);">New Job</span>
+          <span class="badge" style="background:var(--success-bg);color:var(--success-fg);">Done</span>
+          <span style="font-size:12px;color:var(--fg2);">Jul 22, 2026</span>
+          <span style="font-size:13px;font-weight:600;text-align:right;">$410</span>
+        </div>
+        <div class="jh-row">
+          <a class="row-link" href="job-detail-drawer.html" aria-label="Open Add smart thermostat job detail"></a>
+          <span style="font-size:13px;color:var(--fg1);font-weight:500;">Add smart thermostat</span>
+          <span style="font-size:12px;color:var(--fg3);">Change Request</span>
+          <span class="badge" style="background:var(--success-bg);color:var(--success-fg);">Done</span>
+          <span style="font-size:12px;color:var(--fg2);">Jun 2, 2026</span>
+          <span style="font-size:13px;font-weight:600;text-align:right;">$260</span>
+        </div>
+        <div class="jh-row" style="border-bottom:none;">
+          <a class="row-link" href="job-detail-drawer.html" aria-label="Open Spring filter replacement job detail"></a>
+          <span style="font-size:13px;color:var(--fg1);font-weight:500;">Spring filter replacement</span>
+          <span style="font-size:12px;color:var(--fg3);">Recurring Visit</span>
+          <span class="badge" style="background:var(--success-bg);color:var(--success-fg);">Done</span>
+          <span style="font-size:12px;color:var(--fg2);">Apr 10, 2026</span>
+          <span style="font-size:13px;font-weight:600;text-align:right;">$95</span>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+<script>
+(() => {
+  const profiles = {
+    'Alvarez Family': { initials:'AF', since:'Mar 2022', territory:'Fairview Heights', plan:'Active Plan', planName:'HVAC Seasonal Care', rate:'$45 / mo', next:'Oct 12, 2026', renewal:'Mar 1, 2027', jobs:14, revenue:4120, rating:'4.9', contact:'Elena Alvarez', phone:'(312) 555-0148', email:'elena.alvarez@fairviewmail.com', address:'214 Sycamore Lane, Unit B, Fairview Heights, IL 60443', note:'Customer prefers afternoon appointments after 1 PM. Has two dogs, use side gate.', current:{ description:'AC unit not cooling, urgent', type:'New Job', stage:'In Progress', date:'Sep 3, 2026', fee:340 } },
+    'Meadowbrook HOA': { initials:'MH', since:'Jun 2019', territory:'Meadowbrook', plan:'Active Plan', planName:'Commercial Grounds & HVAC', rate:'$320 / mo', next:'Sep 18, 2026', renewal:'Jun 1, 2027', jobs:62, revenue:28400, rating:'4.7', contact:'Rachel Morgan', phone:'(312) 555-0122', email:'facilities@meadowbrookhoa.com', address:'880 Meadowbrook Drive, Fairview Heights, IL 60443', note:'Coordinate access with the property manager before arrival.', current:{ description:'Quarterly irrigation inspection', type:'Recurring Visit', stage:'Scheduled', date:'Sep 2, 2026', fee:180 } },
+    'Chen Residence': { initials:'CR', since:'Nov 2023', territory:'Riverside', plan:'Seasonal Plan', planName:'Seasonal Home Care', rate:'$32 / mo', next:'Sep 20, 2026', renewal:'Nov 15, 2026', jobs:8, revenue:2650, rating:'4.8', contact:'Lena Chen', phone:'(312) 555-0186', email:'lena.chen@fairviewmail.com', address:'47 Harbor View Court, Fairview Heights, IL 60443', note:'Call before arrival. Garage access requires customer confirmation.', current:{ description:'Water heater leak in garage', type:'New Job', stage:'Blocked', date:'Sep 1, 2026', fee:410 } },
+    'Okafor & Sons Bakery': { initials:'OS', since:'Feb 2020', territory:'Downtown', plan:'Active Plan', planName:'Commercial HVAC Care', rate:'$180 / mo', next:'Sep 3, 2026', renewal:'Feb 1, 2027', jobs:31, revenue:11900, rating:'5.0', contact:'Chidi Okafor', phone:'(312) 555-0164', email:'service@okaforbakery.com', address:'302 Market Street, Fairview Heights, IL 60443', note:'Service visits must happen before the morning production shift.', current:{ description:'Monthly HVAC filter service', type:'Recurring Visit', stage:'Scheduled', date:'Sep 3, 2026', fee:120 } },
+    'Dana Whitfield': { initials:'DW', since:'Jan 2025', territory:'Fairview Heights', plan:'No Plan', planName:'No active plan', rate:'—', next:'—', renewal:'—', jobs:5, revenue:1380, rating:'4.6', contact:'Dana Whitfield', phone:'(312) 555-0191', email:'dana.whitfield@fairviewmail.com', address:'725 Northgate Road, Fairview Heights, IL 60443', note:'Prefers text updates while the technician is en route.', current:{ description:"Furnace won't ignite", type:'New Job', stage:'In Progress', date:'Sep 3, 2026', fee:275 } },
+    'Priya Natarajan': { initials:'PN', since:'Aug 2021', territory:'Riverside', plan:'Active Plan', planName:'Home Essentials', rate:'$39 / mo', next:'Oct 4, 2026', renewal:'Aug 1, 2027', jobs:11, revenue:3760, rating:'4.9', contact:'Priya Natarajan', phone:'(312) 555-0175', email:'priya.natarajan@fairviewmail.com', address:'146 Willow Bend, Fairview Heights, IL 60443', note:'Use the driveway entrance on Willow Bend, not the rear alley.', current:{ description:'Replace kitchen faucet', type:'New Job', stage:'Done', date:'Aug 27, 2026', fee:210 } },
+    'Rosalind Kerr': { initials:'RK', since:'Jul 2026', territory:'Fairview Heights', plan:'No Plan', planName:'No active plan', rate:'—', next:'—', renewal:'—', jobs:1, revenue:95, rating:'—', contact:'Rosalind Kerr', phone:'(312) 555-0139', email:'rosalind.kerr@fairviewmail.com', address:'19 Wren Street, Fairview Heights, IL 60443', note:'New customer. Confirm the requested thermostat configuration before scheduling.', current:{ description:'Add second thermostat zone', type:'Change Request', stage:'New Lead', date:'TBD', fee:95 } },
+    'Tobias Lindqvist': { initials:'TL', since:'May 2024', territory:'Northside', plan:'Seasonal Plan', planName:'Exterior Seasonal Care', rate:'$28 / mo', next:'—', renewal:'May 1, 2027', jobs:7, revenue:980, rating:'4.7', contact:'Tobias Lindqvist', phone:'(312) 555-0116', email:'tobias.lindqvist@fairviewmail.com', address:'61 Alder Avenue, Fairview Heights, IL 60443', note:'Prefers email communication for schedule changes.', current:{ description:'Cancel fall gutter cleaning', type:'Cancellation', stage:'Done', date:'Aug 28, 2026', fee:0 } },
+    'Marcus Webb': { initials:'MW', since:'Sep 2023', territory:'Meadowbrook', plan:'Active Plan', planName:'Landscape Seasonal Care', rate:'$52 / mo', next:'Sep 5, 2026', renewal:'Sep 1, 2027', jobs:16, revenue:5240, rating:'4.8', contact:'Marcus Webb', phone:'(312) 555-0157', email:'marcus.webb@fairviewmail.com', address:'930 Crestline Way, Fairview Heights, IL 60443', note:'Gate code is provided in the active work order.', current:{ description:'Reschedule sprinkler tune-up', type:'Change Request', stage:'Scheduled', date:'Sep 5, 2026', fee:150 } }
+  };
+  const requested = new URLSearchParams(window.location.search).get('customer');
+  const customer = profiles[requested] ? requested : 'Alvarez Family';
+  const profile = profiles[customer];
+  let updates = {};
+  try { updates = JSON.parse(localStorage.getItem('jobline-job-updates') || '{}'); } catch {}
+  const saved = updates[customer] || {};
+  const current = { ...profile.current, ...saved };
+  if (saved.promisedLabel) current.date = saved.promisedLabel.split(' · ')[0];
+
+  document.getElementById('customerBreadcrumb').textContent = customer;
+  document.getElementById('customerName').textContent = customer;
+  document.getElementById('customerAvatar').textContent = profile.initials;
+  document.getElementById('customerPlanBadge').textContent = profile.plan;
+  document.getElementById('customerMeta').textContent = `Customer since ${profile.since} · ${profile.territory}`;
+  document.getElementById('customerJobs').textContent = profile.jobs;
+  document.getElementById('customerRevenue').textContent = `$${profile.revenue.toLocaleString()}`;
+  document.getElementById('customerRating').textContent = profile.rating;
+  document.getElementById('contactName').textContent = profile.contact;
+  document.getElementById('contactPhone').textContent = profile.phone;
+  document.getElementById('contactEmail').textContent = profile.email;
+  document.getElementById('contactAddress').textContent = saved.address || profile.address;
+  document.getElementById('planName').textContent = profile.planName;
+  document.getElementById('planRate').textContent = profile.rate;
+  document.getElementById('planNext').textContent = profile.next;
+  document.getElementById('planRenewal').textContent = profile.renewal;
+  document.getElementById('customerNote').textContent = profile.note;
+  document.getElementById('customerNewJob').href = `new-job-form.html?customer=${encodeURIComponent(customer)}`;
+
+  function badgeStyle(stage) {
+    if (stage === 'Done') return ['var(--success-bg)','var(--success-fg)'];
+    if (stage === 'Scheduled') return ['var(--brand-tint-20)','var(--brand)'];
+    if (stage === 'Blocked') return ['#FDE7E9','#C4314B'];
+    return ['var(--warning-bg)','var(--warning-fg)'];
+  }
+
+  const history = [
+    current,
+    { description:'Routine service follow-up', type:'Recurring Visit', stage:'Scheduled', date:'Sep 15, 2026', fee:145 },
+    { description:'Completed equipment repair', type:'New Job', stage:'Done', date:'Jul 22, 2026', fee:410 },
+    { description:'Service change request', type:'Change Request', stage:'Done', date:'Jun 2, 2026', fee:260 },
+    { description:'Preventive maintenance visit', type:'Recurring Visit', stage:'Done', date:'Apr 10, 2026', fee:95 }
+  ];
+  const card = document.getElementById('jobHistoryCard');
+  card.querySelectorAll('.jh-row').forEach(row => row.remove());
+  history.forEach((job, index) => {
+    const colors = badgeStyle(job.stage);
+    const row = document.createElement('div');
+    row.className = 'jh-row';
+    if (index === history.length - 1) row.style.borderBottom = 'none';
+    row.innerHTML = `<a class="row-link" href="job-detail-drawer.html?customer=${encodeURIComponent(customer)}" aria-label="Open ${job.description}"></a><span style="font-size:13px;color:var(--fg1);font-weight:500;">${job.description}</span><span style="font-size:12px;color:var(--fg3);">${job.type}</span><span class="badge" style="background:${colors[0]};color:${colors[1]};">${job.stage}</span><span style="font-size:12px;color:var(--fg2);">${job.date}</span><span style="font-size:13px;font-weight:600;text-align:right;">$${Number(job.fee).toLocaleString()}</span>`;
+    card.appendChild(row);
+  });
+})();
+</script>
+</body>
+</html>

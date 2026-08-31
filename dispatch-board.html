@@ -1,0 +1,203 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Jobline - Dispatch Board</title>
+<style>
+:root{
+  --brand:#0F6CBD;--brand-hover:#115EA3;
+  --brand-tint-10:#F5FAFE;--brand-tint-20:#DEECF9;
+  --nbg1:#FFFFFF;--nbg2:#FAFAFA;--nbg3:#F1F1F1;--nbg-hover:#F0F0F0;
+  --stroke1:#D1D1D1;--stroke2:#E8E8E8;
+  --fg1:#242424;--fg2:#424242;--fg3:#616161;--fg-disabled:#BDBDBD;
+  --danger-bg:#FDE7E9;--danger-fg:#C4314B;
+  --warning-bg:#FFF4CE;--warning-fg:#9D5D00;
+  --success-bg:#DFF6DD;--success-fg:#0E7C3F;
+  --teal-bg:#D6F5E8;--teal-fg:#0B6A4A;--plum-bg:#F5E1EE;--plum-fg:#8B3A73;
+  --shadow4:0 0.3px 0.9px rgba(0,0,0,.11),0 1.6px 3.6px rgba(0,0,0,.13);
+  --shadow16:0 1.2px 3.6px rgba(0,0,0,.12),0 6.4px 14.4px rgba(0,0,0,.16);
+  --font:"Segoe UI","Segoe UI Web",-apple-system,BlinkMacSystemFont,"Helvetica Neue",Arial,sans-serif;
+}
+*{box-sizing:border-box;}
+body{margin:0;font-family:var(--font);color:var(--fg1);background:var(--nbg2);-webkit-font-smoothing:antialiased;}
+a{color:var(--brand);text-decoration:none;}
+a:hover{color:var(--brand-hover);}
+button{font-family:var(--font);cursor:pointer;}
+.rail-btn{width:40px;height:40px;border-radius:8px;border:none;background:transparent;color:var(--fg3);display:flex;align-items:center;justify-content:center;cursor:pointer;}
+.rail-btn.active{background:var(--brand-tint-20);color:var(--brand);}
+.ghost-btn{display:inline-flex;align-items:center;gap:6px;height:36px;padding:0 14px;border-radius:4px;border:1px solid var(--stroke1);background:var(--nbg1);color:var(--fg2);font-size:14px;font-weight:600;cursor:pointer;}
+.icon-btn{width:32px;height:32px;border-radius:999px;border:1px solid var(--stroke1);background:var(--nbg1);color:var(--fg2);display:flex;align-items:center;justify-content:center;cursor:pointer;}
+.avatar{border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;flex-shrink:0;border:2px solid #fff;}
+.col{background:var(--nbg3);border-radius:8px;padding:12px;display:flex;flex-direction:column;min-width:0;}
+.col-head{display:flex;align-items:center;justify-content:space-between;padding:2px 4px 12px;}
+.col-title{font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--fg2);}
+.count{display:inline-flex;align-items:center;justify-content:center;min-width:20px;height:20px;padding:0 6px;border-radius:999px;background:#fff;border:1px solid var(--stroke1);font-size:11px;font-weight:700;color:var(--fg2);}
+.card{position:relative;display:block;background:#fff;border:1px solid var(--stroke2);border-radius:8px;padding:12px;box-shadow:var(--shadow4);margin-bottom:10px;}
+.card-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;}
+.card-name{font-size:14px;font-weight:600;color:var(--fg1);margin:0 0 4px;}
+.card-desc{font-size:12px;color:var(--fg3);margin:0 0 10px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+.card-bottom{display:flex;align-items:center;justify-content:space-between;}
+.board{display:grid;grid-template-columns:repeat(5,1fr);gap:16px;flex:1;min-height:0;}
+.card-link{position:absolute;inset:0;}
+@media (max-width:1180px){ main{padding:20px !important;} .board{overflow-x:auto;grid-auto-columns:220px;grid-template-columns:repeat(5,220px);} }
+@media (max-width:760px){ .rail{width:56px !important;} }
+</style>
+</head>
+<body>
+<div style="display:flex;width:100%;min-height:100dvh;background:var(--nbg2);">
+  <nav class="rail" style="width:64px;flex-shrink:0;background:#FFFFFF;border-right:1px solid var(--stroke2);display:flex;flex-direction:column;align-items:center;padding:16px 0;">
+    <a href="job-queue.html" style="width:32px;height:32px;border-radius:8px;background:var(--brand);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:15px;">J</a>
+    <div style="display:flex;flex-direction:column;gap:8px;margin-top:32px;">
+      <a class="rail-btn" href="job-queue.html" title="Job Queue"><svg width="20" height="20" viewBox="0 0 20 20" fill="none"><rect x="3" y="4" width="3" height="3" rx="0.5" fill="currentColor"/><path d="M9 5.5H17" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><rect x="3" y="8.5" width="3" height="3" rx="0.5" fill="currentColor"/><path d="M9 10H17" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><rect x="3" y="13" width="3" height="3" rx="0.5" fill="currentColor"/><path d="M9 14.5H17" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></a>
+      <a class="rail-btn active" href="dispatch-board.html" title="Dispatch Board"><svg width="20" height="20" viewBox="0 0 20 20" fill="none"><rect x="3" y="3" width="6" height="14" rx="1.5" stroke="currentColor" stroke-width="1.5"/><rect x="11" y="3" width="6" height="8" rx="1.5" stroke="currentColor" stroke-width="1.5"/></svg></a>
+      <a class="rail-btn" href="customers-list.html" title="Customers"><svg width="20" height="20" viewBox="0 0 20 20" fill="none"><circle cx="7.5" cy="7" r="2.5" stroke="currentColor" stroke-width="1.5"/><path d="M2.5 16c0-2.5 2.2-4 5-4s5 1.5 5 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><circle cx="14.5" cy="6.5" r="2" stroke="currentColor" stroke-width="1.4"/><path d="M12.8 9.2c1.9-.3 4.7.6 4.7 3.3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg></a>
+    </div>
+    <div style="margin-top:auto;display:flex;flex-direction:column;align-items:center;gap:12px;">
+      <button class="rail-btn" style="width:36px;height:36px;" title="Settings"><svg width="18" height="18" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="2.5" stroke="currentColor" stroke-width="1.4"/><path d="M10 2.5v2M10 15.5v2M17.5 10h-2M4.5 10h-2M15.4 4.6l-1.4 1.4M6 12.6l-1.4 1.4M15.4 15.4l-1.4-1.4M6 7.4L4.6 6" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg></button>
+      <div class="avatar" style="width:32px;height:32px;background:var(--plum-bg);color:var(--plum-fg);font-size:12px;">DK</div>
+    </div>
+  </nav>
+  <main style="flex:1;min-width:0;padding:32px;display:flex;flex-direction:column;gap:20px;height:100dvh;">
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:24px;">
+      <div>
+        <h1 style="margin:0;font-size:24px;font-weight:600;color:var(--fg1);">Dispatch Board</h1>
+        <p style="margin:4px 0 0;font-size:14px;color:var(--fg3);">Drag a job to reassign or change its status</p>
+      </div>
+      <a class="ghost-btn" href="new-job-form.html"><svg width="16" height="16" viewBox="0 0 20 20" fill="none"><path d="M10 4V16M4 10H16" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/></svg>New Job</a>
+    </div>
+
+    <div style="display:flex;align-items:center;justify-content:space-between;">
+      <div style="display:flex;align-items:center;gap:10px;">
+        <button class="icon-btn"><svg width="14" height="14" viewBox="0 0 20 20" fill="none"><path d="M13 5L8 10L13 15" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+        <span style="font-size:16px;font-weight:600;color:var(--fg1);">Thursday, Sep 3</span>
+        <button class="icon-btn"><svg width="14" height="14" viewBox="0 0 20 20" fill="none"><path d="M7 5L12 10L7 15" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;">
+        <span style="font-size:12px;color:var(--fg3);">On shift</span>
+        <div style="display:flex;">
+          <div class="avatar" style="width:28px;height:28px;font-size:11px;background:var(--brand-tint-20);color:var(--brand);margin-left:-8px;">MR</div>
+          <div class="avatar" style="width:28px;height:28px;font-size:11px;background:var(--teal-bg);color:var(--teal-fg);margin-left:-8px;">DK</div>
+          <div class="avatar" style="width:28px;height:28px;font-size:11px;background:var(--plum-bg);color:var(--plum-fg);margin-left:-8px;">SP</div>
+          <div class="avatar" style="width:28px;height:28px;font-size:10px;background:#ECECEC;color:var(--fg3);margin-left:-8px;">+2</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="board">
+      <div class="col">
+        <div class="col-head"><span class="col-title" style="color:var(--danger-fg);">Unassigned</span><span class="count">2</span></div>
+        <div class="card">
+          <a class="card-link" href="job-detail-drawer.html" aria-label="Open Rosalind Kerr job detail"></a>
+          <div class="card-top"><span style="display:flex;align-items:center;gap:6px;"><span style="width:7px;height:7px;border-radius:50%;background:#C4314B;display:inline-block;"></span><span style="font-size:11px;color:var(--fg3);">10:30 AM</span></span></div>
+          <p class="card-name">Rosalind Kerr</p>
+          <p class="card-desc">Add second thermostat zone</p>
+          <div class="card-bottom">
+            <div style="width:20px;height:20px;border-radius:50%;border:1.5px dashed var(--stroke1);"></div>
+            <span style="font-size:12px;font-weight:600;color:var(--fg2);">$95 est</span>
+          </div>
+        </div>
+        <div class="card">
+          <a class="card-link" href="job-detail-drawer.html" aria-label="Open Marcus Webb job detail"></a>
+          <div class="card-top"><span style="display:flex;align-items:center;gap:6px;"><span style="width:7px;height:7px;border-radius:50%;background:#FFB900;display:inline-block;"></span><span style="font-size:11px;color:var(--fg3);">1:00 PM</span></span></div>
+          <p class="card-name">Marcus Webb</p>
+          <p class="card-desc">Reschedule sprinkler tune-up</p>
+          <div class="card-bottom">
+            <div style="width:20px;height:20px;border-radius:50%;border:1.5px dashed var(--stroke1);"></div>
+            <span style="font-size:12px;font-weight:600;color:var(--fg2);">$150</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="col">
+        <div class="col-head"><span class="col-title">Today</span><span class="count">3</span></div>
+        <div style="border:2px dashed var(--brand);border-radius:8px;height:60px;display:flex;align-items:center;justify-content:center;margin-bottom:10px;">
+          <span style="font-size:12px;color:var(--brand);font-weight:600;">Drop job here</span>
+        </div>
+        <div class="card" style="border:2px dashed var(--brand);box-shadow:var(--shadow16);transform:rotate(-1.2deg);">
+          <a class="card-link" href="job-detail-drawer.html" aria-label="Open Alvarez Family job detail"></a>
+          <div class="card-top"><span style="display:flex;align-items:center;gap:6px;"><span style="width:7px;height:7px;border-radius:50%;background:#C4314B;display:inline-block;"></span><span style="font-size:11px;color:var(--fg3);">9:00 AM</span></span></div>
+          <p class="card-name">Alvarez Family</p>
+          <p class="card-desc">AC unit not cooling, urgent</p>
+          <div class="card-bottom">
+            <div class="avatar" style="width:20px;height:20px;font-size:9px;background:var(--brand-tint-20);color:var(--brand);">MR</div>
+            <span style="font-size:12px;font-weight:600;color:var(--fg2);">$340</span>
+          </div>
+        </div>
+        <div class="card">
+          <a class="card-link" href="job-detail-drawer.html" aria-label="Open Dana Whitfield job detail"></a>
+          <div class="card-top"><span style="display:flex;align-items:center;gap:6px;"><span style="width:7px;height:7px;border-radius:50%;background:#C4314B;display:inline-block;"></span><span style="font-size:11px;color:var(--fg3);">11:15 AM</span></span></div>
+          <p class="card-name">Dana Whitfield</p>
+          <p class="card-desc">Furnace won't ignite</p>
+          <div class="card-bottom">
+            <div class="avatar" style="width:20px;height:20px;font-size:9px;background:var(--teal-bg);color:var(--teal-fg);">DK</div>
+            <span style="font-size:12px;font-weight:600;color:var(--fg2);">$275</span>
+          </div>
+        </div>
+        <div class="card">
+          <a class="card-link" href="job-detail-drawer.html" aria-label="Open Okafor and Sons Bakery job detail"></a>
+          <div class="card-top"><span style="display:flex;align-items:center;gap:6px;"><span style="width:7px;height:7px;border-radius:50%;background:#FFB900;display:inline-block;"></span><span style="font-size:11px;color:var(--fg3);">2:30 PM</span></span></div>
+          <p class="card-name">Okafor &amp; Sons Bakery</p>
+          <p class="card-desc">Monthly HVAC filter service</p>
+          <div class="card-bottom">
+            <div class="avatar" style="width:20px;height:20px;font-size:9px;background:var(--plum-bg);color:var(--plum-fg);">SP</div>
+            <span style="font-size:12px;font-weight:600;color:var(--fg2);">$120</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="col">
+        <div class="col-head"><span class="col-title">In Progress</span><span class="count">1</span></div>
+        <div class="card">
+          <a class="card-link" href="job-detail-drawer.html" aria-label="Open Priya Natarajan job detail"></a>
+          <div class="card-top"><span style="display:flex;align-items:center;gap:6px;"><span style="width:7px;height:7px;border-radius:50%;background:#FFB900;display:inline-block;"></span><span style="font-size:11px;color:var(--fg3);">Started 9:45 AM</span></span></div>
+          <p class="card-name">Priya Natarajan</p>
+          <p class="card-desc">Replace kitchen faucet, mid repair</p>
+          <div class="card-bottom">
+            <div class="avatar" style="width:20px;height:20px;font-size:9px;background:var(--plum-bg);color:var(--plum-fg);">SP</div>
+            <span style="font-size:12px;font-weight:600;color:var(--fg2);">$210</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="col">
+        <div class="col-head"><span class="col-title" style="color:var(--warning-fg);">Blocked</span><span class="count">1</span></div>
+        <div class="card">
+          <a class="card-link" href="job-detail-drawer.html" aria-label="Open Chen Residence job detail"></a>
+          <div class="card-top"><span style="display:flex;align-items:center;gap:6px;"><span style="width:7px;height:7px;border-radius:50%;background:#C4314B;display:inline-block;"></span><span style="font-size:11px;color:var(--fg3);">Waiting on part</span></span></div>
+          <p class="card-name">Chen Residence</p>
+          <p class="card-desc">Water heater leak, part backordered</p>
+          <div class="card-bottom">
+            <div style="width:20px;height:20px;border-radius:50%;border:1.5px dashed var(--stroke1);"></div>
+            <span style="font-size:12px;font-weight:600;color:var(--fg2);">$410</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="col">
+        <div class="col-head"><span class="col-title">Done</span><span class="count">2</span></div>
+        <div class="card" style="opacity:.6;">
+          <a class="card-link" href="job-detail-drawer.html" aria-label="Open Tobias Lindqvist job detail"></a>
+          <div class="card-top"><span style="display:flex;align-items:center;gap:6px;"><span style="width:7px;height:7px;border-radius:50%;background:#616161;display:inline-block;"></span><span style="font-size:11px;color:var(--fg3);">4:10 PM</span></span></div>
+          <p class="card-name">Tobias Lindqvist</p>
+          <p class="card-desc">Cancelled per customer request</p>
+          <div class="card-bottom">
+            <div class="avatar" style="width:20px;height:20px;font-size:9px;background:var(--brand-tint-20);color:var(--brand);">MR</div>
+            <span style="font-size:12px;font-weight:600;color:var(--fg2);">$0</span>
+          </div>
+        </div>
+        <div class="card" style="opacity:.6;">
+          <a class="card-link" href="job-detail-drawer.html" aria-label="Open Sana Ilyas job detail"></a>
+          <div class="card-top"><span style="display:flex;align-items:center;gap:6px;"><span style="width:7px;height:7px;border-radius:50%;background:#FFB900;display:inline-block;"></span><span style="font-size:11px;color:var(--fg3);">2:50 PM</span></span></div>
+          <p class="card-name">Sana Ilyas</p>
+          <p class="card-desc">Dryer vent cleaning, completed</p>
+          <div class="card-bottom">
+            <div class="avatar" style="width:20px;height:20px;font-size:9px;background:var(--plum-bg);color:var(--plum-fg);">SP</div>
+            <span style="font-size:12px;font-weight:600;color:var(--fg2);">$140</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+</body>
+</html>

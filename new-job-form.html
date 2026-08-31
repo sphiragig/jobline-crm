@@ -1,0 +1,203 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Jobline - New Job</title>
+<style>
+:root{
+  --brand:#0F6CBD;--brand-hover:#115EA3;
+  --brand-tint-10:#F5FAFE;--brand-tint-20:#DEECF9;
+  --nbg1:#FFFFFF;--nbg2:#FAFAFA;--nbg3:#F5F5F5;
+  --stroke1:#D1D1D1;--stroke2:#E8E8E8;
+  --fg1:#242424;--fg2:#424242;--fg3:#616161;--fg-disabled:#BDBDBD;
+  --shadow4:0 0.3px 0.9px rgba(0,0,0,.11),0 1.6px 3.6px rgba(0,0,0,.13);
+  --font:"Segoe UI","Segoe UI Web",-apple-system,BlinkMacSystemFont,"Helvetica Neue",Arial,sans-serif;
+}
+*{box-sizing:border-box;}
+body{margin:0;font-family:var(--font);color:var(--fg1);background:var(--nbg2);-webkit-font-smoothing:antialiased;}
+a{color:var(--brand);text-decoration:none;}
+a:hover{color:var(--brand-hover);}
+button{font-family:var(--font);cursor:pointer;}
+::placeholder{color:var(--fg-disabled);}
+.rail-btn{width:40px;height:40px;border-radius:8px;border:none;background:transparent;color:var(--fg3);display:flex;align-items:center;justify-content:center;cursor:pointer;}
+.rail-btn.active{background:var(--brand-tint-20);color:var(--brand);}
+.avatar{border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;flex-shrink:0;}
+.card{background:#fff;border:1px solid var(--stroke2);border-radius:8px;padding:24px;box-shadow:var(--shadow4);}
+.card h3{margin:0 0 16px;font-size:14px;font-weight:700;color:var(--fg1);}
+.f-lbl{display:block;font-size:12px;font-weight:600;color:var(--fg2);margin-bottom:6px;}
+.f-input{width:100%;height:36px;border:1px solid var(--stroke1);border-radius:4px;background:#fff;padding:0 12px;font-size:14px;color:var(--fg1);display:flex;align-items:center;gap:8px;}
+.f-input.linked{position:relative;}
+.f-group{margin-bottom:16px;}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+.seg{display:flex;background:var(--nbg3);border-radius:8px;padding:2px;gap:2px;}
+.seg-opt{flex:1;text-align:center;padding:7px 8px;border-radius:6px;font-size:13px;font-weight:600;color:var(--fg3);}
+.seg-opt.active{background:#fff;color:var(--fg1);box-shadow:var(--shadow4);}
+.tabs{display:flex;gap:20px;border-bottom:1px solid var(--stroke2);margin-bottom:18px;}
+.tab{font-size:14px;font-weight:600;color:var(--fg3);padding-bottom:10px;border-bottom:2px solid transparent;}
+.tab.active{color:var(--brand);border-bottom-color:var(--brand);}
+.ghost-btn{display:inline-flex;align-items:center;height:36px;padding:0 16px;border-radius:4px;border:1px solid var(--stroke1);background:var(--nbg1);color:var(--fg2);font-size:14px;font-weight:600;cursor:pointer;}
+.field-link{position:absolute;inset:0;}
+@media (max-width:1180px){ main{padding:20px !important;} .formcol{max-width:100% !important;} }
+@media (max-width:760px){ .rail{width:56px !important;} .grid2{grid-template-columns:1fr;} }
+body.modal-mode .rail{display:none;}
+body.modal-mode main{padding:20px !important;}
+body.modal-mode .formcol{max-width:720px !important;}
+@media (max-width:600px){body.modal-mode main{padding:14px !important;}.card{padding:18px;}.seg{flex-wrap:wrap;}.seg-opt{min-width:45%;}}
+</style>
+</head>
+<body>
+<div style="display:flex;width:100%;min-height:100dvh;background:var(--nbg2);">
+  <nav class="rail" style="width:64px;flex-shrink:0;background:#FFFFFF;border-right:1px solid var(--stroke2);display:flex;flex-direction:column;align-items:center;padding:16px 0;">
+    <a href="job-queue.html" style="width:32px;height:32px;border-radius:8px;background:var(--brand);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:15px;">J</a>
+    <div style="display:flex;flex-direction:column;gap:8px;margin-top:32px;">
+      <a class="rail-btn active" href="job-queue.html" title="Job Queue"><svg width="20" height="20" viewBox="0 0 20 20" fill="none"><rect x="3" y="4" width="3" height="3" rx="0.5" fill="currentColor"/><path d="M9 5.5H17" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><rect x="3" y="8.5" width="3" height="3" rx="0.5" fill="currentColor"/><path d="M9 10H17" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><rect x="3" y="13" width="3" height="3" rx="0.5" fill="currentColor"/><path d="M9 14.5H17" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></a>
+      <a class="rail-btn" href="dispatch-board.html" title="Dispatch Board"><svg width="20" height="20" viewBox="0 0 20 20" fill="none"><rect x="3" y="3" width="6" height="14" rx="1.5" stroke="currentColor" stroke-width="1.5"/><rect x="11" y="3" width="6" height="8" rx="1.5" stroke="currentColor" stroke-width="1.5"/></svg></a>
+      <a class="rail-btn" href="customers-list.html" title="Customers"><svg width="20" height="20" viewBox="0 0 20 20" fill="none"><circle cx="7.5" cy="7" r="2.5" stroke="currentColor" stroke-width="1.5"/><path d="M2.5 16c0-2.5 2.2-4 5-4s5 1.5 5 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><circle cx="14.5" cy="6.5" r="2" stroke="currentColor" stroke-width="1.4"/><path d="M12.8 9.2c1.9-.3 4.7.6 4.7 3.3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg></a>
+    </div>
+    <div style="margin-top:auto;display:flex;flex-direction:column;align-items:center;gap:12px;">
+      <button class="rail-btn" style="width:36px;height:36px;" title="Settings"><svg width="18" height="18" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="2.5" stroke="currentColor" stroke-width="1.4"/><path d="M10 2.5v2M10 15.5v2M17.5 10h-2M4.5 10h-2M15.4 4.6l-1.4 1.4M6 12.6l-1.4 1.4M15.4 15.4l-1.4-1.4M6 7.4L4.6 6" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg></button>
+      <div class="avatar" style="width:32px;height:32px;background:#F5E1EE;color:#8B3A73;font-size:12px;">DK</div>
+    </div>
+  </nav>
+  <main style="flex:1;min-width:0;padding:32px;display:flex;justify-content:center;">
+    <div class="formcol" style="width:100%;max-width:680px;display:flex;flex-direction:column;gap:16px;">
+      <div>
+        <div style="font-size:13px;color:var(--fg3);margin-bottom:8px;">
+          <a href="job-queue.html">Job Queue</a>
+          <svg width="10" height="10" viewBox="0 0 20 20" fill="none" style="margin:0 4px;vertical-align:middle;"><path d="M7 5L12 10L7 15" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <span style="color:var(--fg1);font-weight:600;">New Job</span>
+        </div>
+        <h1 style="margin:0;font-size:24px;font-weight:600;color:var(--fg1);">Create New Job</h1>
+        <p style="margin:4px 0 0;font-size:14px;color:var(--fg3);">Fill in the details to schedule or dispatch a new job</p>
+      </div>
+
+      <div class="card">
+        <h3>Customer</h3>
+        <div class="f-group">
+          <label class="f-lbl">Customer</label>
+          <div class="f-input linked">
+            <a class="field-link" href="customer-detail.html" aria-label="Open Alvarez Family profile"></a>
+            <svg width="15" height="15" viewBox="0 0 20 20" fill="none" style="color:var(--fg3);"><circle cx="9" cy="9" r="6" stroke="currentColor" stroke-width="1.5"/><path d="M17 17L13.5 13.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+            <span style="color:var(--fg1);">Alvarez Family</span>
+          </div>
+        </div>
+        <div class="grid2">
+          <div>
+            <label class="f-lbl">Service Address</label>
+            <div class="f-input" style="color:var(--fg2);justify-content:space-between;">
+              <span>214 Sycamore Lane, Unit B, Fairview Heights</span>
+              <span style="font-size:11px;color:var(--fg-disabled);flex-shrink:0;">Auto-filled</span>
+            </div>
+          </div>
+          <div>
+            <label class="f-lbl">Territory</label>
+            <div class="f-input" style="justify-content:space-between;">
+              <span>Fairview Heights</span>
+              <svg width="12" height="12" viewBox="0 0 20 20" fill="none" style="color:var(--fg3);"><path d="M5 8L10 13L15 8" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Job Details</h3>
+        <div class="f-group">
+          <label class="f-lbl">Job Type</label>
+          <div class="seg">
+            <div class="seg-opt active">New Job</div>
+            <div class="seg-opt">Recurring Visit</div>
+            <div class="seg-opt">Change Request</div>
+            <div class="seg-opt">Cancellation</div>
+          </div>
+        </div>
+        <div class="f-group">
+          <label class="f-lbl">Priority</label>
+          <div class="seg" style="max-width:280px;">
+            <div class="seg-opt">Low</div>
+            <div class="seg-opt active">Medium</div>
+            <div class="seg-opt">High</div>
+          </div>
+        </div>
+        <div class="grid2" style="margin-bottom:16px;">
+          <div>
+            <label class="f-lbl">Assigned Technician</label>
+            <div class="f-input" style="justify-content:space-between;">
+              <span style="display:flex;align-items:center;gap:8px;">
+                <span class="avatar" style="width:20px;height:20px;font-size:9px;background:var(--brand-tint-20);color:var(--brand);">MR</span>
+                Marcus Reyes
+              </span>
+              <svg width="12" height="12" viewBox="0 0 20 20" fill="none" style="color:var(--fg3);"><path d="M5 8L10 13L15 8" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+          </div>
+          <div class="grid2" style="gap:10px;">
+            <div>
+              <label class="f-lbl">Promised Date</label>
+              <div class="f-input" style="gap:8px;">
+                <svg width="14" height="14" viewBox="0 0 20 20" fill="none" style="color:var(--fg3);"><rect x="3" y="4" width="14" height="13" rx="2" stroke="currentColor" stroke-width="1.5"/><path d="M3 8h14M7 2v4M13 2v4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+                <span>Sep 3, 2026</span>
+              </div>
+            </div>
+            <div>
+              <label class="f-lbl">Time Window</label>
+              <div class="f-input" style="justify-content:space-between;">
+                <span style="font-size:13px;">12-4 PM</span>
+                <svg width="12" height="12" viewBox="0 0 20 20" fill="none" style="color:var(--fg3);"><path d="M5 8L10 13L15 8" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div>
+          <label class="f-lbl">Description</label>
+          <div style="width:100%;min-height:88px;border:1px solid var(--stroke1);border-radius:4px;padding:10px 12px;font-size:14px;color:var(--fg1);line-height:1.5;">Customer reports intermittent noise from outdoor compressor unit. Requested same-week appointment.</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Pricing</h3>
+        <div class="tabs">
+          <div class="tab active">One-time Job Fee</div>
+          <div class="tab">Recurring Service Plan</div>
+        </div>
+        <div class="grid2">
+          <div>
+            <label class="f-lbl">Job Fee</label>
+            <div class="f-input" style="gap:4px;">
+              <span style="color:var(--fg3);">$</span>
+              <span>250.00</span>
+            </div>
+          </div>
+          <div>
+            <label class="f-lbl">Estimated Duration</label>
+            <div class="f-input" style="justify-content:space-between;">
+              <span>2 hours</span>
+              <svg width="12" height="12" viewBox="0 0 20 20" fill="none" style="color:var(--fg3);"><path d="M5 8L10 13L15 8" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div style="display:flex;justify-content:flex-end;gap:8px;padding-bottom:8px;">
+        <a class="ghost-btn" href="job-queue.html">Cancel</a>
+        <a class="ghost-btn" href="job-queue.html">Save as Draft</a>
+        <a href="job-detail-drawer.html" style="display:inline-flex;align-items:center;height:36px;padding:0 18px;border-radius:4px;border:none;background:var(--brand);color:#fff;font-size:14px;font-weight:600;">Create Job</a>
+      </div>
+    </div>
+  </main>
+</div>
+<script>
+(() => {
+  if (new URLSearchParams(window.location.search).get('modal') !== '1') return;
+  document.body.classList.add('modal-mode');
+  document.querySelectorAll('a').forEach(link => {
+    const label = link.textContent.trim();
+    if (label === 'Cancel' || label === 'Create Job') {
+      link.addEventListener('click', event => {
+        event.preventDefault();
+        window.parent.postMessage('jobline-close-new-job', '*');
+      });
+    }
+  });
+})();
+</script>
+</body>
+</html>
