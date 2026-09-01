@@ -356,7 +356,28 @@ input{font-family:var(--font);}
 
 <script>
 (() => {
+  const createdJobsKey = 'jobline-created-jobs';
+  function readCreatedJobs() {
+    try { return JSON.parse(localStorage.getItem(createdJobsKey) || '[]'); } catch { return []; }
+  }
+  function escapeHtml(value) {
+    return String(value ?? '').replace(/[&<>"']/g, char => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
+  }
+  const createdJobs = readCreatedJobs();
+  const tableWrap = document.querySelector('.jq-table-wrap');
+  const priorityColors = { High:'#C4314B', Medium:'#FFB900', Low:'#616161' };
+  createdJobs.forEach(job => {
+    const profile = { 'Marcus Reyes':['MR','var(--brand-tint-20)','var(--brand)'], 'Dana Kim':['DK','var(--teal-bg)','var(--teal-fg)'], 'Sana Patel':['SP','var(--plum-bg)','var(--plum-fg)'] }[job.technician];
+    const tech = profile ? `<div class="avatar" style="width:22px;height:22px;font-size:10px;background:${profile[1]};color:${profile[2]};">${profile[0]}</div><span style="font-size:13px;color:var(--fg2);">${escapeHtml(job.technician)}</span>` : `<div style="width:22px;height:22px;border-radius:50%;border:1.5px dashed var(--stroke1);"></div><span style="font-size:13px;color:var(--danger-fg);font-weight:600;">Unassigned</span>`;
+    const row = document.createElement('div');
+    row.className = 'jq-row';
+    row.dataset.jobKey = job.id;
+    row.innerHTML = `<a class="row-link" href="job-detail-drawer.html?customer=${encodeURIComponent(job.customer)}&job=${encodeURIComponent(job.id)}" aria-label="Open ${escapeHtml(job.customer)} job detail"></a><span style="width:8px;height:8px;border-radius:50%;background:${priorityColors[job.priority] || priorityColors.Medium};display:inline-block;"></span><span style="font-size:14px;font-weight:600;color:var(--fg1);">${escapeHtml(job.customer)}</span><span style="font-size:13px;color:var(--fg2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escapeHtml(job.description)}</span><span style="font-size:13px;color:var(--fg3);">${escapeHtml(job.type)}</span><span class="badge">${escapeHtml(job.stage)}</span><div style="display:flex;align-items:center;gap:8px;">${tech}</div><span style="font-size:13px;font-weight:600;text-align:right;">$${Number(job.fee || 0).toLocaleString()}</span><span style="font-size:13px;color:var(--fg2);text-align:right;">0d</span><span style="font-size:13px;color:var(--fg2);">${escapeHtml(job.promisedShort || 'TBD')}</span>`;
+    tableWrap.appendChild(row);
+  });
   const rows = [...document.querySelectorAll('.jq-row')];
+  const queueSubtitle = document.querySelector('h1 + p');
+  if (queueSubtitle) queueSubtitle.textContent = `${rows.length} jobs across 3 technicians`;
   const bulkButton = document.getElementById('bulkAssignButton');
   const panel = document.getElementById('bulkPanel');
   const scrim = document.getElementById('bulkScrim');
@@ -415,9 +436,11 @@ input{font-family:var(--font);}
     const customer = cells[2]?.textContent.trim() || `Job ${index + 1}`;
     if (!priority || !techCell) return;
     row.dataset.customer = customer;
+    row.dataset.jobKey = row.dataset.jobKey || customer;
     row.dataset.stage = stageCell?.textContent.trim() || '';
+    renderStage(stageCell, row.dataset.stage);
     const rowLink = row.querySelector('.row-link');
-    if (rowLink) rowLink.href = `job-detail-drawer.html?customer=${encodeURIComponent(customer)}`;
+    if (rowLink) rowLink.href = `job-detail-drawer.html?customer=${encodeURIComponent(customer)}${row.dataset.jobKey !== customer ? `&job=${encodeURIComponent(row.dataset.jobKey)}` : ''}`;
     techCell.dataset.techCell = 'true';
     cells[3].dataset.field = 'description';
     stageCell.dataset.field = 'stage';
@@ -457,7 +480,7 @@ input{font-family:var(--font);}
   const savedUpdates = readUpdates();
   let normalizedSavedUpdates = false;
   rows.forEach(row => {
-    const saved = savedUpdates[row.dataset.customer];
+    const saved = savedUpdates[row.dataset.jobKey];
     if (!saved) return;
     const effectiveStage = saved.stage || row.dataset.stage;
     if (saved.technician && saved.technician !== 'Unassigned' && effectiveStage === 'Unassigned') {
@@ -495,6 +518,7 @@ input{font-family:var(--font);}
       const select = document.createElement('select');
       select.className = 'inline-control job-tech-select';
       select.dataset.customer = row.dataset.customer;
+      select.dataset.jobKey = row.dataset.jobKey;
       ['Choose technician', 'Marcus Reyes', 'Dana Kim', 'Sana Patel'].forEach((value, index) => {
         const option = new Option(value, index === 0 ? '' : value, false, value === currentTechnician);
         select.add(option);
@@ -562,7 +586,7 @@ input{font-family:var(--font);}
 
   function saveInlineValue(row, field, value) {
     const updates = readUpdates();
-    updates[row.dataset.customer] = { ...(updates[row.dataset.customer] || {}), [field]: value };
+    updates[row.dataset.jobKey] = { ...(updates[row.dataset.jobKey] || {}), [field]: value };
     writeUpdates(updates);
   }
 
@@ -630,9 +654,11 @@ input{font-family:var(--font);}
     if (event.data === 'jobline-close-new-job' || event.data?.type === 'jobline-create-job') {
       closeNewJobModal();
       if (event.data?.type === 'jobline-create-job') {
-        document.getElementById('bulkToastText').textContent = `New job created for ${event.data.job.customer}`;
-        toast.classList.add('show');
-        window.setTimeout(() => toast.classList.remove('show'), 3200);
+        const jobs = readCreatedJobs();
+        jobs.unshift(event.data.job);
+        localStorage.setItem(createdJobsKey, JSON.stringify(jobs));
+        sessionStorage.setItem('jobline-created-message', `New job created for ${event.data.job.customer}`);
+        location.reload();
       }
     }
   });
@@ -701,11 +727,11 @@ input{font-family:var(--font);}
       missing[0].focus();
       return;
     }
-    const assignments = new Map(assignmentSelects.map(select => [select.dataset.customer, select.value]));
+    const assignments = new Map(assignmentSelects.map(select => [select.dataset.jobKey, select.value]));
     const updates = readUpdates();
     chosenRows.forEach(row => {
       const techCell = row.querySelector('[data-tech-cell]');
-      const technicianName = assignments.get(row.dataset.customer);
+      const technicianName = assignments.get(row.dataset.jobKey);
       const profile = techProfiles[technicianName];
       techCell.innerHTML = technicianMarkup(technicianName, profile.initials, profile.bg, profile.color);
       const shouldSchedule = row.dataset.stage === 'Unassigned';
@@ -713,7 +739,7 @@ input{font-family:var(--font);}
         row.dataset.stage = 'Scheduled';
         renderStage(row.querySelector('[data-field="stage"]'), 'Scheduled');
       }
-      updates[row.dataset.customer] = { ...(updates[row.dataset.customer] || {}), technician: technicianName, ...profile, ...(shouldSchedule ? { stage:'Scheduled' } : {}) };
+      updates[row.dataset.jobKey] = { ...(updates[row.dataset.jobKey] || {}), technician: technicianName, ...profile, ...(shouldSchedule ? { stage:'Scheduled' } : {}) };
     });
     writeUpdates(updates);
     document.getElementById('bulkToastText').textContent = `${chosenRows.length} ${chosenRows.length === 1 ? 'job' : 'jobs'} assigned successfully`;
@@ -723,6 +749,13 @@ input{font-family:var(--font);}
   });
 
   updateSelection();
+  const createdMessage = sessionStorage.getItem('jobline-created-message');
+  if (createdMessage) {
+    sessionStorage.removeItem('jobline-created-message');
+    document.getElementById('bulkToastText').textContent = createdMessage;
+    toast.classList.add('show');
+    window.setTimeout(() => toast.classList.remove('show'), 3200);
+  }
 })();
 </script>
 </body>

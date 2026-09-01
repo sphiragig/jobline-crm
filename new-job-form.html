@@ -203,9 +203,9 @@ body.modal-mode>div{min-height:auto !important;background:#fff !important;}
   const formColumn = document.querySelector('.formcol');
   formColumn.innerHTML = `<form class="modal-job-form" id="modalJobForm">
     <section class="modal-section"><h3>Customer</h3><div class="modal-grid">
-      <label class="modal-field full">Customer<input name="customer" required placeholder="Search or enter customer"></label>
-      <label class="modal-field">Service address<input name="address" placeholder="Enter service address"></label>
-      <label class="modal-field">Territory<select name="territory"><option value="">Select territory</option><option>Fairview Heights</option><option>Meadowbrook</option><option>Riverside</option><option>Downtown</option></select></label>
+      <label class="modal-field full">Customer<select name="customer" id="modalCustomer" required><option value="">Select customer</option><option>Alvarez Family</option><option>Meadowbrook HOA</option><option>Chen Residence</option><option>Rosalind Kerr</option><option>Okafor &amp; Sons Bakery</option><option>Dana Whitfield</option><option>Priya Natarajan</option><option>Tobias Lindqvist</option><option>Marcus Webb</option></select></label>
+      <label class="modal-field">Service address<input name="address" id="modalAddress" readonly placeholder="Auto-filled from customer"></label>
+      <label class="modal-field">Territory<input name="territory" id="modalTerritory" readonly placeholder="Auto-filled from customer"></label>
     </div></section>
     <section class="modal-section"><h3>Job details</h3><div class="modal-grid">
       <label class="modal-field">Job type<select name="type" required><option value="">Select job type</option><option>New Job</option><option>Recurring Visit</option><option>Change Request</option><option>Cancellation</option></select></label>
@@ -221,11 +221,40 @@ body.modal-mode>div{min-height:auto !important;background:#fff !important;}
     </div></section>
     <div class="modal-actions"><button class="ghost-btn" id="modalCancel" type="button">Cancel</button><button class="modal-primary" type="submit">Create Job</button></div>
   </form>`;
+  const customers = {
+    'Alvarez Family':['214 Sycamore Lane, Unit B, Fairview Heights, IL 60443','Fairview Heights'],
+    'Meadowbrook HOA':['880 Meadowbrook Drive, Fairview Heights, IL 60443','Meadowbrook'],
+    'Chen Residence':['47 Harbor View Court, Fairview Heights, IL 60443','Riverside'],
+    'Rosalind Kerr':['19 Wren Street, Fairview Heights, IL 60443','Fairview Heights'],
+    'Okafor & Sons Bakery':['302 Market Street, Fairview Heights, IL 60443','Downtown'],
+    'Dana Whitfield':['725 Northgate Road, Fairview Heights, IL 60443','Fairview Heights'],
+    'Priya Natarajan':['146 Willow Bend, Fairview Heights, IL 60443','Riverside'],
+    'Tobias Lindqvist':['61 Alder Avenue, Fairview Heights, IL 60443','Northside'],
+    'Marcus Webb':['930 Crestline Way, Fairview Heights, IL 60443','Meadowbrook']
+  };
+  document.getElementById('modalCustomer').addEventListener('change', event => {
+    const details = customers[event.target.value] || ['', ''];
+    document.getElementById('modalAddress').value = details[0];
+    document.getElementById('modalTerritory').value = details[1];
+  });
   document.getElementById('modalCancel').addEventListener('click', () => window.parent.postMessage('jobline-close-new-job', '*'));
   document.getElementById('modalJobForm').addEventListener('submit', event => {
     event.preventDefault();
     const data = Object.fromEntries(new FormData(event.currentTarget));
-    window.parent.postMessage({ type:'jobline-create-job', job:data }, '*');
+    const promisedDate = data.promised ? new Date(`${data.promised}T12:00:00`) : null;
+    const promisedShort = promisedDate ? promisedDate.toLocaleDateString('en-US', { month:'short', day:'numeric' }) : 'TBD';
+    const job = {
+      ...data,
+      id:`created-${Date.now()}`,
+      fee:Number(data.fee || 0),
+      daysOpen:0,
+      stage:data.technician === 'Unassigned' ? 'Unassigned' : 'Scheduled',
+      promisedShort,
+      promisedLabel:promisedDate ? `${promisedDate.toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' })}${data.time ? ` · ${data.time}` : ''}` : 'TBD',
+      time:data.time || 'Time TBD',
+      createdAt:new Date().toISOString()
+    };
+    window.parent.postMessage({ type:'jobline-create-job', job }, '*');
   });
 })();
 </script>

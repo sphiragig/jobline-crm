@@ -300,8 +300,14 @@ button{font-family:var(--font);cursor:pointer;}
     'Priya Natarajan': { id: 'JB-2027', type: 'New Job', stage: 'Done', priority: 'Medium', fee: 210, promisedDate: '2026-08-27', promisedTime: '8 AM-12 PM', address: '146 Willow Bend, Fairview Heights', technician: 'Sana Patel' },
     'Marcus Webb': { id: 'JB-2040', type: 'Change Request', stage: 'Scheduled', priority: 'Low', fee: 150, promisedDate: '2026-09-05', promisedTime: 'Any time', address: '930 Crestline Way, Fairview Heights', technician: 'Unassigned' }
   };
-  const requestedCustomer = new URLSearchParams(window.location.search).get('customer');
+  const params = new URLSearchParams(window.location.search);
+  const requestedCustomer = params.get('customer');
   const customer = jobs[requestedCustomer] ? requestedCustomer : 'Alvarez Family';
+  const requestedJobKey = params.get('job');
+  let createdJob = null;
+  try { createdJob = JSON.parse(localStorage.getItem('jobline-created-jobs') || '[]').find(job => job.id === requestedJobKey) || null; } catch {}
+  const jobKey = createdJob?.id || customer;
+  if (createdJob) jobs[customer] = { ...jobs[customer], ...createdJob, promisedDate:createdJob.promised || jobs[customer].promisedDate, promisedTime:createdJob.time || 'Any time' };
 
   function readUpdates() {
     try {
@@ -318,6 +324,7 @@ button{font-family:var(--font);cursor:pointer;}
   }
 
   function formatPromised(dateValue, timeValue) {
+    if (!dateValue) return 'TBD';
     const date = new Date(`${dateValue}T12:00:00`);
     return `${date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })} · ${timeValue}`;
   }
@@ -363,7 +370,7 @@ button{font-family:var(--font);cursor:pointer;}
 
   function applyRecordValues() {
     const base = jobs[customer];
-    const saved = readUpdates()[customer] || {};
+    const saved = readUpdates()[jobKey] || {};
     const record = { ...base, ...saved };
     const promisedLabel = record.promisedLabel || formatPromised(record.promisedDate, record.promisedTime);
     document.getElementById('drawerCustomerName').textContent = customer;
@@ -413,7 +420,7 @@ button{font-family:var(--font);cursor:pointer;}
     const promisedLabel = formatPromised(promisedDate, promisedTime);
     const priorityColor = priority === 'High' ? '#C4314B' : priority === 'Medium' ? '#FFB900' : '#616161';
     const updates = readUpdates();
-    updates[customer] = { ...(updates[customer] || {}), priority, priorityColor, fee, promisedDate, promisedTime, promisedLabel, promisedShort: new Date(`${promisedDate}T12:00:00`).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }), address };
+    updates[jobKey] = { ...(updates[jobKey] || {}), priority, priorityColor, fee, promisedDate, promisedTime, promisedLabel, promisedShort: new Date(`${promisedDate}T12:00:00`).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }), address };
     writeUpdates(updates);
     document.getElementById('priorityValue').textContent = priority;
     document.getElementById('drawerPriorityBadge').textContent = `${priority} priority`;
@@ -425,7 +432,7 @@ button{font-family:var(--font);cursor:pointer;}
   });
 
   document.getElementById('drawerReassignButton').addEventListener('click', () => {
-    const record = { ...jobs[customer], ...(readUpdates()[customer] || {}) };
+    const record = { ...jobs[customer], ...(readUpdates()[jobKey] || {}) };
     const message = document.getElementById('drawerReassignMessage');
     const controls = document.getElementById('drawerReassignControls');
     if (record.stage === 'In Progress') {
@@ -446,7 +453,7 @@ button{font-family:var(--font);cursor:pointer;}
     const name = document.getElementById('drawerTechnicianInput').value;
     const profile = techProfiles[name];
     const updates = readUpdates();
-    updates[customer] = { ...(updates[customer] || {}), technician: name, ...profile };
+    updates[jobKey] = { ...(updates[jobKey] || {}), technician: name, ...profile };
     writeUpdates(updates);
     applyRecordValues();
     document.getElementById('drawerReassignControls').style.display = 'none';

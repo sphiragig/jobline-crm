@@ -228,7 +228,11 @@ button{font-family:var(--font);cursor:pointer;}
     { customer:'Dana Whitfield', description:"Furnace won't ignite", stage:'In Progress', technician:'Dana Kim', fee:275, time:'Started 9:45 AM', priority:'High' },
     { customer:'Priya Natarajan', description:'Replace kitchen faucet', stage:'Done', technician:'Sana Patel', fee:210, time:'2:50 PM', priority:'Medium' },
     { customer:'Marcus Webb', description:'Reschedule sprinkler tune-up', stage:'Scheduled', technician:'Unassigned', fee:150, time:'1:00 PM', priority:'Low' }
-  ];
+  ].map(job => ({ ...job, jobKey:job.customer }));
+  function readCreatedJobs() {
+    try { return JSON.parse(localStorage.getItem('jobline-created-jobs') || '[]').map(job => ({ ...job, jobKey:job.id })); }
+    catch { return []; }
+  }
   const techProfiles = {
     'Marcus Reyes': { initials:'MR', bg:'var(--brand-tint-20)', color:'var(--brand)' },
     'Dana Kim': { initials:'DK', bg:'var(--teal-bg)', color:'var(--teal-fg)' },
@@ -269,16 +273,16 @@ button{font-family:var(--font);cursor:pointer;}
     const tech = profile
       ? `<div class="avatar" style="width:20px;height:20px;font-size:9px;background:${profile.bg};color:${profile.color};">${profile.initials}</div>`
       : '<div style="width:20px;height:20px;border-radius:50%;border:1.5px dashed var(--stroke1);"></div>';
-    return `<a class="card-link" href="job-detail-drawer.html?customer=${encodeURIComponent(job.customer)}" aria-label="Open ${job.customer} job detail"></a><div class="card-top"><span style="display:flex;align-items:center;gap:6px;"><span style="width:7px;height:7px;border-radius:50%;background:${priorityColors[job.priority]};display:inline-block;"></span><span style="font-size:11px;color:var(--fg3);">${job.time}</span></span></div><p class="card-name">${job.customer}</p><p class="card-desc">${job.description}</p><div class="card-bottom">${tech}<span style="font-size:12px;font-weight:600;color:var(--fg2);">$${Number(job.fee).toLocaleString()}</span></div>`;
+    return `<a class="card-link" href="job-detail-drawer.html?customer=${encodeURIComponent(job.customer)}${job.id?.startsWith('created-') ? `&job=${encodeURIComponent(job.id)}` : ''}" aria-label="Open ${job.customer} job detail"></a><div class="card-top"><span style="display:flex;align-items:center;gap:6px;"><span style="width:7px;height:7px;border-radius:50%;background:${priorityColors[job.priority]};display:inline-block;"></span><span style="font-size:11px;color:var(--fg3);">${job.time}</span></span></div><p class="card-name">${job.customer}</p><p class="card-desc">${job.description}</p><div class="card-bottom">${tech}<span style="font-size:12px;font-weight:600;color:var(--fg2);">$${Number(job.fee).toLocaleString()}</span></div>`;
   }
   function renderBoard() {
     const updates = readUpdates();
-    const jobs = baseJobs.map(job => ({ ...job, ...(updates[job.customer] || {}) }));
+    const jobs = [...baseJobs, ...readCreatedJobs()].map(job => ({ ...job, ...(updates[job.jobKey] || {}) }));
     let normalized = false;
     jobs.forEach(job => {
       if (job.technician && job.technician !== 'Unassigned' && (job.stage === 'New Lead' || job.stage === 'Unassigned')) {
         job.stage = 'Scheduled';
-        updates[job.customer] = { ...(updates[job.customer] || {}), stage:'Scheduled' };
+        updates[job.jobKey] = { ...(updates[job.jobKey] || {}), stage:'Scheduled' };
         normalized = true;
       }
     });
@@ -296,9 +300,10 @@ button{font-family:var(--font);cursor:pointer;}
         card.className = 'card';
         card.draggable = true;
         card.dataset.customer = job.customer;
+        card.dataset.jobKey = job.jobKey;
         if (column.key === 'Done') card.style.opacity = '.6';
         card.innerHTML = cardMarkup(job);
-        card.addEventListener('dragstart', event => event.dataTransfer.setData('text/plain', job.customer));
+        card.addEventListener('dragstart', event => event.dataTransfer.setData('text/plain', job.jobKey));
         columnEl.appendChild(card);
       });
       columnEl.addEventListener('dragover', event => { event.preventDefault(); columnEl.classList.add('drag-over'); });
@@ -306,19 +311,19 @@ button{font-family:var(--font);cursor:pointer;}
       columnEl.addEventListener('drop', event => {
         event.preventDefault();
         columnEl.classList.remove('drag-over');
-        const customer = event.dataTransfer.getData('text/plain');
-        const current = jobs.find(job => job.customer === customer);
+        const jobKey = event.dataTransfer.getData('text/plain');
+        const current = jobs.find(job => job.jobKey === jobKey);
         if (!current) return;
         if ((column.key === 'Scheduled' || column.key === 'In Progress') && current.technician === 'Unassigned') {
           showToast('Assign a technician before scheduling or starting this job.');
           return;
         }
         const nextStage = column.key;
-        updates[customer] = { ...(updates[customer] || {}), stage:nextStage };
-        if (column.key === 'Unassigned') updates[customer].technician = 'Unassigned';
+        updates[jobKey] = { ...(updates[jobKey] || {}), stage:nextStage };
+        if (column.key === 'Unassigned') updates[jobKey].technician = 'Unassigned';
         writeUpdates(updates);
         renderBoard();
-        showToast(`${customer} moved to ${column.key}. Job Queue updated.`);
+        showToast(`${current.customer} moved to ${column.key}. Job Queue updated.`);
       });
       board.appendChild(columnEl);
     });

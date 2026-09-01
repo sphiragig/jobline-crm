@@ -187,6 +187,13 @@ button{font-family:var(--font);cursor:pointer;}
   const profile = profiles[customer];
   let updates = {};
   try { updates = JSON.parse(localStorage.getItem('jobline-job-updates') || '{}'); } catch {}
+  let createdJobs = [];
+  try { createdJobs = JSON.parse(localStorage.getItem('jobline-created-jobs') || '[]'); } catch {}
+  const customerCreatedJobs = createdJobs.filter(job => job.customer === customer).map(job => ({
+    ...job,
+    ...(updates[job.id] || {}),
+    date:(updates[job.id]?.promisedLabel || job.promisedLabel || 'TBD').split(' · ')[0]
+  }));
   const saved = updates[customer] || {};
   if (saved.stage === 'New Lead') saved.stage = 'Unassigned';
   const current = { ...profile.current, ...saved };
@@ -197,8 +204,8 @@ button{font-family:var(--font);cursor:pointer;}
   document.getElementById('customerAvatar').textContent = profile.initials;
   document.getElementById('customerPlanBadge').textContent = profile.plan;
   document.getElementById('customerMeta').textContent = `Customer since ${profile.since} · ${profile.territory}`;
-  document.getElementById('customerJobs').textContent = profile.jobs;
-  document.getElementById('customerRevenue').textContent = `$${profile.revenue.toLocaleString()}`;
+  document.getElementById('customerJobs').textContent = profile.jobs + customerCreatedJobs.length;
+  document.getElementById('customerRevenue').textContent = `$${(profile.revenue + customerCreatedJobs.reduce((sum, job) => sum + Number(job.fee || 0), 0)).toLocaleString()}`;
   document.getElementById('customerRating').textContent = profile.rating;
   document.getElementById('contactName').textContent = profile.contact;
   document.getElementById('contactPhone').textContent = profile.phone;
@@ -219,12 +226,13 @@ button{font-family:var(--font);cursor:pointer;}
   }
 
   const history = [
+    ...customerCreatedJobs,
     current,
     { description:'Routine service follow-up', type:'Recurring Visit', stage:'Scheduled', date:'Sep 15, 2026', fee:145 },
     { description:'Completed equipment repair', type:'New Job', stage:'Done', date:'Jul 22, 2026', fee:410 },
     { description:'Service change request', type:'Change Request', stage:'Done', date:'Jun 2, 2026', fee:260 },
     { description:'Preventive maintenance visit', type:'Recurring Visit', stage:'Done', date:'Apr 10, 2026', fee:95 }
-  ];
+  ].slice(0, 5);
   const card = document.getElementById('jobHistoryCard');
   card.querySelectorAll('.jh-row').forEach(row => row.remove());
   history.forEach((job, index) => {
