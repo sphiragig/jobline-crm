@@ -19,6 +19,7 @@
   --font:"Segoe UI","Segoe UI Web",-apple-system,BlinkMacSystemFont,"Helvetica Neue",Arial,sans-serif;
 }
 *{box-sizing:border-box;}
+.demo-hidden{display:none !important;}
 body{margin:0;font-family:var(--font);color:var(--fg1);background:var(--nbg2);-webkit-font-smoothing:antialiased;}
 a{color:var(--brand);text-decoration:none;}
 a:hover{color:var(--brand-hover);}
@@ -39,6 +40,13 @@ button{font-family:var(--font);cursor:pointer;}
 .card-bottom{display:flex;align-items:center;justify-content:space-between;}
 .board{display:grid;grid-template-columns:repeat(5,1fr);gap:16px;flex:1;min-height:0;}
 .card-link{position:absolute;inset:0;}
+.col-head-copy{min-width:0;}
+.col-meaning{font-size:10px;color:var(--fg3);margin-top:3px;line-height:1.3;}
+.col.drag-over{background:var(--brand-tint-20);box-shadow:inset 0 0 0 2px var(--brand);}
+.card[draggable="true"]{cursor:grab;}
+.card[draggable="true"]:active{cursor:grabbing;}
+.move-toast{position:fixed;right:24px;bottom:24px;z-index:20;background:var(--fg1);color:#fff;padding:11px 14px;border-radius:8px;box-shadow:var(--shadow16);font-size:13px;display:none;}
+.move-toast.show{display:block;}
 @media (max-width:1180px){ main{padding:20px !important;} .board{overflow-x:auto;grid-auto-columns:220px;grid-template-columns:repeat(5,220px);} }
 @media (max-width:760px){ .rail{width:56px !important;} }
 </style>
@@ -83,7 +91,7 @@ button{font-family:var(--font);cursor:pointer;}
       </div>
     </div>
 
-    <div class="board">
+    <div class="board" id="dispatchBoard">
       <div class="col">
         <div class="col-head"><span class="col-title" style="color:var(--danger-fg);">Unassigned</span><span class="count">2</span></div>
         <div class="card">
@@ -109,7 +117,7 @@ button{font-family:var(--font);cursor:pointer;}
       </div>
 
       <div class="col">
-        <div class="col-head"><span class="col-title">Today</span><span class="count">3</span></div>
+        <div class="col-head"><span class="col-title">Scheduled</span><span class="count">3</span></div>
         <div style="border:2px dashed var(--brand);border-radius:8px;height:60px;display:flex;align-items:center;justify-content:center;margin-bottom:10px;">
           <span style="font-size:12px;color:var(--brand);font-weight:600;">Drop job here</span>
         </div>
@@ -199,5 +207,114 @@ button{font-family:var(--font);cursor:pointer;}
     </div>
   </main>
 </div>
+<div class="move-toast" id="dispatchToast" role="status"></div>
+<script>
+(() => {
+  const storageKey = 'jobline-job-updates';
+  const columns = [
+    { key:'Unassigned', meaning:'Waiting for a technician' },
+    { key:'Scheduled', meaning:'Technician and time planned' },
+    { key:'In Progress', meaning:'Work has started' },
+    { key:'Blocked', meaning:'Waiting on parts, access or approval' },
+    { key:'Done', meaning:'Work is complete' }
+  ];
+  const baseJobs = [
+    { customer:'Alvarez Family', description:'AC unit not cooling, urgent', stage:'In Progress', technician:'Marcus Reyes', fee:340, time:'9:00 AM', priority:'High' },
+    { customer:'Meadowbrook HOA', description:'Quarterly irrigation inspection', stage:'Scheduled', technician:'Dana Kim', fee:180, time:'8:30 AM', priority:'Medium' },
+    { customer:'Chen Residence', description:'Water heater leak in garage', stage:'Blocked', technician:'Unassigned', fee:410, time:'Waiting on part', priority:'High' },
+    { customer:'Rosalind Kerr', description:'Add second thermostat zone', stage:'Unassigned', technician:'Unassigned', fee:95, time:'10:30 AM', priority:'Low' },
+    { customer:'Okafor & Sons Bakery', description:'Monthly HVAC filter service', stage:'Scheduled', technician:'Sana Patel', fee:120, time:'2:30 PM', priority:'Medium' },
+    { customer:'Tobias Lindqvist', description:'Cancel fall gutter cleaning', stage:'Done', technician:'Marcus Reyes', fee:0, time:'4:10 PM', priority:'Low' },
+    { customer:'Dana Whitfield', description:"Furnace won't ignite", stage:'In Progress', technician:'Dana Kim', fee:275, time:'Started 9:45 AM', priority:'High' },
+    { customer:'Priya Natarajan', description:'Replace kitchen faucet', stage:'Done', technician:'Sana Patel', fee:210, time:'2:50 PM', priority:'Medium' },
+    { customer:'Marcus Webb', description:'Reschedule sprinkler tune-up', stage:'Scheduled', technician:'Unassigned', fee:150, time:'1:00 PM', priority:'Low' }
+  ];
+  const techProfiles = {
+    'Marcus Reyes': { initials:'MR', bg:'var(--brand-tint-20)', color:'var(--brand)' },
+    'Dana Kim': { initials:'DK', bg:'var(--teal-bg)', color:'var(--teal-fg)' },
+    'Sana Patel': { initials:'SP', bg:'var(--plum-bg)', color:'var(--plum-fg)' }
+  };
+  const priorityColors = { High:'#C4314B', Medium:'#FFB900', Low:'#616161' };
+  const board = document.getElementById('dispatchBoard');
+  const toast = document.getElementById('dispatchToast');
+
+  document.querySelectorAll('[title="Settings"], main .icon-btn').forEach(control => {
+    control.classList.add('demo-hidden');
+    control.setAttribute('aria-hidden', 'true');
+  });
+
+  function readUpdates() {
+    try {
+      const updates = JSON.parse(localStorage.getItem(storageKey) || '{}');
+      Object.values(updates).forEach(update => { if (update.stage === 'New Lead') update.stage = 'Unassigned'; });
+      return updates;
+    }
+    catch { return {}; }
+  }
+  function writeUpdates(updates) {
+    try { localStorage.setItem(storageKey, JSON.stringify(updates)); } catch {}
+  }
+  function boardStatus(job) {
+    if (job.stage === 'New Lead') return 'Unassigned';
+    return columns.some(column => column.key === job.stage) ? job.stage : 'Unassigned';
+  }
+  function showToast(message) {
+    toast.textContent = message;
+    toast.classList.add('show');
+    window.setTimeout(() => toast.classList.remove('show'), 2800);
+  }
+  function cardMarkup(job) {
+    const profile = techProfiles[job.technician];
+    const tech = profile
+      ? `<div class="avatar" style="width:20px;height:20px;font-size:9px;background:${profile.bg};color:${profile.color};">${profile.initials}</div>`
+      : '<div style="width:20px;height:20px;border-radius:50%;border:1.5px dashed var(--stroke1);"></div>';
+    return `<a class="card-link" href="job-detail-drawer.html?customer=${encodeURIComponent(job.customer)}" aria-label="Open ${job.customer} job detail"></a><div class="card-top"><span style="display:flex;align-items:center;gap:6px;"><span style="width:7px;height:7px;border-radius:50%;background:${priorityColors[job.priority]};display:inline-block;"></span><span style="font-size:11px;color:var(--fg3);">${job.time}</span></span></div><p class="card-name">${job.customer}</p><p class="card-desc">${job.description}</p><div class="card-bottom">${tech}<span style="font-size:12px;font-weight:600;color:var(--fg2);">$${Number(job.fee).toLocaleString()}</span></div>`;
+  }
+  function renderBoard() {
+    const updates = readUpdates();
+    const jobs = baseJobs.map(job => ({ ...job, ...(updates[job.customer] || {}) }));
+    board.replaceChildren();
+    columns.forEach(column => {
+      const columnJobs = jobs.filter(job => boardStatus(job) === column.key);
+      const columnEl = document.createElement('section');
+      columnEl.className = 'col';
+      columnEl.dataset.status = column.key;
+      columnEl.setAttribute('aria-label', `${column.key}: ${column.meaning}`);
+      columnEl.innerHTML = `<div class="col-head"><div class="col-head-copy"><div class="col-title">${column.key}</div><div class="col-meaning">${column.meaning}</div></div><span class="count">${columnJobs.length}</span></div>`;
+      columnJobs.forEach(job => {
+        const card = document.createElement('article');
+        card.className = 'card';
+        card.draggable = true;
+        card.dataset.customer = job.customer;
+        if (column.key === 'Done') card.style.opacity = '.6';
+        card.innerHTML = cardMarkup(job);
+        card.addEventListener('dragstart', event => event.dataTransfer.setData('text/plain', job.customer));
+        columnEl.appendChild(card);
+      });
+      columnEl.addEventListener('dragover', event => { event.preventDefault(); columnEl.classList.add('drag-over'); });
+      columnEl.addEventListener('dragleave', () => columnEl.classList.remove('drag-over'));
+      columnEl.addEventListener('drop', event => {
+        event.preventDefault();
+        columnEl.classList.remove('drag-over');
+        const customer = event.dataTransfer.getData('text/plain');
+        const current = jobs.find(job => job.customer === customer);
+        if (!current) return;
+        if ((column.key === 'Scheduled' || column.key === 'In Progress') && current.technician === 'Unassigned') {
+          showToast('Assign a technician before scheduling or starting this job.');
+          return;
+        }
+        const nextStage = column.key;
+        updates[customer] = { ...(updates[customer] || {}), stage:nextStage };
+        if (column.key === 'Unassigned') updates[customer].technician = 'Unassigned';
+        writeUpdates(updates);
+        renderBoard();
+        showToast(`${customer} moved to ${column.key}. Job Queue updated.`);
+      });
+      board.appendChild(columnEl);
+    });
+  }
+  renderBoard();
+})();
+</script>
 </body>
 </html>
