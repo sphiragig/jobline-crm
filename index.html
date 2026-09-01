@@ -455,9 +455,15 @@ input{font-family:var(--font);}
   }
 
   const savedUpdates = readUpdates();
+  let normalizedSavedUpdates = false;
   rows.forEach(row => {
     const saved = savedUpdates[row.dataset.customer];
     if (!saved) return;
+    const effectiveStage = saved.stage || row.dataset.stage;
+    if (saved.technician && saved.technician !== 'Unassigned' && effectiveStage === 'Unassigned') {
+      saved.stage = 'Scheduled';
+      normalizedSavedUpdates = true;
+    }
     const techCell = row.querySelector('[data-tech-cell]');
     if (saved.technician && techCell) {
       const profile = techProfiles[saved.technician];
@@ -473,6 +479,7 @@ input{font-family:var(--font);}
     if (saved.promisedShort) rowCells[9].textContent = saved.promisedShort;
     if (saved.priorityColor) row.querySelector('[data-priority-marker]').style.background = saved.priorityColor;
   });
+  if (normalizedSavedUpdates) writeUpdates(savedUpdates);
 
   const selectedRows = () => rows.filter(row => row.querySelector('.bulk-check')?.checked);
 
@@ -582,6 +589,12 @@ input{font-family:var(--font);}
       } else if (field === 'technician') {
         const profile = techProfiles[value];
         cell.innerHTML = profile ? technicianMarkup(value, profile.initials, profile.bg, profile.color) : unassignedMarkup();
+        if (value !== 'Unassigned' && row.dataset.stage === 'Unassigned') {
+          row.dataset.stage = 'Scheduled';
+          const stageCell = row.querySelector('[data-field="stage"]');
+          renderStage(stageCell, 'Scheduled');
+          saveInlineValue(row, 'stage', 'Scheduled');
+        }
       } else if (field === 'fee') {
         cell.textContent = `$${Number(value || 0).toLocaleString()}`;
       } else cell.textContent = value;
@@ -606,14 +619,23 @@ input{font-family:var(--font);}
   const newJobScrim = document.getElementById('newJobScrim');
   document.getElementById('openNewJobModal').addEventListener('click', () => {
     const frame = document.getElementById('newJobFrame');
-    if (!frame.src) frame.src = frame.dataset.src;
+    if (frame.getAttribute('src') !== frame.dataset.src) frame.setAttribute('src', frame.dataset.src);
     newJobScrim.classList.add('open');
   });
   function closeNewJobModal() { newJobScrim.classList.remove('open'); }
   document.getElementById('closeNewJobModal').addEventListener('click', closeNewJobModal);
   newJobScrim.addEventListener('click', event => { if (event.target === newJobScrim) closeNewJobModal(); });
   document.addEventListener('keydown', event => { if (event.key === 'Escape' && newJobScrim.classList.contains('open')) closeNewJobModal(); });
-  window.addEventListener('message', event => { if (event.data === 'jobline-close-new-job') closeNewJobModal(); });
+  window.addEventListener('message', event => {
+    if (event.data === 'jobline-close-new-job' || event.data?.type === 'jobline-create-job') {
+      closeNewJobModal();
+      if (event.data?.type === 'jobline-create-job') {
+        document.getElementById('bulkToastText').textContent = `New job created for ${event.data.job.customer}`;
+        toast.classList.add('show');
+        window.setTimeout(() => toast.classList.remove('show'), 3200);
+      }
+    }
+  });
 
   function updateSelection() {
     const count = selectedRows().length;
@@ -686,7 +708,12 @@ input{font-family:var(--font);}
       const technicianName = assignments.get(row.dataset.customer);
       const profile = techProfiles[technicianName];
       techCell.innerHTML = technicianMarkup(technicianName, profile.initials, profile.bg, profile.color);
-      updates[row.dataset.customer] = { ...(updates[row.dataset.customer] || {}), technician: technicianName, ...profile };
+      const shouldSchedule = row.dataset.stage === 'Unassigned';
+      if (shouldSchedule) {
+        row.dataset.stage = 'Scheduled';
+        renderStage(row.querySelector('[data-field="stage"]'), 'Scheduled');
+      }
+      updates[row.dataset.customer] = { ...(updates[row.dataset.customer] || {}), technician: technicianName, ...profile, ...(shouldSchedule ? { stage:'Scheduled' } : {}) };
     });
     writeUpdates(updates);
     document.getElementById('bulkToastText').textContent = `${chosenRows.length} ${chosenRows.length === 1 ? 'job' : 'jobs'} assigned successfully`;

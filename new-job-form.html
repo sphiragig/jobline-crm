@@ -40,9 +40,20 @@ button{font-family:var(--font);cursor:pointer;}
 .field-link{position:absolute;inset:0;}
 @media (max-width:1180px){ main{padding:20px !important;} .formcol{max-width:100% !important;} }
 @media (max-width:760px){ .rail{width:56px !important;} .grid2{grid-template-columns:1fr;} }
-body.modal-mode .rail{display:none;}
-body.modal-mode main{padding:20px !important;}
+body.modal-mode .rail{display:none !important;}
+body.modal-mode main{padding:20px !important;background:#fff;}
 body.modal-mode .formcol{max-width:720px !important;}
+body.modal-mode>div{min-height:auto !important;background:#fff !important;}
+.modal-job-form{display:flex;flex-direction:column;gap:18px;}
+.modal-section{border:1px solid var(--stroke2);border-radius:8px;padding:20px;background:#fff;}
+.modal-section h3{margin:0 0 16px;font-size:15px;}
+.modal-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.modal-field{display:flex;flex-direction:column;gap:6px;font-size:12px;font-weight:600;color:var(--fg2);}
+.modal-field.full{grid-column:1/-1;}
+.modal-field input,.modal-field select,.modal-field textarea{width:100%;border:1px solid var(--stroke1);border-radius:5px;background:#fff;color:var(--fg1);font:inherit;font-weight:400;padding:9px 10px;}
+.modal-field input,.modal-field select{height:38px;}.modal-field textarea{min-height:76px;resize:vertical;}
+.modal-actions{display:flex;justify-content:flex-end;gap:8px;position:sticky;bottom:0;background:#fff;padding:10px 0 2px;}
+.modal-primary{height:36px;padding:0 18px;border:0;border-radius:4px;background:var(--brand);color:#fff;font-weight:600;}
 @media (max-width:600px){body.modal-mode main{padding:14px !important;}.card{padding:18px;}.seg{flex-wrap:wrap;}.seg-opt{min-width:45%;}}
 </style>
 </head>
@@ -189,14 +200,32 @@ body.modal-mode .formcol{max-width:720px !important;}
 (() => {
   if (new URLSearchParams(window.location.search).get('modal') !== '1') return;
   document.body.classList.add('modal-mode');
-  document.querySelectorAll('a').forEach(link => {
-    const label = link.textContent.trim();
-    if (label === 'Cancel' || label === 'Create Job') {
-      link.addEventListener('click', event => {
-        event.preventDefault();
-        window.parent.postMessage('jobline-close-new-job', '*');
-      });
-    }
+  const formColumn = document.querySelector('.formcol');
+  formColumn.innerHTML = `<form class="modal-job-form" id="modalJobForm">
+    <section class="modal-section"><h3>Customer</h3><div class="modal-grid">
+      <label class="modal-field full">Customer<input name="customer" required placeholder="Search or enter customer"></label>
+      <label class="modal-field">Service address<input name="address" placeholder="Enter service address"></label>
+      <label class="modal-field">Territory<select name="territory"><option value="">Select territory</option><option>Fairview Heights</option><option>Meadowbrook</option><option>Riverside</option><option>Downtown</option></select></label>
+    </div></section>
+    <section class="modal-section"><h3>Job details</h3><div class="modal-grid">
+      <label class="modal-field">Job type<select name="type" required><option value="">Select job type</option><option>New Job</option><option>Recurring Visit</option><option>Change Request</option><option>Cancellation</option></select></label>
+      <label class="modal-field">Priority<select name="priority" required><option value="">Select priority</option><option>Low</option><option>Medium</option><option>High</option></select></label>
+      <label class="modal-field">Assigned technician<select name="technician"><option value="Unassigned">Unassigned</option><option>Marcus Reyes</option><option>Dana Kim</option><option>Sana Patel</option></select></label>
+      <label class="modal-field">Promised date<input name="promised" type="date"></label>
+      <label class="modal-field">Time window<select name="time"><option value="">Select time window</option><option>8 AM-12 PM</option><option>12-4 PM</option><option>4-8 PM</option></select></label>
+      <label class="modal-field full">Description<textarea name="description" required placeholder="Describe the requested work"></textarea></label>
+    </div></section>
+    <section class="modal-section"><h3>Pricing</h3><div class="modal-grid">
+      <label class="modal-field">Job fee<input name="fee" type="number" min="0" placeholder="$0"></label>
+      <label class="modal-field">Estimated duration<select name="duration"><option value="">Select duration</option><option>1 hour</option><option>2 hours</option><option>Half day</option><option>Full day</option></select></label>
+    </div></section>
+    <div class="modal-actions"><button class="ghost-btn" id="modalCancel" type="button">Cancel</button><button class="modal-primary" type="submit">Create Job</button></div>
+  </form>`;
+  document.getElementById('modalCancel').addEventListener('click', () => window.parent.postMessage('jobline-close-new-job', '*'));
+  document.getElementById('modalJobForm').addEventListener('submit', event => {
+    event.preventDefault();
+    const data = Object.fromEntries(new FormData(event.currentTarget));
+    window.parent.postMessage({ type:'jobline-create-job', job:data }, '*');
   });
 })();
 </script>

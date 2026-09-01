@@ -255,7 +255,8 @@ button{font-family:var(--font);cursor:pointer;}
     try { localStorage.setItem(storageKey, JSON.stringify(updates)); } catch {}
   }
   function boardStatus(job) {
-    if (job.stage === 'New Lead') return 'Unassigned';
+    if (!job.technician || job.technician === 'Unassigned') return 'Unassigned';
+    if (job.stage === 'New Lead' || job.stage === 'Unassigned') return 'Scheduled';
     return columns.some(column => column.key === job.stage) ? job.stage : 'Unassigned';
   }
   function showToast(message) {
@@ -273,6 +274,15 @@ button{font-family:var(--font);cursor:pointer;}
   function renderBoard() {
     const updates = readUpdates();
     const jobs = baseJobs.map(job => ({ ...job, ...(updates[job.customer] || {}) }));
+    let normalized = false;
+    jobs.forEach(job => {
+      if (job.technician && job.technician !== 'Unassigned' && (job.stage === 'New Lead' || job.stage === 'Unassigned')) {
+        job.stage = 'Scheduled';
+        updates[job.customer] = { ...(updates[job.customer] || {}), stage:'Scheduled' };
+        normalized = true;
+      }
+    });
+    if (normalized) writeUpdates(updates);
     board.replaceChildren();
     columns.forEach(column => {
       const columnJobs = jobs.filter(job => boardStatus(job) === column.key);
