@@ -183,13 +183,19 @@ button{font-family:var(--font);cursor:pointer;}
     'Marcus Webb': { initials:'MW', since:'Sep 2023', territory:'Meadowbrook', plan:'Active Plan', planName:'Landscape Seasonal Care', rate:'$52 / mo', next:'Sep 5, 2026', renewal:'Sep 1, 2027', jobs:16, revenue:5240, rating:'4.8', contact:'Marcus Webb', phone:'(312) 555-0157', email:'marcus.webb@fairviewmail.com', address:'930 Crestline Way, Fairview Heights, IL 60443', note:'Gate code is provided in the active work order.', current:{ description:'Reschedule sprinkler tune-up', type:'Change Request', stage:'Scheduled', date:'Sep 5, 2026', fee:150 } }
   };
   const requested = new URLSearchParams(window.location.search).get('customer');
+  let allCreatedJobs = [];
+  try { allCreatedJobs = JSON.parse(localStorage.getItem('jobline-created-jobs') || '[]'); } catch {}
+  const firstCreatedForRequested = allCreatedJobs.find(job => job.customer === requested);
+  const generatedCustomerProfile = Boolean(requested && !profiles[requested] && firstCreatedForRequested);
+  if (requested && !profiles[requested] && firstCreatedForRequested) {
+    const initials = requested.split(/\s+/).map(part => part[0]).join('').slice(0, 2).toUpperCase();
+    profiles[requested] = { initials, since:'Sep 2026', territory:firstCreatedForRequested.territory, plan:'No Plan', planName:'No active plan', rate:'—', next:firstCreatedForRequested.promisedLabel?.split(' · ')[0] || 'TBD', renewal:'—', jobs:0, revenue:0, rating:'—', contact:requested, phone:'Not provided', email:'Not provided', address:firstCreatedForRequested.address, note:'Customer created from the New Job workflow.', current:{ description:firstCreatedForRequested.description, type:firstCreatedForRequested.type, stage:firstCreatedForRequested.stage, date:firstCreatedForRequested.promisedShort || 'TBD', fee:Number(firstCreatedForRequested.fee || 0) } };
+  }
   const customer = profiles[requested] ? requested : 'Alvarez Family';
   const profile = profiles[customer];
   let updates = {};
   try { updates = JSON.parse(localStorage.getItem('jobline-job-updates') || '{}'); } catch {}
-  let createdJobs = [];
-  try { createdJobs = JSON.parse(localStorage.getItem('jobline-created-jobs') || '[]'); } catch {}
-  const customerCreatedJobs = createdJobs.filter(job => job.customer === customer).map(job => ({
+  const customerCreatedJobs = allCreatedJobs.filter(job => job.customer === customer).map(job => ({
     ...job,
     ...(updates[job.id] || {}),
     date:(updates[job.id]?.promisedLabel || job.promisedLabel || 'TBD').split(' · ')[0]
@@ -227,7 +233,7 @@ button{font-family:var(--font);cursor:pointer;}
 
   const history = [
     ...customerCreatedJobs,
-    current,
+    ...(generatedCustomerProfile ? [] : [current]),
     { description:'Routine service follow-up', type:'Recurring Visit', stage:'Scheduled', date:'Sep 15, 2026', fee:145 },
     { description:'Completed equipment repair', type:'New Job', stage:'Done', date:'Jul 22, 2026', fee:410 },
     { description:'Service change request', type:'Change Request', stage:'Done', date:'Jun 2, 2026', fee:260 },

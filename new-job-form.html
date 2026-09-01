@@ -203,21 +203,21 @@ body.modal-mode>div{min-height:auto !important;background:#fff !important;}
   const formColumn = document.querySelector('.formcol');
   formColumn.innerHTML = `<form class="modal-job-form" id="modalJobForm">
     <section class="modal-section"><h3>Customer</h3><div class="modal-grid">
-      <label class="modal-field full">Customer<select name="customer" id="modalCustomer" required><option value="">Select customer</option><option>Alvarez Family</option><option>Meadowbrook HOA</option><option>Chen Residence</option><option>Rosalind Kerr</option><option>Okafor &amp; Sons Bakery</option><option>Dana Whitfield</option><option>Priya Natarajan</option><option>Tobias Lindqvist</option><option>Marcus Webb</option></select></label>
-      <label class="modal-field">Service address<input name="address" id="modalAddress" readonly placeholder="Auto-filled from customer"></label>
-      <label class="modal-field">Territory<input name="territory" id="modalTerritory" readonly placeholder="Auto-filled from customer"></label>
+      <label class="modal-field full">Customer<input name="customer" id="modalCustomer" required autocomplete="off" placeholder="Enter customer or business name"></label>
+      <label class="modal-field">Service address<input name="address" id="modalAddress" required placeholder="Enter service address"></label>
+      <label class="modal-field">Territory<input name="territory" id="modalTerritory" required placeholder="Enter territory"></label>
     </div></section>
     <section class="modal-section"><h3>Job details</h3><div class="modal-grid">
       <label class="modal-field">Job type<select name="type" required><option value="">Select job type</option><option>New Job</option><option>Recurring Visit</option><option>Change Request</option><option>Cancellation</option></select></label>
       <label class="modal-field">Priority<select name="priority" required><option value="">Select priority</option><option>Low</option><option>Medium</option><option>High</option></select></label>
       <label class="modal-field">Assigned technician<select name="technician"><option value="Unassigned">Unassigned</option><option>Marcus Reyes</option><option>Dana Kim</option><option>Sana Patel</option></select></label>
-      <label class="modal-field">Promised date<input name="promised" type="date"></label>
-      <label class="modal-field">Time window<select name="time"><option value="">Select time window</option><option>8 AM-12 PM</option><option>12-4 PM</option><option>4-8 PM</option></select></label>
+      <label class="modal-field">Promised date<input name="promised" type="date" required></label>
+      <label class="modal-field">Time window<select name="time" required><option value="">Select time window</option><option>8 AM-12 PM</option><option>12-4 PM</option><option>4-8 PM</option></select></label>
       <label class="modal-field full">Description<textarea name="description" required placeholder="Describe the requested work"></textarea></label>
     </div></section>
     <section class="modal-section"><h3>Pricing</h3><div class="modal-grid">
-      <label class="modal-field">Job fee<input name="fee" type="number" min="0" placeholder="$0"></label>
-      <label class="modal-field">Estimated duration<select name="duration"><option value="">Select duration</option><option>1 hour</option><option>2 hours</option><option>Half day</option><option>Full day</option></select></label>
+      <label class="modal-field">Job fee<input name="fee" type="number" min="0" required placeholder="$0"></label>
+      <label class="modal-field">Estimated duration<select name="duration" required><option value="">Select duration</option><option>1 hour</option><option>2 hours</option><option>Half day</option><option>Full day</option></select></label>
     </div></section>
     <div class="modal-actions"><button class="ghost-btn" id="modalCancel" type="button">Cancel</button><button class="modal-primary" type="submit">Create Job</button></div>
   </form>`;
@@ -232,10 +232,17 @@ body.modal-mode>div{min-height:auto !important;background:#fff !important;}
     'Tobias Lindqvist':['61 Alder Avenue, Fairview Heights, IL 60443','Northside'],
     'Marcus Webb':['930 Crestline Way, Fairview Heights, IL 60443','Meadowbrook']
   };
-  document.getElementById('modalCustomer').addEventListener('change', event => {
-    const details = customers[event.target.value] || ['', ''];
-    document.getElementById('modalAddress').value = details[0];
-    document.getElementById('modalTerritory').value = details[1];
+  document.getElementById('modalCustomer').addEventListener('input', event => {
+    const typedName = event.target.value.trim().toLowerCase();
+    const matchedName = Object.keys(customers).find(name => name.toLowerCase() === typedName);
+    const details = matchedName ? customers[matchedName] : null;
+    if (details) {
+      document.getElementById('modalAddress').value = details[0];
+      document.getElementById('modalTerritory').value = details[1];
+    } else {
+      document.getElementById('modalAddress').value = '';
+      document.getElementById('modalTerritory').value = '';
+    }
   });
   document.getElementById('modalCancel').addEventListener('click', () => window.parent.postMessage('jobline-close-new-job', '*'));
   document.getElementById('modalJobForm').addEventListener('submit', event => {
