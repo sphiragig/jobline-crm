@@ -34,10 +34,10 @@ input{font-family:var(--font);}
 .ghost-btn:hover{background:var(--nbg-hover);}
 .icon-btn{width:32px;height:32px;border-radius:999px;border:1px solid var(--stroke1);background:var(--nbg1);color:var(--fg2);display:flex;align-items:center;justify-content:center;cursor:pointer;}
 .badge{display:inline-flex;align-items:center;padding:3px 10px;border-radius:999px;font-size:12px;font-weight:600;line-height:16px;white-space:nowrap;}
-.jq-row{position:relative;display:grid;grid-template-columns:32px 158px minmax(200px,1fr) 128px 116px 168px 76px 64px 84px;gap:12px;align-items:center;padding:0 16px;height:52px;border-bottom:1px solid var(--stroke2);}
+.jq-row{position:relative;display:grid;grid-template-columns:32px 150px minmax(190px,1fr) 116px 118px 104px 156px 72px 56px 78px;gap:10px;align-items:center;padding:0 16px;height:52px;border-bottom:1px solid var(--stroke2);}
 .jq-row:hover{background:var(--nbg2);}
 .row-link{position:absolute;inset:0;}
-.jq-head{display:grid;grid-template-columns:32px 158px minmax(200px,1fr) 128px 116px 168px 76px 64px 84px;gap:12px;padding:0 16px;height:40px;align-items:center;border-bottom:1px solid var(--stroke2);}
+.jq-head{display:grid;grid-template-columns:32px 150px minmax(190px,1fr) 116px 118px 104px 156px 72px 56px 78px;gap:10px;padding:0 16px;height:40px;align-items:center;border-bottom:1px solid var(--stroke2);}
 .th{font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--fg3);}
 .avatar{border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;flex-shrink:0;}
 .bulk-check{width:16px;height:16px;accent-color:var(--brand);position:relative;z-index:2;cursor:pointer;}
@@ -79,7 +79,7 @@ input{font-family:var(--font);}
   main{padding:20px !important;}
   .toolbar-left span.lbl{display:none;}
   .jq-table-wrap{overflow-x:auto;}
-  .jq-row,.jq-head{width:1060px;}
+  .jq-row,.jq-head{width:1180px;}
   .top-search{width:200px !important;}
 }
 @media (max-width:760px){
@@ -157,6 +157,7 @@ input{font-family:var(--font);}
         <span class="th">Customer</span>
         <span class="th">Description</span>
         <span class="th">Type</span>
+        <span class="th">Created</span>
         <span class="th">Stage</span>
         <span class="th">Dispatch / Tech</span>
         <span class="th" style="text-align:right;">Fee</span>
@@ -365,15 +366,25 @@ input{font-family:var(--font);}
   }
   const createdJobs = readCreatedJobs();
   const tableWrap = document.querySelector('.jq-table-wrap');
+  const staticCreated = ['Sep 1, 8:10 AM','Aug 31, 2:20 PM','Aug 26, 11:05 AM','Sep 1, 9:30 AM','Aug 29, 1:15 PM','Aug 27, 4:40 PM','Sep 1, 7:50 AM','Aug 26, 3:05 PM','Aug 30, 10:25 AM'];
+  const staticCreatedValues = ['2026-09-01T08:10','2026-08-31T14:20','2026-08-26T11:05','2026-09-01T09:30','2026-08-29T13:15','2026-08-27T16:40','2026-09-01T07:50','2026-08-26T15:05','2026-08-30T10:25'];
+  [...tableWrap.querySelectorAll('.jq-row')].forEach((row, index) => {
+    const createdCell = document.createElement('span');
+    createdCell.style.cssText = 'font-size:12px;color:var(--fg2);';
+    createdCell.textContent = staticCreated[index];
+    createdCell.dataset.sortValue = staticCreatedValues[index];
+    row.insertBefore(createdCell, row.children[5]);
+  });
   const priorityColors = { High:'#C4314B', Medium:'#FFB900', Low:'#616161' };
-  createdJobs.forEach(job => {
+  [...createdJobs].reverse().forEach(job => {
     const profile = { 'Marcus Reyes':['MR','var(--brand-tint-20)','var(--brand)'], 'Dana Kim':['DK','var(--teal-bg)','var(--teal-fg)'], 'Sana Patel':['SP','var(--plum-bg)','var(--plum-fg)'] }[job.technician];
     const tech = profile ? `<div class="avatar" style="width:22px;height:22px;font-size:10px;background:${profile[1]};color:${profile[2]};">${profile[0]}</div><span style="font-size:13px;color:var(--fg2);">${escapeHtml(job.technician)}</span>` : `<div style="width:22px;height:22px;border-radius:50%;border:1.5px dashed var(--stroke1);"></div><span style="font-size:13px;color:var(--danger-fg);font-weight:600;">Unassigned</span>`;
     const row = document.createElement('div');
     row.className = 'jq-row';
     row.dataset.jobKey = job.id;
-    row.innerHTML = `<a class="row-link" href="job-detail-drawer.html?customer=${encodeURIComponent(job.customer)}&job=${encodeURIComponent(job.id)}" aria-label="Open ${escapeHtml(job.customer)} job detail"></a><span style="width:8px;height:8px;border-radius:50%;background:${priorityColors[job.priority] || priorityColors.Medium};display:inline-block;"></span><span style="font-size:14px;font-weight:600;color:var(--fg1);">${escapeHtml(job.customer)}</span><span style="font-size:13px;color:var(--fg2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escapeHtml(job.description)}</span><span style="font-size:13px;color:var(--fg3);">${escapeHtml(job.type)}</span><span class="badge">${escapeHtml(job.stage)}</span><div style="display:flex;align-items:center;gap:8px;">${tech}</div><span style="font-size:13px;font-weight:600;text-align:right;">$${Number(job.fee || 0).toLocaleString()}</span><span style="font-size:13px;color:var(--fg2);text-align:right;">0d</span><span style="font-size:13px;color:var(--fg2);">${escapeHtml(job.promisedShort || 'TBD')}</span>`;
-    tableWrap.appendChild(row);
+    const createdLabel = new Date(job.createdAt).toLocaleString('en-US', { month:'short', day:'numeric', hour:'numeric', minute:'2-digit' });
+    row.innerHTML = `<a class="row-link" href="job-detail-drawer.html?customer=${encodeURIComponent(job.customer)}&job=${encodeURIComponent(job.id)}" aria-label="Open ${escapeHtml(job.customer)} job detail"></a><span style="width:8px;height:8px;border-radius:50%;background:${priorityColors[job.priority] || priorityColors.Medium};display:inline-block;"></span><span style="font-size:14px;font-weight:600;color:var(--fg1);">${escapeHtml(job.customer)}</span><span style="font-size:13px;color:var(--fg2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escapeHtml(job.description)}</span><span style="font-size:13px;color:var(--fg3);">${escapeHtml(job.type)}</span><span data-sort-value="${escapeHtml(job.createdAt)}" style="font-size:12px;color:var(--fg2);">${escapeHtml(createdLabel)}</span><span class="badge">${escapeHtml(job.stage)}</span><div style="display:flex;align-items:center;gap:8px;">${tech}</div><span style="font-size:13px;font-weight:600;text-align:right;">$${Number(job.fee || 0).toLocaleString()}</span><span style="font-size:13px;color:var(--fg2);text-align:right;">0d</span><span style="font-size:13px;color:var(--fg2);">${escapeHtml(job.promisedShort || 'TBD')}</span>`;
+    tableWrap.insertBefore(row, tableWrap.children[1]);
   });
   const rows = [...document.querySelectorAll('.jq-row')];
   const queueSubtitle = document.querySelector('h1 + p');
@@ -419,6 +430,7 @@ input{font-family:var(--font);}
   function renderStage(cell, stage) {
     const styles = {
       'Unassigned': ['var(--neutral-bg)', 'var(--neutral-fg)'],
+      'New': ['var(--brand-tint-20)', 'var(--brand)'],
       'Scheduled': ['var(--brand-tint-20)', 'var(--brand)'],
       'In Progress': ['var(--warning-bg)', 'var(--warning-fg)'],
       'Blocked': ['var(--danger-bg)', 'var(--danger-fg)'],
@@ -431,8 +443,8 @@ input{font-family:var(--font);}
   rows.forEach((row, index) => {
     const cells = [...row.children];
     const priority = cells[1];
-    const techCell = cells[6];
-    const stageCell = cells[5];
+    const techCell = cells[7];
+    const stageCell = cells[6];
     const customer = cells[2]?.textContent.trim() || `Job ${index + 1}`;
     if (!priority || !techCell) return;
     row.dataset.customer = customer;
@@ -445,8 +457,8 @@ input{font-family:var(--font);}
     cells[3].dataset.field = 'description';
     stageCell.dataset.field = 'stage';
     techCell.dataset.field = 'technician';
-    cells[7].dataset.field = 'fee';
-    [cells[3], stageCell, techCell, cells[7]].forEach(cell => cell.classList.add('inline-editable'));
+    cells[8].dataset.field = 'fee';
+    [cells[3], stageCell, techCell, cells[8]].forEach(cell => cell.classList.add('inline-editable'));
     priority.dataset.priorityMarker = 'true';
     priority.style.display = 'none';
     const checkbox = document.createElement('input');
@@ -483,7 +495,7 @@ input{font-family:var(--font);}
     const saved = savedUpdates[row.dataset.jobKey];
     if (!saved) return;
     const effectiveStage = saved.stage || row.dataset.stage;
-    if (saved.technician && saved.technician !== 'Unassigned' && effectiveStage === 'Unassigned') {
+    if (saved.technician && saved.technician !== 'Unassigned' && (effectiveStage === 'Unassigned' || effectiveStage === 'New')) {
       saved.stage = 'Scheduled';
       normalizedSavedUpdates = true;
     }
@@ -496,10 +508,10 @@ input{font-family:var(--font);}
     if (saved.description) rowCells[3].textContent = saved.description;
     if (saved.stage) {
       row.dataset.stage = saved.stage;
-      renderStage(rowCells[5], saved.stage);
+      renderStage(rowCells[6], saved.stage);
     }
-    if (saved.fee != null) rowCells[7].textContent = `$${Number(saved.fee).toLocaleString()}`;
-    if (saved.promisedShort) rowCells[9].textContent = saved.promisedShort;
+    if (saved.fee != null) rowCells[8].textContent = `$${Number(saved.fee).toLocaleString()}`;
+    if (saved.promisedShort) rowCells[10].textContent = saved.promisedShort;
     if (saved.priorityColor) row.querySelector('[data-priority-marker]').style.background = saved.priorityColor;
   });
   if (normalizedSavedUpdates) writeUpdates(savedUpdates);
@@ -552,7 +564,7 @@ input{font-family:var(--font);}
     });
   });
 
-  const sortCellMap = { 1: 2, 2: 3, 3: 4, 4: 5, 5: 6, 6: 7, 7: 8, 8: 9 };
+  const sortCellMap = { 1: 2, 2: 3, 3: 4, 4: 5, 5: 6, 6: 7, 7: 8, 8: 9, 9: 10 };
   let sortState = { column: -1, direction: 1 };
   document.querySelectorAll('.jq-head .th').forEach((header, headerIndex) => {
     if (headerIndex === 0) return;
@@ -573,9 +585,9 @@ input{font-family:var(--font);}
       rows.sort((a, b) => {
         const aCells = [...a.children].filter(el => !el.classList.contains('bulk-check'));
         const bCells = [...b.children].filter(el => !el.classList.contains('bulk-check'));
-        let av = aCells[cellIndex].textContent.trim().replace(/[$,]/g, '');
-        let bv = bCells[cellIndex].textContent.trim().replace(/[$,]/g, '');
-        if (headerIndex === 6 || headerIndex === 7) { av = parseFloat(av) || 0; bv = parseFloat(bv) || 0; }
+        let av = (aCells[cellIndex].dataset.sortValue || aCells[cellIndex].textContent).trim().replace(/[$,]/g, '');
+        let bv = (bCells[cellIndex].dataset.sortValue || bCells[cellIndex].textContent).trim().replace(/[$,]/g, '');
+        if (headerIndex === 7 || headerIndex === 8) { av = parseFloat(av) || 0; bv = parseFloat(bv) || 0; }
         return (typeof av === 'number' ? av - bv : av.localeCompare(bv)) * sortState.direction;
       });
       const table = document.querySelector('.jq-table-wrap');
@@ -597,7 +609,7 @@ input{font-family:var(--font);}
     const control = field === 'stage' || field === 'technician' ? document.createElement('select') : document.createElement('input');
     control.className = 'inline-control';
     if (field === 'stage') {
-      ['Unassigned', 'Scheduled', 'In Progress', 'Blocked', 'Done'].forEach(value => control.add(new Option(value, value, false, value === row.dataset.stage)));
+      ['New', 'Scheduled', 'In Progress', 'Blocked', 'Done'].forEach(value => control.add(new Option(value, value, false, value === row.dataset.stage)));
     } else if (field === 'technician') {
       ['Unassigned', 'Marcus Reyes', 'Dana Kim', 'Sana Patel'].forEach(value => control.add(new Option(value, value, false, value === current)));
     } else {
@@ -613,7 +625,7 @@ input{font-family:var(--font);}
       } else if (field === 'technician') {
         const profile = techProfiles[value];
         cell.innerHTML = profile ? technicianMarkup(value, profile.initials, profile.bg, profile.color) : unassignedMarkup();
-        if (value !== 'Unassigned' && row.dataset.stage === 'Unassigned') {
+        if (value !== 'Unassigned' && (row.dataset.stage === 'Unassigned' || row.dataset.stage === 'New')) {
           row.dataset.stage = 'Scheduled';
           const stageCell = row.querySelector('[data-field="stage"]');
           renderStage(stageCell, 'Scheduled');
@@ -734,7 +746,7 @@ input{font-family:var(--font);}
       const technicianName = assignments.get(row.dataset.jobKey);
       const profile = techProfiles[technicianName];
       techCell.innerHTML = technicianMarkup(technicianName, profile.initials, profile.bg, profile.color);
-      const shouldSchedule = row.dataset.stage === 'Unassigned';
+      const shouldSchedule = row.dataset.stage === 'Unassigned' || row.dataset.stage === 'New';
       if (shouldSchedule) {
         row.dataset.stage = 'Scheduled';
         renderStage(row.querySelector('[data-field="stage"]'), 'Scheduled');

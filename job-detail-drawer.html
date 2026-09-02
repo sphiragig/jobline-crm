@@ -218,6 +218,7 @@ button{font-family:var(--font);cursor:pointer;}
       <div style="height:1px;background:var(--stroke2);margin:20px 0;"></div>
       <h3 class="sec-label">Job Info</h3>
       <div class="drawer-row"><span class="drawer-lbl">Type</span><span class="drawer-val" id="drawerTypeValue">New Job</span></div>
+      <div class="drawer-row"><span class="drawer-lbl">Created</span><span class="drawer-val" id="drawerCreatedValue">Sep 1, 2026 · 8:10 AM</span></div>
       <div class="drawer-row"><span class="drawer-lbl">Priority</span><span class="drawer-val" style="flex:1;"><strong class="editable-value" id="priorityValue">High</strong><select class="edit-control" id="priorityInput"><option>Low</option><option>Medium</option><option selected>High</option></select></span></div>
       <div class="drawer-row"><span class="drawer-lbl">Promised date</span><span class="drawer-val" style="flex:1;"><strong class="editable-value" id="promisedValue">Sep 3, 2026 &middot; 12-4 PM</strong><div class="edit-control" style="padding:0;border:0;"><input id="promisedDateInput" type="date" value="2026-09-03" style="width:100%;height:34px;border:1px solid var(--stroke1);border-radius:6px;padding:0 9px;"><select id="promisedTimeInput" style="width:100%;height:34px;margin-top:6px;border:1px solid var(--stroke1);border-radius:6px;padding:0 9px;"><option>8 AM-12 PM</option><option selected>12-4 PM</option><option>Any time</option></select></div></span></div>
       <div class="drawer-row"><span class="drawer-lbl">Address</span><span class="drawer-val" style="flex:1;"><strong class="editable-value" id="addressValue">214 Sycamore Lane, Unit B, Fairview Heights</strong><textarea class="edit-control" id="addressInput" rows="3">214 Sycamore Lane, Unit B, Fairview Heights</textarea></span></div>
@@ -337,6 +338,7 @@ button{font-family:var(--font);cursor:pointer;}
       'Blocked': ['var(--danger-bg)', 'var(--danger-fg)'],
       'Done': ['var(--success-bg)', 'var(--success-fg)'],
       'Unassigned': ['var(--neutral-bg)', 'var(--neutral-fg)']
+      ,'New': ['var(--brand-tint-20)', 'var(--brand)']
     };
     const colors = styles[stage] || styles['Unassigned'];
     badge.textContent = stage;
@@ -377,6 +379,7 @@ button{font-family:var(--font);cursor:pointer;}
     document.getElementById('drawerCustomerName').href = `customer-detail.html?customer=${encodeURIComponent(customer)}`;
     document.getElementById('drawerJobMeta').textContent = `Job #${record.id} · ${record.type}`;
     document.getElementById('drawerTypeValue').textContent = record.type;
+    document.getElementById('drawerCreatedValue').textContent = record.createdAt ? new Date(record.createdAt).toLocaleString('en-US', { month:'short', day:'numeric', year:'numeric', hour:'numeric', minute:'2-digit' }) : 'Created before Sep 2026';
     setStageBadge(record.stage);
     document.getElementById('priorityValue').textContent = record.priority;
     document.getElementById('priorityInput').value = record.priority;
@@ -453,7 +456,8 @@ button{font-family:var(--font);cursor:pointer;}
     const name = document.getElementById('drawerTechnicianInput').value;
     const profile = techProfiles[name];
     const updates = readUpdates();
-    updates[jobKey] = { ...(updates[jobKey] || {}), technician: name, ...profile };
+    const currentStage = { ...jobs[customer], ...(updates[jobKey] || {}) }.stage;
+    updates[jobKey] = { ...(updates[jobKey] || {}), technician: name, ...profile, ...((currentStage === 'New' || currentStage === 'Unassigned') ? { stage:'Scheduled' } : {}) };
     writeUpdates(updates);
     applyRecordValues();
     document.getElementById('drawerReassignControls').style.display = 'none';

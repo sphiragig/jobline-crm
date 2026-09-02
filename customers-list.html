@@ -176,6 +176,25 @@ button{font-family:var(--font);cursor:pointer;}
 </div>
 <script>
 (() => {
+  const grid = document.querySelector('.cust-grid');
+  const existingNames = new Set([...grid.querySelectorAll('.card-link')].map(link => link.getAttribute('aria-label').replace(/^Open /, '').replace(/ profile$/, '').replace('Okafor and Sons Bakery', 'Okafor & Sons Bakery')));
+  let createdJobs = [];
+  try { createdJobs = JSON.parse(localStorage.getItem('jobline-created-jobs') || '[]'); } catch {}
+  const newCustomers = new Map();
+  createdJobs.forEach(job => {
+    if (!existingNames.has(job.customer) && !newCustomers.has(job.customer)) newCustomers.set(job.customer, []);
+    if (newCustomers.has(job.customer)) newCustomers.get(job.customer).push(job);
+  });
+  const escapeHtml = value => String(value ?? '').replace(/[&<>"']/g, char => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
+  [...newCustomers.entries()].reverse().forEach(([customer, jobs]) => {
+    const first = jobs[0];
+    const initials = customer.split(/\s+/).map(part => part[0]).join('').slice(0, 2).toUpperCase();
+    const revenue = jobs.reduce((sum, job) => sum + Number(job.fee || 0), 0);
+    const card = document.createElement('div');
+    card.className = 'cust-card';
+    card.innerHTML = `<a class="card-link" href="customer-detail.html?customer=${encodeURIComponent(customer)}" aria-label="Open ${escapeHtml(customer)} profile"></a><div style="display:flex;gap:12px;align-items:center;"><div class="avatar" style="width:48px;height:48px;font-size:16px;background:var(--brand-tint-20);color:var(--brand);">${escapeHtml(initials)}</div><div><div style="font-size:16px;font-weight:600;color:var(--fg1);">${escapeHtml(customer)}</div><div style="font-size:12px;color:var(--fg3);margin-top:2px;">New customer · ${escapeHtml(first.city || '')}, ${escapeHtml(first.state || '')}</div></div></div><span class="badge" style="background:var(--neutral-bg);color:var(--neutral-fg);margin-top:14px;">No Plan</span><div style="height:1px;background:var(--stroke2);margin:16px 0;"></div><div class="stat3"><div><div class="stat-num">${jobs.length}</div><div class="stat-lbl">Lifetime Jobs</div></div><div><div class="stat-num">$${revenue.toLocaleString()}</div><div class="stat-lbl">Lifetime Revenue</div></div><div><div class="stat-num">—</div><div class="stat-lbl">Rating</div></div></div>`;
+    grid.insertBefore(card, grid.firstChild);
+  });
   const cards = [...document.querySelectorAll('.cust-card')];
   cards.forEach(card => {
     const link = card.querySelector('.card-link');

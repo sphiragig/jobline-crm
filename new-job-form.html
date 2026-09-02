@@ -204,8 +204,11 @@ body.modal-mode>div{min-height:auto !important;background:#fff !important;}
   formColumn.innerHTML = `<form class="modal-job-form" id="modalJobForm">
     <section class="modal-section"><h3>Customer</h3><div class="modal-grid">
       <label class="modal-field full">Customer<input name="customer" id="modalCustomer" required autocomplete="off" placeholder="Enter customer or business name"></label>
-      <label class="modal-field">Service address<input name="address" id="modalAddress" required placeholder="Enter service address"></label>
-      <label class="modal-field">Territory<input name="territory" id="modalTerritory" required placeholder="Enter territory"></label>
+      <label class="modal-field full">Street address<input name="street" id="modalStreet" required placeholder="Enter street address"></label>
+      <label class="modal-field">City<input name="city" id="modalCity" required placeholder="Enter city"></label>
+      <label class="modal-field">State<input name="state" id="modalState" required maxlength="2" placeholder="IL"></label>
+      <label class="modal-field">ZIP code<input name="zip" id="modalZip" required inputmode="numeric" pattern="[0-9]{5}(-[0-9]{4})?" placeholder="60443"></label>
+      <label class="modal-field">Created date &amp; time<input name="createdLocal" id="modalCreated" type="datetime-local" required></label>
     </div></section>
     <section class="modal-section"><h3>Job details</h3><div class="modal-grid">
       <label class="modal-field">Job type<select name="type" required><option value="">Select job type</option><option>New Job</option><option>Recurring Visit</option><option>Change Request</option><option>Cancellation</option></select></label>
@@ -222,26 +225,29 @@ body.modal-mode>div{min-height:auto !important;background:#fff !important;}
     <div class="modal-actions"><button class="ghost-btn" id="modalCancel" type="button">Cancel</button><button class="modal-primary" type="submit">Create Job</button></div>
   </form>`;
   const customers = {
-    'Alvarez Family':['214 Sycamore Lane, Unit B, Fairview Heights, IL 60443','Fairview Heights'],
-    'Meadowbrook HOA':['880 Meadowbrook Drive, Fairview Heights, IL 60443','Meadowbrook'],
-    'Chen Residence':['47 Harbor View Court, Fairview Heights, IL 60443','Riverside'],
-    'Rosalind Kerr':['19 Wren Street, Fairview Heights, IL 60443','Fairview Heights'],
-    'Okafor & Sons Bakery':['302 Market Street, Fairview Heights, IL 60443','Downtown'],
-    'Dana Whitfield':['725 Northgate Road, Fairview Heights, IL 60443','Fairview Heights'],
-    'Priya Natarajan':['146 Willow Bend, Fairview Heights, IL 60443','Riverside'],
-    'Tobias Lindqvist':['61 Alder Avenue, Fairview Heights, IL 60443','Northside'],
-    'Marcus Webb':['930 Crestline Way, Fairview Heights, IL 60443','Meadowbrook']
+    'Alvarez Family':['214 Sycamore Lane, Unit B','Fairview Heights','IL','60443'],
+    'Meadowbrook HOA':['880 Meadowbrook Drive','Fairview Heights','IL','60443'],
+    'Chen Residence':['47 Harbor View Court','Fairview Heights','IL','60443'],
+    'Rosalind Kerr':['19 Wren Street','Fairview Heights','IL','60443'],
+    'Okafor & Sons Bakery':['302 Market Street','Fairview Heights','IL','60443'],
+    'Dana Whitfield':['725 Northgate Road','Fairview Heights','IL','60443'],
+    'Priya Natarajan':['146 Willow Bend','Fairview Heights','IL','60443'],
+    'Tobias Lindqvist':['61 Alder Avenue','Fairview Heights','IL','60443'],
+    'Marcus Webb':['930 Crestline Way','Fairview Heights','IL','60443']
   };
+  const localNow = new Date(Date.now() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 16);
+  document.getElementById('modalCreated').value = localNow;
   document.getElementById('modalCustomer').addEventListener('input', event => {
     const typedName = event.target.value.trim().toLowerCase();
     const matchedName = Object.keys(customers).find(name => name.toLowerCase() === typedName);
     const details = matchedName ? customers[matchedName] : null;
     if (details) {
-      document.getElementById('modalAddress').value = details[0];
-      document.getElementById('modalTerritory').value = details[1];
+      document.getElementById('modalStreet').value = details[0];
+      document.getElementById('modalCity').value = details[1];
+      document.getElementById('modalState').value = details[2];
+      document.getElementById('modalZip').value = details[3];
     } else {
-      document.getElementById('modalAddress').value = '';
-      document.getElementById('modalTerritory').value = '';
+      ['modalStreet','modalCity','modalState','modalZip'].forEach(id => document.getElementById(id).value = '');
     }
   });
   document.getElementById('modalCancel').addEventListener('click', () => window.parent.postMessage('jobline-close-new-job', '*'));
@@ -255,11 +261,12 @@ body.modal-mode>div{min-height:auto !important;background:#fff !important;}
       id:`created-${Date.now()}`,
       fee:Number(data.fee || 0),
       daysOpen:0,
-      stage:data.technician === 'Unassigned' ? 'Unassigned' : 'Scheduled',
+      stage:data.technician === 'Unassigned' ? 'New' : 'Scheduled',
+      address:`${data.street}, ${data.city}, ${data.state} ${data.zip}`,
       promisedShort,
       promisedLabel:promisedDate ? `${promisedDate.toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' })}${data.time ? ` · ${data.time}` : ''}` : 'TBD',
       time:data.time || 'Time TBD',
-      createdAt:new Date().toISOString()
+      createdAt:new Date(data.createdLocal).toISOString()
     };
     window.parent.postMessage({ type:'jobline-create-job', job }, '*');
   });

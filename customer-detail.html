@@ -189,7 +189,7 @@ button{font-family:var(--font);cursor:pointer;}
   const generatedCustomerProfile = Boolean(requested && !profiles[requested] && firstCreatedForRequested);
   if (requested && !profiles[requested] && firstCreatedForRequested) {
     const initials = requested.split(/\s+/).map(part => part[0]).join('').slice(0, 2).toUpperCase();
-    profiles[requested] = { initials, since:'Sep 2026', territory:firstCreatedForRequested.territory, plan:'No Plan', planName:'No active plan', rate:'—', next:firstCreatedForRequested.promisedLabel?.split(' · ')[0] || 'TBD', renewal:'—', jobs:0, revenue:0, rating:'—', contact:requested, phone:'Not provided', email:'Not provided', address:firstCreatedForRequested.address, note:'Customer created from the New Job workflow.', current:{ description:firstCreatedForRequested.description, type:firstCreatedForRequested.type, stage:firstCreatedForRequested.stage, date:firstCreatedForRequested.promisedShort || 'TBD', fee:Number(firstCreatedForRequested.fee || 0) } };
+    profiles[requested] = { initials, since:'Sep 2026', territory:firstCreatedForRequested.city ? `${firstCreatedForRequested.city}, ${firstCreatedForRequested.state}` : (firstCreatedForRequested.territory || 'Service area not set'), plan:'No Plan', planName:'No active plan', rate:'—', next:firstCreatedForRequested.promisedLabel?.split(' · ')[0] || 'TBD', renewal:'—', jobs:0, revenue:0, rating:'—', contact:requested, phone:'Not provided', email:'Not provided', address:firstCreatedForRequested.address, note:'Customer created from the New Job workflow.', current:{ description:firstCreatedForRequested.description, type:firstCreatedForRequested.type, stage:firstCreatedForRequested.stage, date:firstCreatedForRequested.promisedShort || 'TBD', fee:Number(firstCreatedForRequested.fee || 0) } };
   }
   const customer = profiles[requested] ? requested : 'Alvarez Family';
   const profile = profiles[customer];
@@ -227,6 +227,7 @@ button{font-family:var(--font);cursor:pointer;}
   function badgeStyle(stage) {
     if (stage === 'Done') return ['var(--success-bg)','var(--success-fg)'];
     if (stage === 'Scheduled') return ['var(--brand-tint-20)','var(--brand)'];
+    if (stage === 'New') return ['var(--brand-tint-20)','var(--brand)'];
     if (stage === 'Blocked') return ['#FDE7E9','#C4314B'];
     return ['var(--warning-bg)','var(--warning-fg)'];
   }
