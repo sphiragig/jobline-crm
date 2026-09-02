@@ -620,8 +620,21 @@ input{font-family:var(--font);}
     const commit = () => {
       const value = control.value.trim();
       if (field === 'stage') {
+        const techCell = row.querySelector('[data-tech-cell]');
+        const isTechnicianUnassigned = techCell.textContent.includes('Unassigned');
+        if (value === 'Scheduled' && isTechnicianUnassigned) {
+          renderStage(cell, row.dataset.stage);
+          document.getElementById('bulkToastText').textContent = 'Assign a technician before changing the stage to Scheduled.';
+          toast.classList.add('show');
+          window.setTimeout(() => toast.classList.remove('show'), 3200);
+          return;
+        }
         row.dataset.stage = value;
         renderStage(cell, value);
+        if (value === 'New') {
+          techCell.innerHTML = unassignedMarkup();
+          saveInlineValue(row, 'technician', 'Unassigned');
+        }
       } else if (field === 'technician') {
         const profile = techProfiles[value];
         cell.innerHTML = profile ? technicianMarkup(value, profile.initials, profile.bg, profile.color) : unassignedMarkup();
