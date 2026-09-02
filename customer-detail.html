@@ -3,6 +3,8 @@
 <head>
 <meta charset="utf-8">
 <title>Jobline - Customer Detail</title>
+<link rel="stylesheet" href="fluent2-alignment.css">
+<link rel="stylesheet" href="persona.css">
 <style>
 :root{
   --brand:#0F6CBD;--brand-hover:#115EA3;
@@ -247,7 +249,7 @@ button{font-family:var(--font);cursor:pointer;}
     { jobKey:`history-${customer}-repair`, description:'Completed equipment repair', type:'New Job', stage:'Done', date:'Jul 22, 2026', fee:410 },
     { jobKey:`history-${customer}-change`, description:'Service change request', type:'Change Request', stage:'Done', date:'Jun 2, 2026', fee:260 },
     { jobKey:`history-${customer}-maintenance`, description:'Preventive maintenance visit', type:'Recurring Visit', stage:'Done', date:'Apr 10, 2026', fee:95 }
-  ].slice(0, 5);
+  ].slice(0, 5).map(job => ({ ...job, ...(updates[job.id || job.jobKey] || {}) }));
   let historyJobs = {};
   try { historyJobs = JSON.parse(localStorage.getItem('jobline-history-jobs') || '{}'); } catch {}
   history.forEach((job, index) => {
@@ -268,5 +270,6 @@ button{font-family:var(--font);cursor:pointer;}
   });
 })();
 </script>
+<script src="persona.js?v=4"></script>
 </body>
 </html>

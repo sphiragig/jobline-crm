@@ -3,6 +3,8 @@
 <head>
 <meta charset="utf-8">
 <title>Jobline - Job Detail Drawer</title>
+<link rel="stylesheet" href="fluent2-alignment.css">
+<link rel="stylesheet" href="persona.css">
 <style>
 :root{
   --brand:#0F6CBD;--brand-hover:#115EA3;--brand-pressed:#0B4F8A;
@@ -199,7 +201,7 @@ button{font-family:var(--font);cursor:pointer;}
 
   <div style="position:absolute;inset:0;background:rgba(0,0,0,.32);"></div>
 
-  <aside class="drawer" style="position:absolute;top:0;right:0;height:100%;width:440px;background:#fff;border-radius:8px 0 0 8px;box-shadow:var(--shadow28);display:flex;flex-direction:column;">
+  <aside class="drawer" role="dialog" aria-modal="true" aria-labelledby="drawerCustomerName" style="position:absolute;top:0;right:0;height:100%;width:440px;background:#fff;border-radius:8px 0 0 8px;box-shadow:var(--shadow28);display:flex;flex-direction:column;">
     <div style="padding:24px 24px 0;flex:1;min-height:0;overflow-y:auto;">
       <div style="display:flex;align-items:flex-start;justify-content:space-between;">
         <div>
@@ -396,7 +398,26 @@ button{font-family:var(--font);cursor:pointer;}
 
   const activityKey = 'jobline-job-activity';
   function readActivity() { try { return JSON.parse(localStorage.getItem(activityKey) || '[]'); } catch { return []; } }
-  function addActivity(text, author = 'Dana Kim') {
+  function normalizeActivityAuthors(items) {
+    const assignedTechnician = (readUpdates()[jobKey] || {}).technician || jobs[customer]?.technician || '';
+    let changed = false;
+    const normalized = items.map(item => {
+      const firstName = String(assignedTechnician).split(/\s+/)[0];
+      const looksManagerAddressed = firstName && new RegExp(`^${firstName}\\s*[-,:]`, 'i').test(String(item.text || '').trim());
+      if (item.jobKey === jobKey && item.author === assignedTechnician && looksManagerAddressed) {
+        changed = true;
+        return { ...item, author:'Manager / Dispatcher' };
+      }
+      return item;
+    });
+    if (changed) localStorage.setItem(activityKey, JSON.stringify(normalized));
+    return normalized;
+  }
+  function currentActivityAuthor() {
+    const role = localStorage.getItem('jobline-demo-persona');
+    return role === 'technician' ? (localStorage.getItem('jobline-demo-technician') || 'Technician') : 'Manager / Dispatcher';
+  }
+  function addActivity(text, author = currentActivityAuthor()) {
     const items = readActivity();
     items.unshift({ id:`activity-${Date.now()}`, jobKey, customer, text, author, createdAt:new Date().toISOString() });
     localStorage.setItem(activityKey, JSON.stringify(items));
@@ -404,9 +425,9 @@ button{font-family:var(--font);cursor:pointer;}
   }
   function renderActivity() {
     const container = document.getElementById('drawerActivity');
-    const items = readActivity().filter(item => item.jobKey === jobKey);
+    const items = normalizeActivityAuthors(readActivity()).filter(item => item.jobKey === jobKey);
     if (!items.length) { container.innerHTML = '<p style="margin:0;font-size:13px;color:var(--fg3);">No notes or activity yet.</p>'; return; }
-    container.innerHTML = items.map(item => `<div style="display:flex;gap:10px;"><div class="avatar" style="width:26px;height:26px;font-size:9px;background:var(--brand-tint-20);color:var(--brand);">${item.author === 'System' ? 'S' : 'DK'}</div><div><div style="display:flex;gap:8px;align-items:baseline;"><strong style="font-size:12px;">${item.author}</strong><span style="font-size:11px;color:var(--fg3);">${new Date(item.createdAt).toLocaleString('en-US', { month:'short', day:'numeric', hour:'numeric', minute:'2-digit' })}</span></div><p style="margin:3px 0 0;font-size:13px;color:var(--fg2);">${String(item.text).replace(/[&<>]/g, char => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[char]))}</p></div></div>`).join('');
+    container.innerHTML = items.map(item => { const initials = item.author === 'System' ? 'S' : String(item.author || 'Team').split(/\s+/).map(part => part[0]).join('').slice(0,2).toUpperCase(); return `<div style="display:flex;gap:10px;"><div class="avatar" style="width:26px;height:26px;font-size:9px;background:var(--brand-tint-20);color:var(--brand);">${initials}</div><div><div style="display:flex;gap:8px;align-items:baseline;"><strong style="font-size:12px;">${item.author}</strong><span style="font-size:11px;color:var(--fg3);">${new Date(item.createdAt).toLocaleString('en-US', { month:'short', day:'numeric', hour:'numeric', minute:'2-digit' })}</span></div><p style="margin:3px 0 0;font-size:13px;color:var(--fg2);">${String(item.text).replace(/[&<>]/g, char => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[char]))}</p></div></div>`; }).join('');
   }
 
   function applyRecordValues() {
@@ -525,5 +546,6 @@ button{font-family:var(--font);cursor:pointer;}
   renderActivity();
 })();
 </script>
+<script src="persona.js?v=4"></script>
 </body>
 </html>

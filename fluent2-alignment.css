@@ -1,0 +1,66 @@
+/* Jobline presentation layer aligned to Fluent 2 Web design tokens and states. */
+:root {
+  --colorBrandBackground: #0f6cbd;
+  --colorBrandBackgroundHover: #115ea3;
+  --colorBrandBackgroundPressed: #0b4f8a;
+  --colorBrandForegroundLink: #115ea3;
+  --colorNeutralBackground1: #ffffff;
+  --colorNeutralBackground2: #fafafa;
+  --colorNeutralBackground3: #f5f5f5;
+  --colorNeutralBackground1Hover: #f5f5f5;
+  --colorNeutralForeground1: #242424;
+  --colorNeutralForeground2: #424242;
+  --colorNeutralForeground3: #616161;
+  --colorNeutralStroke1: #d1d1d1;
+  --colorNeutralStroke2: #e8e8e8;
+  --colorStrokeFocus2: #ffffff;
+  --colorCompoundBrandStroke: #0f6cbd;
+  --borderRadiusMedium: 4px;
+  --borderRadiusLarge: 6px;
+  --spacingHorizontalXS: 4px;
+  --spacingHorizontalS: 8px;
+  --spacingHorizontalM: 12px;
+  --spacingHorizontalL: 16px;
+  --spacingHorizontalXL: 20px;
+  --spacingHorizontalXXL: 24px;
+  --fontFamilyBase: "Segoe UI", "Segoe UI Web", -apple-system, BlinkMacSystemFont, Roboto, "Helvetica Neue", sans-serif;
+  --fontSizeBase300: 14px;
+  --lineHeightBase300: 20px;
+  --shadow16: 0 6.4px 14.4px rgba(0,0,0,.13), 0 1.2px 3.6px rgba(0,0,0,.11);
+}
+
+html { color-scheme: light; }
+body { font-family: var(--fontFamilyBase); font-size: var(--fontSizeBase300); line-height: var(--lineHeightBase300); }
+button, input, select, textarea { font: inherit; }
+button, a, input, select, textarea, [tabindex]:not([tabindex="-1"]) { -webkit-tap-highlight-color: transparent; }
+
+button:not(:disabled):hover, .ghost-btn:not(:disabled):hover, .icon-btn:not(:disabled):hover, .rail-btn:not(:disabled):hover {
+  background-color: var(--colorNeutralBackground1Hover);
+}
+.primary-btn:not(:disabled):hover, .modal-primary:not(:disabled):hover,
+button[style*="background:var(--brand)"]:not(:disabled):hover,
+a[style*="background:var(--brand)"]:hover { background-color: var(--colorBrandBackgroundHover) !important; }
+.primary-btn:not(:disabled):active, .modal-primary:not(:disabled):active,
+button[style*="background:var(--brand)"]:not(:disabled):active,
+a[style*="background:var(--brand)"]:active { background-color: var(--colorBrandBackgroundPressed) !important; }
+button:disabled, input:disabled, select:disabled, textarea:disabled { cursor: not-allowed; opacity: .55; }
+
+:where(button, a, input, select, textarea, [tabindex]):focus-visible {
+  outline: 2px solid var(--colorStrokeFocus2) !important;
+  outline-offset: 2px !important;
+  box-shadow: 0 0 0 4px var(--colorCompoundBrandStroke) !important;
+}
+:where(input, select, textarea):focus-visible { border-color: var(--colorCompoundBrandStroke) !important; }
+
+input, select, textarea { color: var(--colorNeutralForeground1); }
+input::placeholder, textarea::placeholder { color: var(--colorNeutralForeground3); opacity: 1; }
+.badge { border-radius: var(--borderRadiusMedium) !important; }
+.new-job-modal, .bulk-panel, .drawer { box-shadow: var(--shadow16) !important; }
+
+@media (forced-colors: active) {
+  .badge, .chip, .card, .cust-card, .jq-table-wrap { border: 1px solid CanvasText !important; }
+  :where(button, a, input, select, textarea):focus-visible { outline: 3px solid Highlight !important; box-shadow: none !important; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; }
+}

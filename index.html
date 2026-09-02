@@ -3,6 +3,9 @@
 <head>
 <meta charset="utf-8">
 <title>Jobline - Job Queue</title>
+<link rel="stylesheet" href="fluent2-alignment.css">
+<link rel="stylesheet" href="persona.css">
+<link rel="stylesheet" href="ai-suggestions.css">
 <style>
 :root{
   --brand:#0F6CBD;--brand-hover:#115EA3;--brand-pressed:#0B4F8A;
@@ -320,7 +323,7 @@ input{font-family:var(--font);}
 </div>
 
 <div class="bulk-scrim" id="bulkScrim"></div>
-<aside class="bulk-panel" id="bulkPanel" aria-hidden="true" aria-labelledby="bulkPanelTitle">
+<aside class="bulk-panel" id="bulkPanel" role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="bulkPanelTitle" aria-describedby="bulkPanelSubtitle">
   <div class="bulk-panel-head">
     <div>
       <h2 id="bulkPanelTitle" style="margin:0;font-size:20px;font-weight:600;">Bulk assign jobs</h2>
@@ -787,5 +790,7 @@ input{font-family:var(--font);}
   }
 })();
 </script>
+<script src="persona.js?v=4"></script>
+<script src="ai-suggestions.js?v=6"></script>
 </body>
 </html>

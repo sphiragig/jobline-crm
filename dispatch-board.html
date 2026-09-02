@@ -3,6 +3,8 @@
 <head>
 <meta charset="utf-8">
 <title>Jobline - Dispatch Board</title>
+<link rel="stylesheet" href="fluent2-alignment.css">
+<link rel="stylesheet" href="persona.css">
 <style>
 :root{
   --brand:#0F6CBD;--brand-hover:#115EA3;
@@ -301,6 +303,7 @@ button{font-family:var(--font);cursor:pointer;}
         card.draggable = true;
         card.dataset.customer = job.customer;
         card.dataset.jobKey = job.jobKey;
+        card.dataset.technician = job.technician || 'Unassigned';
         if (column.key === 'Done') card.style.opacity = '.6';
         card.innerHTML = cardMarkup(job);
         card.addEventListener('dragstart', event => event.dataTransfer.setData('text/plain', job.jobKey));
@@ -331,5 +334,6 @@ button{font-family:var(--font);cursor:pointer;}
   renderBoard();
 })();
 </script>
+<script src="persona.js?v=4"></script>
 </body>
 </html>
