@@ -96,7 +96,10 @@ button{font-family:var(--font);cursor:pointer;}
           <div class="row"><span class="l">Contact</span><span class="v" id="contactName">Elena Alvarez</span></div>
           <div class="row"><span class="l">Phone</span><span class="v" id="contactPhone">(312) 555-0148</span></div>
           <div class="row"><span class="l">Email</span><span class="v" id="contactEmail">elena.alvarez@fairviewmail.com</span></div>
-          <div class="row"><span class="l">Address</span><span class="v" id="contactAddress">214 Sycamore Lane, Unit B, Fairview Heights, IL 60443</span></div>
+          <div class="row"><span class="l">Street</span><span class="v" id="contactStreet"></span></div>
+          <div class="row"><span class="l">City</span><span class="v" id="contactCity"></span></div>
+          <div class="row"><span class="l">State</span><span class="v" id="contactState"></span></div>
+          <div class="row"><span class="l">ZIP</span><span class="v" id="contactZip"></span></div>
         </div>
         <div class="card">
           <h3>Service Plan</h3>
@@ -107,13 +110,7 @@ button{font-family:var(--font);cursor:pointer;}
         </div>
         <div class="card">
           <h3>Notes</h3>
-          <div style="display:flex;gap:10px;">
-            <div class="avatar" style="width:26px;height:26px;font-size:10px;background:var(--teal-bg);color:var(--teal-fg);">DK</div>
-            <div>
-              <div style="display:flex;align-items:baseline;gap:8px;"><span style="font-size:13px;font-weight:600;">Dana Kim</span><span style="font-size:11px;color:var(--fg3);">Aug 12, 2026</span></div>
-              <p id="customerNote" style="margin:4px 0 0;font-size:13px;color:var(--fg2);">Customer prefers afternoon appointments after 1 PM. Has two dogs, use side gate.</p>
-            </div>
-          </div>
+          <div id="customerActivity" style="display:flex;flex-direction:column;gap:12px;"></div>
         </div>
       </div>
 
@@ -189,7 +186,7 @@ button{font-family:var(--font);cursor:pointer;}
   const generatedCustomerProfile = Boolean(requested && !profiles[requested] && firstCreatedForRequested);
   if (requested && !profiles[requested] && firstCreatedForRequested) {
     const initials = requested.split(/\s+/).map(part => part[0]).join('').slice(0, 2).toUpperCase();
-    profiles[requested] = { initials, since:'Sep 2026', territory:firstCreatedForRequested.city ? `${firstCreatedForRequested.city}, ${firstCreatedForRequested.state}` : (firstCreatedForRequested.territory || 'Service area not set'), plan:'No Plan', planName:'No active plan', rate:'—', next:firstCreatedForRequested.promisedLabel?.split(' · ')[0] || 'TBD', renewal:'—', jobs:0, revenue:0, rating:'—', contact:requested, phone:'Not provided', email:'Not provided', address:firstCreatedForRequested.address, note:'Customer created from the New Job workflow.', current:{ description:firstCreatedForRequested.description, type:firstCreatedForRequested.type, stage:firstCreatedForRequested.stage, date:firstCreatedForRequested.promisedShort || 'TBD', fee:Number(firstCreatedForRequested.fee || 0) } };
+    profiles[requested] = { initials, since:'Sep 2026', territory:firstCreatedForRequested.city ? `${firstCreatedForRequested.city}, ${firstCreatedForRequested.state}` : (firstCreatedForRequested.territory || 'Service area not set'), plan:'No Plan', planName:'No active plan', rate:'—', next:firstCreatedForRequested.promisedLabel?.split(' · ')[0] || 'TBD', renewal:'—', jobs:0, revenue:0, rating:'—', contact:firstCreatedForRequested.contactName || requested, phone:firstCreatedForRequested.phone || 'Not provided', email:firstCreatedForRequested.email || 'Not provided', address:firstCreatedForRequested.address, street:firstCreatedForRequested.street, city:firstCreatedForRequested.city, state:firstCreatedForRequested.state, zip:firstCreatedForRequested.zip, current:{ description:firstCreatedForRequested.description, type:firstCreatedForRequested.type, stage:firstCreatedForRequested.stage, date:firstCreatedForRequested.promisedShort || 'TBD', fee:Number(firstCreatedForRequested.fee || 0) } };
   }
   const customer = profiles[requested] ? requested : 'Alvarez Family';
   const profile = profiles[customer];
@@ -216,12 +213,23 @@ button{font-family:var(--font);cursor:pointer;}
   document.getElementById('contactName').textContent = profile.contact;
   document.getElementById('contactPhone').textContent = profile.phone;
   document.getElementById('contactEmail').textContent = profile.email;
-  document.getElementById('contactAddress').textContent = saved.address || profile.address;
+  function splitAddress(record) {
+    if (record.street) return { street:record.street, city:record.city || '', state:record.state || '', zip:record.zip || '' };
+    const parts = String(record.address || '').split(',').map(part => part.trim()).filter(Boolean);
+    const stateZip = (parts.pop() || '').match(/^([A-Za-z]{2})\s+(\d{5}(?:-\d{4})?)$/);
+    const city = parts.pop() || '';
+    return { street:parts.join(', '), city, state:stateZip?.[1] || '', zip:stateZip?.[2] || '' };
+  }
+  const address = splitAddress({ ...profile, ...saved, ...(customerCreatedJobs[0] || {}) });
+  ['street','city','state','zip'].forEach(field => document.getElementById(`contact${field[0].toUpperCase()}${field.slice(1)}`).textContent = address[field] || '—');
   document.getElementById('planName').textContent = profile.planName;
   document.getElementById('planRate').textContent = profile.rate;
   document.getElementById('planNext').textContent = profile.next;
   document.getElementById('planRenewal').textContent = profile.renewal;
-  document.getElementById('customerNote').textContent = profile.note;
+  let activity = [];
+  try { activity = JSON.parse(localStorage.getItem('jobline-job-activity') || '[]').filter(item => item.customer === customer); } catch {}
+  const activityContainer = document.getElementById('customerActivity');
+  activityContainer.innerHTML = activity.length ? activity.slice(0, 5).map(item => `<div style="display:flex;gap:10px;"><div class="avatar" style="width:26px;height:26px;font-size:9px;background:var(--teal-bg);color:var(--teal-fg);">${item.author === 'System' ? 'S' : 'DK'}</div><div><div style="display:flex;gap:8px;align-items:baseline;"><strong style="font-size:12px;">${item.author}</strong><span style="font-size:11px;color:var(--fg3);">${new Date(item.createdAt).toLocaleString('en-US', { month:'short', day:'numeric', hour:'numeric', minute:'2-digit' })}</span></div><p style="margin:3px 0 0;font-size:13px;color:var(--fg2);">${String(item.text).replace(/[&<>]/g, char => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[char]))}</p></div></div>`).join('') : '<p style="margin:0;font-size:13px;color:var(--fg3);">No notes or activity yet.</p>';
   document.getElementById('customerNewJob').href = `new-job-form.html?customer=${encodeURIComponent(customer)}`;
 
   function badgeStyle(stage) {

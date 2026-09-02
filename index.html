@@ -669,6 +669,10 @@ input{font-family:var(--font);}
         const jobs = readCreatedJobs();
         jobs.unshift(event.data.job);
         localStorage.setItem(createdJobsKey, JSON.stringify(jobs));
+        let activity = [];
+        try { activity = JSON.parse(localStorage.getItem('jobline-job-activity') || '[]'); } catch {}
+        activity.unshift({ id:`activity-${Date.now()}`, jobKey:event.data.job.id, customer:event.data.job.customer, text:'Job created.', author:'System', createdAt:new Date().toISOString() });
+        localStorage.setItem('jobline-job-activity', JSON.stringify(activity));
         sessionStorage.setItem('jobline-created-message', `New job created for ${event.data.job.customer}`);
         location.reload();
       }

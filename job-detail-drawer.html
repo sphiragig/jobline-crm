@@ -221,7 +221,10 @@ button{font-family:var(--font);cursor:pointer;}
       <div class="drawer-row"><span class="drawer-lbl">Created</span><span class="drawer-val" id="drawerCreatedValue">Sep 1, 2026 · 8:10 AM</span></div>
       <div class="drawer-row"><span class="drawer-lbl">Priority</span><span class="drawer-val" style="flex:1;"><strong class="editable-value" id="priorityValue">High</strong><select class="edit-control" id="priorityInput"><option>Low</option><option>Medium</option><option selected>High</option></select></span></div>
       <div class="drawer-row"><span class="drawer-lbl">Promised date</span><span class="drawer-val" style="flex:1;"><strong class="editable-value" id="promisedValue">Sep 3, 2026 &middot; 12-4 PM</strong><div class="edit-control" style="padding:0;border:0;"><input id="promisedDateInput" type="date" value="2026-09-03" style="width:100%;height:34px;border:1px solid var(--stroke1);border-radius:6px;padding:0 9px;"><select id="promisedTimeInput" style="width:100%;height:34px;margin-top:6px;border:1px solid var(--stroke1);border-radius:6px;padding:0 9px;"><option>8 AM-12 PM</option><option selected>12-4 PM</option><option>Any time</option></select></div></span></div>
-      <div class="drawer-row"><span class="drawer-lbl">Address</span><span class="drawer-val" style="flex:1;"><strong class="editable-value" id="addressValue">214 Sycamore Lane, Unit B, Fairview Heights</strong><textarea class="edit-control" id="addressInput" rows="3">214 Sycamore Lane, Unit B, Fairview Heights</textarea></span></div>
+      <div class="drawer-row"><span class="drawer-lbl">Street</span><span class="drawer-val" style="flex:1;"><strong class="editable-value" id="streetValue"></strong><input class="edit-control" id="streetInput"></span></div>
+      <div class="drawer-row"><span class="drawer-lbl">City</span><span class="drawer-val" style="flex:1;"><strong class="editable-value" id="cityValue"></strong><input class="edit-control" id="cityInput"></span></div>
+      <div class="drawer-row"><span class="drawer-lbl">State</span><span class="drawer-val" style="flex:1;"><strong class="editable-value" id="stateValue"></strong><input class="edit-control" id="stateInput" maxlength="2"></span></div>
+      <div class="drawer-row"><span class="drawer-lbl">ZIP</span><span class="drawer-val" style="flex:1;"><strong class="editable-value" id="zipValue"></strong><input class="edit-control" id="zipInput"></span></div>
 
       <div style="height:1px;background:var(--stroke2);margin:20px 0;"></div>
       <h3 class="sec-label">Assigned Technician</h3>
@@ -245,29 +248,8 @@ button{font-family:var(--font);cursor:pointer;}
 
       <div style="height:1px;background:var(--stroke2);margin:20px 0;"></div>
       <h3 class="sec-label">Notes &amp; Activity</h3>
-      <div style="display:flex;flex-direction:column;gap:16px;padding-bottom:20px;">
-        <div style="display:flex;gap:10px;">
-          <div class="avatar" style="width:26px;height:26px;font-size:10px;background:var(--brand-tint-20);color:var(--brand);flex-shrink:0;">MR</div>
-          <div style="min-width:0;">
-            <div style="display:flex;align-items:baseline;gap:8px;"><span style="font-size:13px;font-weight:600;color:var(--fg1);">Marcus Reyes</span><span style="font-size:11px;color:var(--fg3);">Today, 9:12 AM</span></div>
-            <p style="margin:2px 0 0;font-size:13px;color:var(--fg2);">Arrived on site, unit not powering on. Checking capacitor.</p>
-          </div>
-        </div>
-        <div style="display:flex;gap:10px;">
-          <div class="avatar" style="width:26px;height:26px;font-size:10px;background:var(--teal-bg);color:var(--teal-fg);flex-shrink:0;">DK</div>
-          <div style="min-width:0;">
-            <div style="display:flex;align-items:baseline;gap:8px;"><span style="font-size:13px;font-weight:600;color:var(--fg1);">Dana Kim</span><span style="font-size:11px;color:var(--fg3);">Today, 8:40 AM</span></div>
-            <p style="margin:2px 0 0;font-size:13px;color:var(--fg2);">Assigned to Marcus, customer confirmed access via side gate.</p>
-          </div>
-        </div>
-        <div style="display:flex;gap:10px;">
-          <div class="avatar" style="width:26px;height:26px;font-size:10px;background:var(--neutral-bg);color:var(--neutral-fg);flex-shrink:0;">S</div>
-          <div style="min-width:0;">
-            <div style="display:flex;align-items:baseline;gap:8px;"><span style="font-size:13px;font-weight:600;color:var(--fg1);">System</span><span style="font-size:11px;color:var(--fg3);">Yesterday, 4:02 PM</span></div>
-            <p style="margin:2px 0 0;font-size:13px;color:var(--fg2);">Job created from inbound call.</p>
-          </div>
-        </div>
-      </div>
+      <div id="drawerActivity" style="display:flex;flex-direction:column;gap:14px;"></div>
+      <div style="display:flex;gap:8px;margin:14px 0 20px;"><input id="drawerNoteInput" placeholder="Add a note" style="height:34px;flex:1;border:1px solid var(--stroke1);border-radius:6px;padding:0 9px;"><button class="ghost-btn" id="drawerAddNote" type="button" style="background:var(--brand);color:#fff;">Add</button></div>
     </div>
     <div style="flex-shrink:0;border-top:1px solid var(--stroke2);padding:16px 24px;display:flex;justify-content:flex-end;gap:8px;">
       <button class="ghost-btn" id="drawerEditButton" type="button" style="border:1px solid var(--stroke1);">Edit</button>
@@ -370,6 +352,37 @@ button{font-family:var(--font);cursor:pointer;}
     window.setTimeout(() => toast.classList.remove('show'), 2600);
   }
 
+  function addressParts(record) {
+    if (record.street) return { street:record.street, city:record.city || '', state:record.state || '', zip:record.zip || '' };
+    const known = {
+      'Alvarez Family':['214 Sycamore Lane, Unit B','Fairview Heights','IL','60443'], 'Meadowbrook HOA':['880 Meadowbrook Drive','Fairview Heights','IL','60443'],
+      'Chen Residence':['47 Harbor View Court','Fairview Heights','IL','60443'], 'Rosalind Kerr':['19 Wren Street','Fairview Heights','IL','60443'],
+      'Okafor & Sons Bakery':['302 Market Street','Fairview Heights','IL','60443'], 'Tobias Lindqvist':['61 Alder Avenue','Fairview Heights','IL','60443'],
+      'Dana Whitfield':['725 Northgate Road','Fairview Heights','IL','60443'], 'Priya Natarajan':['146 Willow Bend','Fairview Heights','IL','60443'],
+      'Marcus Webb':['930 Crestline Way','Fairview Heights','IL','60443']
+    }[customer];
+    if (known) return { street:known[0], city:known[1], state:known[2], zip:known[3] };
+    const parts = String(record.address || '').split(',').map(part => part.trim()).filter(Boolean);
+    const stateZip = (parts.pop() || '').match(/^([A-Za-z]{2})\s+(\d{5}(?:-\d{4})?)$/);
+    const city = parts.pop() || '';
+    return { street:parts.join(', '), city, state:stateZip?.[1] || '', zip:stateZip?.[2] || '' };
+  }
+
+  const activityKey = 'jobline-job-activity';
+  function readActivity() { try { return JSON.parse(localStorage.getItem(activityKey) || '[]'); } catch { return []; } }
+  function addActivity(text, author = 'Dana Kim') {
+    const items = readActivity();
+    items.unshift({ id:`activity-${Date.now()}`, jobKey, customer, text, author, createdAt:new Date().toISOString() });
+    localStorage.setItem(activityKey, JSON.stringify(items));
+    renderActivity();
+  }
+  function renderActivity() {
+    const container = document.getElementById('drawerActivity');
+    const items = readActivity().filter(item => item.jobKey === jobKey);
+    if (!items.length) { container.innerHTML = '<p style="margin:0;font-size:13px;color:var(--fg3);">No notes or activity yet.</p>'; return; }
+    container.innerHTML = items.map(item => `<div style="display:flex;gap:10px;"><div class="avatar" style="width:26px;height:26px;font-size:9px;background:var(--brand-tint-20);color:var(--brand);">${item.author === 'System' ? 'S' : 'DK'}</div><div><div style="display:flex;gap:8px;align-items:baseline;"><strong style="font-size:12px;">${item.author}</strong><span style="font-size:11px;color:var(--fg3);">${new Date(item.createdAt).toLocaleString('en-US', { month:'short', day:'numeric', hour:'numeric', minute:'2-digit' })}</span></div><p style="margin:3px 0 0;font-size:13px;color:var(--fg2);">${String(item.text).replace(/[&<>]/g, char => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[char]))}</p></div></div>`).join('');
+  }
+
   function applyRecordValues() {
     const base = jobs[customer];
     const saved = readUpdates()[jobKey] || {};
@@ -387,8 +400,11 @@ button{font-family:var(--font);cursor:pointer;}
     document.getElementById('promisedValue').textContent = promisedLabel;
     document.getElementById('promisedDateInput').value = record.promisedDate;
     document.getElementById('promisedTimeInput').value = record.promisedTime;
-    document.getElementById('addressValue').textContent = record.address;
-    document.getElementById('addressInput').value = record.address;
+    const parts = addressParts(record);
+    ['street','city','state','zip'].forEach(field => {
+      document.getElementById(`${field}Value`).textContent = parts[field] || '—';
+      document.getElementById(`${field}Input`).value = parts[field] || '';
+    });
     document.getElementById('feeValue').textContent = `$${Number(record.fee).toFixed(2)}`;
     document.getElementById('feeInput').value = record.fee;
     setTechnician(record.technician);
@@ -419,18 +435,23 @@ button{font-family:var(--font);cursor:pointer;}
     const fee = document.getElementById('feeInput').value;
     const promisedDate = document.getElementById('promisedDateInput').value;
     const promisedTime = document.getElementById('promisedTimeInput').value;
-    const address = document.getElementById('addressInput').value.trim();
+    const street = document.getElementById('streetInput').value.trim();
+    const city = document.getElementById('cityInput').value.trim();
+    const state = document.getElementById('stateInput').value.trim().toUpperCase();
+    const zip = document.getElementById('zipInput').value.trim();
+    const address = `${street}, ${city}, ${state} ${zip}`;
     const promisedLabel = formatPromised(promisedDate, promisedTime);
     const priorityColor = priority === 'High' ? '#C4314B' : priority === 'Medium' ? '#FFB900' : '#616161';
     const updates = readUpdates();
-    updates[jobKey] = { ...(updates[jobKey] || {}), priority, priorityColor, fee, promisedDate, promisedTime, promisedLabel, promisedShort: new Date(`${promisedDate}T12:00:00`).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }), address };
+    updates[jobKey] = { ...(updates[jobKey] || {}), priority, priorityColor, fee, promisedDate, promisedTime, promisedLabel, promisedShort: new Date(`${promisedDate}T12:00:00`).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }), street, city, state, zip, address };
     writeUpdates(updates);
     document.getElementById('priorityValue').textContent = priority;
     document.getElementById('drawerPriorityBadge').textContent = `${priority} priority`;
     document.getElementById('feeValue').textContent = `$${Number(fee).toFixed(2)}`;
     document.getElementById('promisedValue').textContent = promisedLabel;
-    document.getElementById('addressValue').textContent = address;
+    ['street','city','state','zip'].forEach(field => document.getElementById(`${field}Value`).textContent = ({street,city,state,zip})[field] || '—');
     setEditing(false);
+    addActivity('Job details updated.', 'System');
     showToast('Job details saved — the queue will reflect these changes.');
   });
 
@@ -461,10 +482,20 @@ button{font-family:var(--font);cursor:pointer;}
     writeUpdates(updates);
     applyRecordValues();
     document.getElementById('drawerReassignControls').style.display = 'none';
+    addActivity(`Technician assigned to ${name}.`, 'System');
     showToast(`Job reassigned to ${name}`);
   });
 
+  document.getElementById('drawerAddNote').addEventListener('click', () => {
+    const input = document.getElementById('drawerNoteInput');
+    const text = input.value.trim();
+    if (!text) return;
+    addActivity(text);
+    input.value = '';
+  });
+
   applyRecordValues();
+  renderActivity();
 })();
 </script>
 </body>

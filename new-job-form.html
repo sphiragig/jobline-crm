@@ -204,6 +204,9 @@ body.modal-mode>div{min-height:auto !important;background:#fff !important;}
   formColumn.innerHTML = `<form class="modal-job-form" id="modalJobForm">
     <section class="modal-section"><h3>Customer</h3><div class="modal-grid">
       <label class="modal-field full">Customer<input name="customer" id="modalCustomer" required autocomplete="off" placeholder="Enter customer or business name"></label>
+      <label class="modal-field">Contact person<input name="contactName" id="modalContact" required placeholder="Enter contact name"></label>
+      <label class="modal-field">Phone<input name="phone" id="modalPhone" type="tel" required placeholder="(312) 555-0100"></label>
+      <label class="modal-field full">Email<input name="email" id="modalEmail" type="email" required placeholder="name@example.com"></label>
       <label class="modal-field full">Street address<input name="street" id="modalStreet" required placeholder="Enter street address"></label>
       <label class="modal-field">City<input name="city" id="modalCity" required placeholder="Enter city"></label>
       <label class="modal-field">State<input name="state" id="modalState" required maxlength="2" placeholder="IL"></label>
@@ -225,15 +228,15 @@ body.modal-mode>div{min-height:auto !important;background:#fff !important;}
     <div class="modal-actions"><button class="ghost-btn" id="modalCancel" type="button">Cancel</button><button class="modal-primary" type="submit">Create Job</button></div>
   </form>`;
   const customers = {
-    'Alvarez Family':['214 Sycamore Lane, Unit B','Fairview Heights','IL','60443'],
-    'Meadowbrook HOA':['880 Meadowbrook Drive','Fairview Heights','IL','60443'],
-    'Chen Residence':['47 Harbor View Court','Fairview Heights','IL','60443'],
-    'Rosalind Kerr':['19 Wren Street','Fairview Heights','IL','60443'],
-    'Okafor & Sons Bakery':['302 Market Street','Fairview Heights','IL','60443'],
-    'Dana Whitfield':['725 Northgate Road','Fairview Heights','IL','60443'],
-    'Priya Natarajan':['146 Willow Bend','Fairview Heights','IL','60443'],
-    'Tobias Lindqvist':['61 Alder Avenue','Fairview Heights','IL','60443'],
-    'Marcus Webb':['930 Crestline Way','Fairview Heights','IL','60443']
+    'Alvarez Family':['214 Sycamore Lane, Unit B','Fairview Heights','IL','60443','Elena Alvarez','(312) 555-0148','elena.alvarez@fairviewmail.com'],
+    'Meadowbrook HOA':['880 Meadowbrook Drive','Fairview Heights','IL','60443','Rachel Morgan','(312) 555-0122','facilities@meadowbrookhoa.com'],
+    'Chen Residence':['47 Harbor View Court','Fairview Heights','IL','60443','Lena Chen','(312) 555-0186','lena.chen@fairviewmail.com'],
+    'Rosalind Kerr':['19 Wren Street','Fairview Heights','IL','60443','Rosalind Kerr','(312) 555-0139','rosalind.kerr@fairviewmail.com'],
+    'Okafor & Sons Bakery':['302 Market Street','Fairview Heights','IL','60443','Chidi Okafor','(312) 555-0164','service@okaforbakery.com'],
+    'Dana Whitfield':['725 Northgate Road','Fairview Heights','IL','60443','Dana Whitfield','(312) 555-0191','dana.whitfield@fairviewmail.com'],
+    'Priya Natarajan':['146 Willow Bend','Fairview Heights','IL','60443','Priya Natarajan','(312) 555-0175','priya.natarajan@fairviewmail.com'],
+    'Tobias Lindqvist':['61 Alder Avenue','Fairview Heights','IL','60443','Tobias Lindqvist','(312) 555-0116','tobias.lindqvist@fairviewmail.com'],
+    'Marcus Webb':['930 Crestline Way','Fairview Heights','IL','60443','Marcus Webb','(312) 555-0157','marcus.webb@fairviewmail.com']
   };
   const localNow = new Date(Date.now() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 16);
   document.getElementById('modalCreated').value = localNow;
@@ -246,8 +249,11 @@ body.modal-mode>div{min-height:auto !important;background:#fff !important;}
       document.getElementById('modalCity').value = details[1];
       document.getElementById('modalState').value = details[2];
       document.getElementById('modalZip').value = details[3];
+      document.getElementById('modalContact').value = details[4];
+      document.getElementById('modalPhone').value = details[5];
+      document.getElementById('modalEmail').value = details[6];
     } else {
-      ['modalStreet','modalCity','modalState','modalZip'].forEach(id => document.getElementById(id).value = '');
+      ['modalStreet','modalCity','modalState','modalZip','modalContact','modalPhone','modalEmail'].forEach(id => document.getElementById(id).value = '');
     }
   });
   document.getElementById('modalCancel').addEventListener('click', () => window.parent.postMessage('jobline-close-new-job', '*'));

@@ -180,6 +180,9 @@ button{font-family:var(--font);cursor:pointer;}
   const existingNames = new Set([...grid.querySelectorAll('.card-link')].map(link => link.getAttribute('aria-label').replace(/^Open /, '').replace(/ profile$/, '').replace('Okafor and Sons Bakery', 'Okafor & Sons Bakery')));
   let createdJobs = [];
   try { createdJobs = JSON.parse(localStorage.getItem('jobline-created-jobs') || '[]'); } catch {}
+  let jobUpdates = {};
+  try { jobUpdates = JSON.parse(localStorage.getItem('jobline-job-updates') || '{}'); } catch {}
+  const baseCurrentFees = { 'Alvarez Family':340, 'Meadowbrook HOA':180, 'Chen Residence':410, 'Okafor & Sons Bakery':120, 'Dana Whitfield':275, 'Priya Natarajan':210 };
   const newCustomers = new Map();
   createdJobs.forEach(job => {
     if (!existingNames.has(job.customer) && !newCustomers.has(job.customer)) newCustomers.set(job.customer, []);
@@ -189,9 +192,10 @@ button{font-family:var(--font);cursor:pointer;}
   [...newCustomers.entries()].reverse().forEach(([customer, jobs]) => {
     const first = jobs[0];
     const initials = customer.split(/\s+/).map(part => part[0]).join('').slice(0, 2).toUpperCase();
-    const revenue = jobs.reduce((sum, job) => sum + Number(job.fee || 0), 0);
+    const revenue = jobs.reduce((sum, job) => sum + Number(jobUpdates[job.id]?.fee ?? job.fee ?? 0), 0);
     const card = document.createElement('div');
     card.className = 'cust-card';
+    card.dataset.generatedCustomer = 'true';
     card.innerHTML = `<a class="card-link" href="customer-detail.html?customer=${encodeURIComponent(customer)}" aria-label="Open ${escapeHtml(customer)} profile"></a><div style="display:flex;gap:12px;align-items:center;"><div class="avatar" style="width:48px;height:48px;font-size:16px;background:var(--brand-tint-20);color:var(--brand);">${escapeHtml(initials)}</div><div><div style="font-size:16px;font-weight:600;color:var(--fg1);">${escapeHtml(customer)}</div><div style="font-size:12px;color:var(--fg3);margin-top:2px;">New customer · ${escapeHtml(first.city || '')}, ${escapeHtml(first.state || '')}</div></div></div><span class="badge" style="background:var(--neutral-bg);color:var(--neutral-fg);margin-top:14px;">No Plan</span><div style="height:1px;background:var(--stroke2);margin:16px 0;"></div><div class="stat3"><div><div class="stat-num">${jobs.length}</div><div class="stat-lbl">Lifetime Jobs</div></div><div><div class="stat-num">$${revenue.toLocaleString()}</div><div class="stat-lbl">Lifetime Revenue</div></div><div><div class="stat-num">—</div><div class="stat-lbl">Rating</div></div></div>`;
     grid.insertBefore(card, grid.firstChild);
   });
@@ -201,6 +205,16 @@ button{font-family:var(--font);cursor:pointer;}
     const customer = link.getAttribute('aria-label').replace(/^Open /, '').replace(/ profile$/, '').replace('Okafor and Sons Bakery', 'Okafor & Sons Bakery');
     link.href = `customer-detail.html?customer=${encodeURIComponent(customer)}`;
     card.dataset.customer = customer;
+    if (card.dataset.generatedCustomer !== 'true') {
+      const stats = card.querySelectorAll('.stat-num');
+      const baseJobs = Number(stats[0].textContent.replace(/[^0-9.-]/g, '')) || 0;
+      const baseRevenue = Number(stats[1].textContent.replace(/[^0-9.-]/g, '')) || 0;
+      const addedJobs = createdJobs.filter(job => job.customer === customer);
+      const addedRevenue = addedJobs.reduce((sum, job) => sum + Number(jobUpdates[job.id]?.fee ?? job.fee ?? 0), 0);
+      const editedBaseFeeDelta = jobUpdates[customer]?.fee != null && baseCurrentFees[customer] != null ? Number(jobUpdates[customer].fee) - baseCurrentFees[customer] : 0;
+      stats[0].textContent = baseJobs + addedJobs.length;
+      stats[1].textContent = `$${(baseRevenue + addedRevenue + editedBaseFeeDelta).toLocaleString()}`;
+    }
   });
   document.getElementById('customerSearch').addEventListener('input', event => {
     const term = event.target.value.trim().toLowerCase();
