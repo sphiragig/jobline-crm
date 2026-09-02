@@ -242,12 +242,20 @@ button{font-family:var(--font);cursor:pointer;}
 
   const history = [
     ...customerCreatedJobs,
-    ...(generatedCustomerProfile ? [] : [current]),
-    { description:'Routine service follow-up', type:'Recurring Visit', stage:'Scheduled', date:'Sep 15, 2026', fee:145 },
-    { description:'Completed equipment repair', type:'New Job', stage:'Done', date:'Jul 22, 2026', fee:410 },
-    { description:'Service change request', type:'Change Request', stage:'Done', date:'Jun 2, 2026', fee:260 },
-    { description:'Preventive maintenance visit', type:'Recurring Visit', stage:'Done', date:'Apr 10, 2026', fee:95 }
+    ...(generatedCustomerProfile ? [] : [{ ...current, jobKey:customer }]),
+    { jobKey:`history-${customer}-followup`, description:'Routine service follow-up', type:'Recurring Visit', stage:'Scheduled', date:'Sep 15, 2026', fee:145 },
+    { jobKey:`history-${customer}-repair`, description:'Completed equipment repair', type:'New Job', stage:'Done', date:'Jul 22, 2026', fee:410 },
+    { jobKey:`history-${customer}-change`, description:'Service change request', type:'Change Request', stage:'Done', date:'Jun 2, 2026', fee:260 },
+    { jobKey:`history-${customer}-maintenance`, description:'Preventive maintenance visit', type:'Recurring Visit', stage:'Done', date:'Apr 10, 2026', fee:95 }
   ].slice(0, 5);
+  let historyJobs = {};
+  try { historyJobs = JSON.parse(localStorage.getItem('jobline-history-jobs') || '{}'); } catch {}
+  history.forEach((job, index) => {
+    const key = job.id || job.jobKey || `${customer}-history-${index}`;
+    job.jobKey = key;
+    if (!job.id && key !== customer) historyJobs[key] = { ...job, id:key, customer, address:profile.address, street:profile.street, city:profile.city, state:profile.state, zip:profile.zip, technician:'Unassigned', priority:'Medium', promisedDate:new Date(job.date).toISOString().slice(0, 10), promisedTime:'Any time' };
+  });
+  localStorage.setItem('jobline-history-jobs', JSON.stringify(historyJobs));
   const card = document.getElementById('jobHistoryCard');
   card.querySelectorAll('.jh-row').forEach(row => row.remove());
   history.forEach((job, index) => {
@@ -255,7 +263,7 @@ button{font-family:var(--font);cursor:pointer;}
     const row = document.createElement('div');
     row.className = 'jh-row';
     if (index === history.length - 1) row.style.borderBottom = 'none';
-    row.innerHTML = `<a class="row-link" href="job-detail-drawer.html?customer=${encodeURIComponent(customer)}" aria-label="Open ${job.description}"></a><span style="font-size:13px;color:var(--fg1);font-weight:500;">${job.description}</span><span style="font-size:12px;color:var(--fg3);">${job.type}</span><span class="badge" style="background:${colors[0]};color:${colors[1]};">${job.stage}</span><span style="font-size:12px;color:var(--fg2);">${job.date}</span><span style="font-size:13px;font-weight:600;text-align:right;">$${Number(job.fee).toLocaleString()}</span>`;
+    row.innerHTML = `<a class="row-link" href="job-detail-drawer.html?customer=${encodeURIComponent(customer)}${job.jobKey !== customer ? `&job=${encodeURIComponent(job.jobKey)}` : ''}" aria-label="Open ${job.description}"></a><span style="font-size:13px;color:var(--fg1);font-weight:500;">${job.description}</span><span style="font-size:12px;color:var(--fg3);">${job.type}</span><span class="badge" style="background:${colors[0]};color:${colors[1]};">${job.stage}</span><span style="font-size:12px;color:var(--fg2);">${job.date}</span><span style="font-size:13px;font-weight:600;text-align:right;">$${Number(job.fee).toLocaleString()}</span>`;
     card.appendChild(row);
   });
 })();

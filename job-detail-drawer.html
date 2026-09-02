@@ -217,6 +217,7 @@ button{font-family:var(--font);cursor:pointer;}
 
       <div style="height:1px;background:var(--stroke2);margin:20px 0;"></div>
       <h3 class="sec-label">Job Info</h3>
+      <div class="drawer-row"><span class="drawer-lbl">Description</span><span class="drawer-val" id="drawerDescriptionValue"></span></div>
       <div class="drawer-row"><span class="drawer-lbl">Type</span><span class="drawer-val" id="drawerTypeValue">New Job</span></div>
       <div class="drawer-row"><span class="drawer-lbl">Created</span><span class="drawer-val" id="drawerCreatedValue">Sep 1, 2026 · 8:10 AM</span></div>
       <div class="drawer-row"><span class="drawer-lbl">Priority</span><span class="drawer-val" style="flex:1;"><strong class="editable-value" id="priorityValue">High</strong><select class="edit-control" id="priorityInput"><option>Low</option><option>Medium</option><option selected>High</option></select></span></div>
@@ -283,14 +284,19 @@ button{font-family:var(--font);cursor:pointer;}
     'Priya Natarajan': { id: 'JB-2027', type: 'New Job', stage: 'Done', priority: 'Medium', fee: 210, promisedDate: '2026-08-27', promisedTime: '8 AM-12 PM', address: '146 Willow Bend, Fairview Heights', technician: 'Sana Patel' },
     'Marcus Webb': { id: 'JB-2040', type: 'Change Request', stage: 'Scheduled', priority: 'Low', fee: 150, promisedDate: '2026-09-05', promisedTime: 'Any time', address: '930 Crestline Way, Fairview Heights', technician: 'Unassigned' }
   };
+  const baseDescriptions = { 'Alvarez Family':'AC unit not cooling, urgent', 'Meadowbrook HOA':'Quarterly irrigation inspection', 'Chen Residence':'Water heater leak in garage', 'Rosalind Kerr':'Add second thermostat zone', 'Okafor & Sons Bakery':'Monthly HVAC filter service', 'Tobias Lindqvist':'Cancel fall gutter cleaning', 'Dana Whitfield':"Furnace won't ignite", 'Priya Natarajan':'Replace kitchen faucet', 'Marcus Webb':'Reschedule sprinkler tune-up' };
+  Object.entries(baseDescriptions).forEach(([name, description]) => jobs[name].description = description);
   const params = new URLSearchParams(window.location.search);
   const requestedCustomer = params.get('customer');
   const requestedJobKey = params.get('job');
   let createdJob = null;
   try { createdJob = JSON.parse(localStorage.getItem('jobline-created-jobs') || '[]').find(job => job.id === requestedJobKey) || null; } catch {}
-  const customer = createdJob?.customer || (jobs[requestedCustomer] ? requestedCustomer : 'Alvarez Family');
-  const jobKey = createdJob?.id || customer;
-  if (createdJob) jobs[customer] = { ...(jobs[customer] || { id:createdJob.id, type:createdJob.type, stage:'Unassigned', priority:'Medium', fee:0, promisedDate:'', promisedTime:'Any time', address:'', technician:'Unassigned' }), ...createdJob, promisedDate:createdJob.promised || jobs[customer]?.promisedDate || '', promisedTime:createdJob.time || 'Any time' };
+  let historyJob = null;
+  try { historyJob = JSON.parse(localStorage.getItem('jobline-history-jobs') || '{}')[requestedJobKey] || null; } catch {}
+  const selectedJob = createdJob || historyJob;
+  const customer = selectedJob?.customer || (jobs[requestedCustomer] ? requestedCustomer : 'Alvarez Family');
+  const jobKey = selectedJob?.id || customer;
+  if (selectedJob) jobs[customer] = { ...(jobs[customer] || { id:selectedJob.id, type:selectedJob.type, stage:'Unassigned', priority:'Medium', fee:0, promisedDate:'', promisedTime:'Any time', address:'', technician:'Unassigned' }), ...selectedJob, promisedDate:selectedJob.promised || selectedJob.promisedDate || jobs[customer]?.promisedDate || '', promisedTime:selectedJob.time || selectedJob.promisedTime || 'Any time' };
 
   function readUpdates() {
     try {
@@ -391,6 +397,7 @@ button{font-family:var(--font);cursor:pointer;}
     document.getElementById('drawerCustomerName').textContent = customer;
     document.getElementById('drawerCustomerName').href = `customer-detail.html?customer=${encodeURIComponent(customer)}`;
     document.getElementById('drawerJobMeta').textContent = `Job #${record.id} · ${record.type}`;
+    document.getElementById('drawerDescriptionValue').textContent = record.description || 'No description';
     document.getElementById('drawerTypeValue').textContent = record.type;
     document.getElementById('drawerCreatedValue').textContent = record.createdAt ? new Date(record.createdAt).toLocaleString('en-US', { month:'short', day:'numeric', year:'numeric', hour:'numeric', minute:'2-digit' }) : 'Created before Sep 2026';
     setStageBadge(record.stage);

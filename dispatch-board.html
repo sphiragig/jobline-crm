@@ -260,7 +260,7 @@ button{font-family:var(--font);cursor:pointer;}
   }
   function boardStatus(job) {
     if (!job.technician || job.technician === 'Unassigned') return 'Unassigned';
-    if (job.stage === 'New Lead' || job.stage === 'Unassigned' || job.stage === 'New') return 'Scheduled';
+    if (job.stage === 'New Lead' || job.stage === 'Unassigned' || job.stage === 'New') return 'Unassigned';
     return columns.some(column => column.key === job.stage) ? job.stage : 'Unassigned';
   }
   function showToast(message) {
@@ -280,7 +280,7 @@ button{font-family:var(--font);cursor:pointer;}
     const jobs = [...baseJobs, ...readCreatedJobs()].map(job => ({ ...job, ...(updates[job.jobKey] || {}) }));
     let normalized = false;
     jobs.forEach(job => {
-      if (job.technician && job.technician !== 'Unassigned' && (job.stage === 'New Lead' || job.stage === 'Unassigned' || job.stage === 'New')) {
+      if (job.technician && job.technician !== 'Unassigned' && (job.stage === 'New Lead' || job.stage === 'Unassigned')) {
         job.stage = 'Scheduled';
         updates[job.jobKey] = { ...(updates[job.jobKey] || {}), stage:'Scheduled' };
         normalized = true;
