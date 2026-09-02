@@ -298,6 +298,26 @@ button{font-family:var(--font);cursor:pointer;}
   const jobKey = selectedJob?.id || customer;
   if (selectedJob) jobs[customer] = { ...(jobs[customer] || { id:selectedJob.id, type:selectedJob.type, stage:'Unassigned', priority:'Medium', fee:0, promisedDate:'', promisedTime:'Any time', address:'', technician:'Unassigned' }), ...selectedJob, promisedDate:selectedJob.promised || selectedJob.promisedDate || jobs[customer]?.promisedDate || '', promisedTime:selectedJob.time || selectedJob.promisedTime || 'Any time' };
 
+  function escapeHtml(value) { return String(value ?? '').replace(/[&<>"']/g, char => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char])); }
+  if (selectedJob) {
+    const record = { ...jobs[customer], ...(readUpdates()[jobKey] || {}) };
+    const priorityColor = record.priority === 'High' ? '#C4314B' : record.priority === 'Medium' ? '#FFB900' : '#616161';
+    const stageColors = { 'New':['var(--brand-tint-20)','var(--brand)'], 'Scheduled':['var(--brand-tint-20)','var(--brand)'], 'In Progress':['var(--warning-bg)','var(--warning-fg)'], 'Blocked':['var(--danger-bg)','var(--danger-fg)'], 'Done':['var(--success-bg)','var(--success-fg)'], 'Unassigned':['var(--neutral-bg)','var(--neutral-fg)'] };
+    const colors = stageColors[record.stage] || stageColors.Unassigned;
+    const profile = techProfiles[record.technician];
+    const tech = profile ? `<div class="avatar" style="width:22px;height:22px;font-size:10px;background:${profile.bg};color:${profile.color};">${profile.initials}</div><span style="font-size:13px;color:var(--fg2);">${escapeHtml(record.technician)}</span>` : '<div style="width:22px;height:22px;border-radius:50%;border:1.5px dashed var(--stroke1);"></div><span style="font-size:13px;color:var(--danger-fg);font-weight:600;">Unassigned</span>';
+    const promised = record.promisedShort || (record.promisedDate ? new Date(`${record.promisedDate}T12:00:00`).toLocaleDateString('en-US', { month:'short', day:'numeric' }) : 'TBD');
+    const row = document.createElement('div');
+    row.className = 'jq-row';
+    row.dataset.jobKey = jobKey;
+    row.style.background = 'var(--brand-tint-10)';
+    row.innerHTML = `<span style="width:8px;height:8px;border-radius:50%;background:${priorityColor};"></span><span style="font-size:14px;font-weight:600;">${escapeHtml(customer)}</span><span style="font-size:13px;color:var(--fg2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escapeHtml(record.description)}</span><span style="font-size:13px;color:var(--fg3);">${escapeHtml(record.type)}</span><span class="badge" style="background:${colors[0]};color:${colors[1]};">${escapeHtml(record.stage)}</span><div style="display:flex;align-items:center;gap:8px;">${tech}</div><span style="font-size:13px;font-weight:600;text-align:right;">$${Number(record.fee || 0).toLocaleString()}</span><span style="font-size:13px;color:var(--fg2);text-align:right;">${record.daysOpen || 0}d</span><span style="font-size:13px;color:var(--fg2);">${escapeHtml(promised)}</span>`;
+    const table = document.querySelector('main .jq-table-wrap');
+    table.insertBefore(row, table.children[1]);
+    const subtitle = document.querySelector('main h1 + p');
+    if (subtitle) subtitle.textContent = `${table.querySelectorAll('.jq-row').length} jobs across 3 technicians`;
+  }
+
   function readUpdates() {
     try {
       const updates = JSON.parse(localStorage.getItem(storageKey) || '{}');
@@ -416,7 +436,7 @@ button{font-family:var(--font);cursor:pointer;}
     document.getElementById('feeInput').value = record.fee;
     setTechnician(record.technician);
     document.querySelectorAll('main .jq-row').forEach(row => {
-      const isCurrent = row.children[1]?.textContent.trim() === customer;
+      const isCurrent = selectedJob ? row.dataset.jobKey === jobKey : row.children[1]?.textContent.trim() === customer;
       row.style.background = isCurrent ? 'var(--brand-tint-10)' : '';
       if (!isCurrent) return;
       const profile = techProfiles[record.technician];
