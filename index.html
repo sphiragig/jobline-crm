@@ -130,6 +130,7 @@ input{font-family:var(--font);}
       </div>
     </div>
 
+    <div class="queue-command-row">
     <div class="filters" style="display:flex;align-items:center;gap:4px;height:32px;">
       <button class="chip active" data-filter="All">All</button>
       <button class="chip" data-filter="Unassigned">Unassigned</button>
@@ -139,7 +140,7 @@ input{font-family:var(--font);}
       <button class="chip" data-filter="Done">Done</button>
     </div>
 
-    <div style="display:flex;align-items:center;justify-content:space-between;padding-bottom:12px;border-bottom:1px solid var(--stroke2);">
+    <div class="queue-primary-actions" style="display:flex;align-items:center;justify-content:space-between;">
       <div class="toolbar-left" style="display:flex;align-items:center;gap:4px;">
         <button class="ghost-btn" id="bulkAssignButton" type="button">
           <svg width="16" height="16" viewBox="0 0 20 20" fill="none"><path d="M4 6h8M4 10h8M4 14h5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M13 13l1.5 1.5L17 11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -155,6 +156,7 @@ input{font-family:var(--font);}
         <svg width="16" height="16" viewBox="0 0 20 20" fill="none"><path d="M10 4V16M4 10H16" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/></svg>
         New Job
       </button>
+    </div>
     </div>
 
     <div class="jq-table-wrap" style="background:var(--nbg1);border:1px solid var(--stroke2);border-radius:8px;overflow:hidden;">
@@ -809,9 +811,9 @@ input{font-family:var(--font);}
   }
 })();
 </script>
-<script src="persona.js?v=6"></script>
+<script src="persona.js?v=7"></script>
 <script src="ai-suggestions.js?v=11"></script>
-<script src="operations-overview.js?v=1"></script>
+<script src="operations-overview.js?v=2"></script>
 <script src="accessibility.js?v=1"></script>
 </body>
 </html>

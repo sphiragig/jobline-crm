@@ -24,7 +24,7 @@
       overview.id = 'operationsOverview';
       overview.className = 'ops-overview';
       overview.setAttribute('aria-label','Operational overview');
-      filters.before(overview);
+      (filters.closest('.queue-command-row') || filters).before(overview);
     }
     const rows = [...table.querySelectorAll('.jq-row')];
     const rowInfo = rows.map(row => {
@@ -43,7 +43,15 @@
     const urgent = rowInfo.filter(job => job.high && job.stage !== 'Done');
     const atRisk = rowInfo.filter(job => job.stage !== 'Done' && (job.stage === 'Blocked' || job.days >= 4));
     const actions = [...blocked.map(job => ({...job,label:'Resolve blocker'})), ...rowInfo.filter(job => job.stage === 'New').map(job => ({...job,label:'Assign & schedule'}))].slice(0,4);
-    overview.innerHTML = `<div class="ops-metrics"><article class="ops-metric danger"><div class="ops-metric-top"><span class="ops-metric-label">Urgent jobs</span><span class="ops-metric-icon">${metricIcon('urgent')}</span></div><div class="ops-metric-value">${urgent.length}</div><div class="ops-metric-detail">High priority and still active</div></article><article class="ops-metric warning"><div class="ops-metric-top"><span class="ops-metric-label">Blocked</span><span class="ops-metric-icon">${metricIcon('blocked')}</span></div><div class="ops-metric-value">${blocked.length}</div><div class="ops-metric-detail">Waiting on a dependency</div></article><article class="ops-metric brand"><div class="ops-metric-top"><span class="ops-metric-label">Unassigned</span><span class="ops-metric-icon">${metricIcon('person')}</span></div><div class="ops-metric-value">${unassigned.length}</div><div class="ops-metric-detail">Active jobs without an owner</div></article><article class="ops-metric warning"><div class="ops-metric-top"><span class="ops-metric-label">Promised-date risk</span><span class="ops-metric-icon">${metricIcon('warning')}</span></div><div class="ops-metric-value">${atRisk.length}</div><div class="ops-metric-detail">Blocked or open four-plus days</div></article></div>${actions.length ? `<div class="ops-attention"><span class="ops-attention-title">Needs attention</span><div class="ops-attention-list">${actions.map(job => `<a class="ops-action" href="job-detail-drawer.html?customer=${encodeURIComponent(job.customer)}${job.jobKey !== job.customer ? `&job=${encodeURIComponent(job.jobKey)}` : ''}"><b>${escapeHtml(job.customer)}</b><span>${escapeHtml(job.label)}</span></a>`).join('')}</div></div>` : ''}`;
+    const actionLinks = actions.map(job => `<a class="ops-action" href="job-detail-drawer.html?customer=${encodeURIComponent(job.customer)}${job.jobKey !== job.customer ? `&job=${encodeURIComponent(job.jobKey)}` : ''}"><b>${escapeHtml(job.customer)}</b><span>${escapeHtml(job.label)}</span></a>`);
+    overview.innerHTML = `<div class="ops-metrics"><article class="ops-metric danger"><div class="ops-metric-top"><span class="ops-metric-label">Urgent jobs</span><span class="ops-metric-icon">${metricIcon('urgent')}</span></div><div class="ops-metric-value">${urgent.length}</div><div class="ops-metric-detail">High priority and still active</div></article><article class="ops-metric warning"><div class="ops-metric-top"><span class="ops-metric-label">Blocked</span><span class="ops-metric-icon">${metricIcon('blocked')}</span></div><div class="ops-metric-value">${blocked.length}</div><div class="ops-metric-detail">Waiting on a dependency</div></article><article class="ops-metric brand"><div class="ops-metric-top"><span class="ops-metric-label">Unassigned</span><span class="ops-metric-icon">${metricIcon('person')}</span></div><div class="ops-metric-value">${unassigned.length}</div><div class="ops-metric-detail">Active jobs without an owner</div></article><article class="ops-metric warning"><div class="ops-metric-top"><span class="ops-metric-label">Promised-date risk</span><span class="ops-metric-icon">${metricIcon('warning')}</span></div><div class="ops-metric-value">${atRisk.length}</div><div class="ops-metric-detail">Blocked or open four-plus days</div></article></div>${actions.length ? `<div class="ops-attention"><div class="ops-attention-summary"><span class="ops-attention-title">Needs attention</span>${actionLinks[0]}${actions.length > 1 ? `<button class="ops-attention-toggle" type="button" aria-expanded="false">View all (${actions.length})</button>` : ''}</div>${actions.length > 1 ? `<div class="ops-attention-list" hidden>${actionLinks.join('')}</div>` : ''}</div>` : ''}`;
+    overview.querySelector('.ops-attention-toggle')?.addEventListener('click', event => {
+      const list = overview.querySelector('.ops-attention-list');
+      const expanded = event.currentTarget.getAttribute('aria-expanded') === 'true';
+      event.currentTarget.setAttribute('aria-expanded', String(!expanded));
+      event.currentTarget.textContent = expanded ? `View all (${actions.length})` : 'Show less';
+      list.hidden = expanded;
+    });
     blocked.forEach(job => {
       const description = job.row.querySelector('[data-field="description"]');
       if (!description || description.querySelector('.ops-blocker-note')) return;

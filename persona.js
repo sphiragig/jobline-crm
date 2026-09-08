@@ -22,6 +22,21 @@
     return String(value || '').replace(/[&<>'"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
   }
 
+  function getRailUtilities() {
+    const rail = document.querySelector('nav.rail');
+    if (!rail) return null;
+    let utilities = rail.querySelector('.rail-utilities');
+    if (utilities) return utilities;
+    const navigationItems = rail.children[1];
+    const oldBottom = rail.lastElementChild;
+    utilities = document.createElement('div');
+    utilities.className = 'rail-utilities';
+    utilities.setAttribute('aria-label', 'Demo utilities');
+    navigationItems?.after(utilities);
+    if (oldBottom && oldBottom !== navigationItems) oldBottom.classList.add('persona-hidden');
+    return utilities;
+  }
+
   function showSignIn() {
     let overlay = document.getElementById('personaSignIn');
     if (!overlay) {
@@ -62,13 +77,10 @@
       localStorage.removeItem(ROLE_KEY);
       showSignIn();
     });
-    const rail = document.querySelector('nav.rail');
-    const railBottom = rail?.lastElementChild;
-    if (railBottom) {
+    const railUtilities = getRailUtilities();
+    if (railUtilities) {
       wrapper.classList.add('persona-switcher-rail');
-      const existingAvatar = railBottom.querySelector('.avatar:last-child');
-      if (existingAvatar) existingAvatar.replaceWith(wrapper);
-      else railBottom.appendChild(wrapper);
+      railUtilities.appendChild(wrapper);
     } else document.body.appendChild(wrapper);
   }
 
@@ -86,7 +98,12 @@
     panel.className = 'notification-panel';
     panel.hidden = true;
     panel.innerHTML = `<header><div><h2>Notifications</h2><p>${role === 'technician' ? escapeHtml(technician) : 'Manager / Dispatcher'}</p></div><button type="button" aria-label="Close notifications">${dismissIcon}</button></header><div class="notification-list">${visible.length ? visible.map(item => `<a href="job-detail-drawer.html?customer=${encodeURIComponent(item.customer)}&job=${encodeURIComponent(item.jobKey)}" data-notification-id="${escapeHtml(item.id)}" class="notification-item${item.read ? '' : ' unread'}"><span class="notification-dot"></span><span><strong>${escapeHtml(item.title)}</strong><em>${escapeHtml(item.customer)}</em><span>${escapeHtml(item.message)}</span><small>${new Date(item.createdAt).toLocaleString('en-US',{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'})} · ${escapeHtml((item.channels || ['In-product']).join(', '))}${item.simulated ? ' · Preview only' : ''}</small></span></a>`).join('') : '<p class="notification-empty">No notifications yet.</p>'}</div>${unread ? '<button class="notification-read-all" type="button">Mark all as read</button>' : ''}`;
-    document.body.append(bell,panel);
+    const railUtilities = getRailUtilities();
+    if (railUtilities) {
+      bell.classList.add('notification-bell-rail');
+      railUtilities.insertBefore(bell, railUtilities.querySelector('.persona-switcher'));
+    } else document.body.appendChild(bell);
+    document.body.appendChild(panel);
     const close = () => { panel.hidden = true; bell.setAttribute('aria-expanded','false'); };
     bell.addEventListener('click', () => {
       panel.hidden = !panel.hidden;
@@ -126,7 +143,12 @@
     panel.setAttribute('aria-modal','false');
     panel.setAttribute('aria-labelledby','prototypeTrustTitle');
     panel.innerHTML = `<header><div><span class="prototype-trust-eyebrow">Prototype disclosure</span><h2 id="prototypeTrustTitle">Trust and system status</h2></div><button type="button" aria-label="Close prototype information">${dismissIcon}</button></header><div class="prototype-trust-body"><section><strong>${shieldIcon} Human control</strong><p>AI suggestions never change job data until a manager or technician reviews and approves them. The manual workflow remains available.</p></section><section><strong>${shieldIcon} Simulated capabilities</strong><p>Role sign-in, AI reasoning, technician availability, inventory, email, and SMS are realistic prototype simulations—not live production services.</p></section><section><strong>${shieldIcon} Data and audit</strong><p>Demo changes are stored only in this browser. Approved AI actions record the approver, time, source, and before/after values.</p></section><section><strong>${shieldIcon} Corrections</strong><p>Reversible AI actions provide Undo. Completed job creation remains editable through the standard job controls.</p></section></div>${role === 'manager' ? '<footer><a href="index.html?open-ai-audit=1">View AI activity</a><span>Demo environment · No external messages sent</span></footer>' : '<footer><span>Demo environment · No external messages sent</span></footer>'}`;
-    document.body.append(button,panel);
+    const railUtilities = getRailUtilities();
+    if (railUtilities) {
+      button.classList.add('prototype-trust-button-rail');
+      railUtilities.prepend(button);
+    } else document.body.appendChild(button);
+    document.body.appendChild(panel);
     const close = () => { panel.hidden = true; button.setAttribute('aria-expanded','false'); };
     button.addEventListener('click',() => {
       panel.hidden = !panel.hidden;
