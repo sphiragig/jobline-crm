@@ -1,0 +1,52 @@
+/* Shared Fluent 2 Web typography roles. Loaded last to replace page-level one-offs. */
+:root{
+  --type-caption-size:12px;--type-caption-line:16px;
+  --type-body-size:14px;--type-body-line:20px;
+  --type-subtitle2-size:16px;--type-subtitle2-line:22px;
+  --type-subtitle1-size:20px;--type-subtitle1-line:26px;
+  --type-title3-size:24px;--type-title3-line:32px;
+}
+body,button,input,select,textarea{font-family:"Segoe UI","Segoe UI Web",-apple-system,BlinkMacSystemFont,Roboto,"Helvetica Neue",sans-serif}
+body{font-size:var(--type-body-size);line-height:var(--type-body-line);font-weight:400}
+h1{font-size:var(--type-title3-size)!important;line-height:var(--type-title3-line)!important;font-weight:600!important}
+h2{font-size:var(--type-subtitle1-size)!important;line-height:var(--type-subtitle1-line)!important;font-weight:600!important}
+h3{font-size:var(--type-subtitle2-size)!important;line-height:var(--type-subtitle2-line)!important;font-weight:600!important}
+
+/* Captions, metadata, column headings, and section labels. */
+:where(.th,.jq-head,.sec-label,.col-title,.col-meaning,.stat-lbl,.drawer-lbl,.modal-field,.ai-label,.persona-hint){font-size:var(--type-caption-size)!important;line-height:var(--type-caption-line)!important}
+:where(.th,.jq-head,.sec-label,.col-title){font-weight:600!important;letter-spacing:0!important;text-transform:none!important}
+:where(.col-meaning,.stat-lbl,.drawer-lbl,.persona-hint){font-weight:400!important}
+.sec-label{font-size:var(--type-body-size)!important;line-height:var(--type-body-line)!important;font-weight:600!important;letter-spacing:0!important;text-transform:none!important}
+
+/* Core body content and controls. */
+:where(.jq-row,.drawer-val,.row .v,.card-name,.card-desc,.modal-job-form input,.modal-job-form select,.modal-job-form textarea,.ai-field){font-size:var(--type-body-size)!important;line-height:var(--type-body-line)!important}
+:where(.drawer-val,.drawer-val strong,.row .v,.card-desc){font-weight:400!important}
+:where(.card-name,.jq-row>span:nth-child(3),.cust-card>div:first-of-type>div>div>div:first-child){font-weight:600!important}
+:where(.badge,.count){font-size:var(--type-caption-size)!important;line-height:var(--type-caption-line)!important;font-weight:600!important}
+:where(button,.ghost-btn,.primary-btn,.modal-primary,.ai-primary,.ai-secondary,.ai-analyze){font-size:var(--type-body-size)!important;line-height:var(--type-body-line)!important;font-weight:600!important}
+
+/* Drawer details: equal label/value scale; long text reads left-to-right. */
+.drawer-row{min-height:36px;align-items:flex-start!important}
+.drawer-lbl{flex:0 0 112px;color:var(--colorNeutralForeground3)!important}
+.drawer-val{flex:1;color:var(--colorNeutralForeground1)!important;text-align:left!important}
+.drawer-row:has(#drawerDescriptionValue){display:block!important}
+#drawerDescriptionValue{display:block;margin-top:6px;max-width:100%;text-align:left!important;font-weight:400!important;overflow-wrap:anywhere}
+#feeValue{font-weight:600!important}
+.drawer .sec-label{margin-bottom:8px!important}
+.drawer p{line-height:var(--type-body-line)}
+
+/* Customer and history surfaces. */
+.cust-card .stat-num{font-size:var(--type-subtitle1-size)!important;line-height:var(--type-subtitle1-line)!important;font-weight:600!important}
+.customer-meta,.cust-card .badge+div{font-size:var(--type-caption-size);line-height:var(--type-caption-line)}
+.jh-row>span:not(.badge){font-size:var(--type-body-size)!important;line-height:var(--type-body-line)!important}
+.jh-row>span:first-of-type{font-weight:600!important}
+
+/* Dispatch and AI panels. */
+.card-name{font-weight:600!important}.card-desc{color:var(--colorNeutralForeground2)!important}
+.ai-review-body,.ai-review-foot,.ai-explanation,.ai-create-proposal{font-size:var(--type-body-size);line-height:var(--type-body-line)}
+.ai-review-head p,.ai-disclaimer,.ai-proposal-label{font-size:var(--type-caption-size)!important;line-height:var(--type-caption-line)!important}
+
+@media(max-width:620px){
+  h1{font-size:var(--type-subtitle1-size)!important;line-height:var(--type-subtitle1-line)!important}
+  .drawer-lbl{flex-basis:96px}
+}
