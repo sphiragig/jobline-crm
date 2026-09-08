@@ -67,17 +67,19 @@
 
   function addSwitcher() {
     const isTech = role === 'technician';
+    const railUtilities = getRailUtilities();
     const wrapper = document.createElement('div');
     wrapper.className = 'persona-switcher';
     wrapper.setAttribute('aria-label', 'Current demo role');
-    wrapper.innerHTML = `<div class="persona-switcher-badge">${isTech ? escapeHtml(technician.split(' ').map(x => x[0]).join('')) : 'MD'}</div><div class="persona-switcher-copy"><strong>${isTech ? escapeHtml(technician) : 'Manager / Dispatcher'}</strong><span>${isTech ? 'Technician' : 'Full access'}</span></div><button type="button">Switch role</button>`;
+    wrapper.innerHTML = railUtilities
+      ? `<button type="button" aria-label="Switch role"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 20 20" fill="none"><circle cx="7" cy="6" r="2.5" stroke="currentColor" stroke-width="1.5"/><path d="M2.75 13.5c0-2.25 1.9-3.75 4.25-3.75 1.15 0 2.2.36 2.97.98" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M12 6.5h4m0 0-1.5-1.5M16 6.5 14.5 8M16 12.5h-4m0 0 1.5-1.5M12 12.5l1.5 1.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></button>`
+      : `<div class="persona-switcher-badge">${isTech ? escapeHtml(technician.split(' ').map(x => x[0]).join('')) : 'MD'}</div><div class="persona-switcher-copy"><strong>${isTech ? escapeHtml(technician) : 'Manager / Dispatcher'}</strong><span>${isTech ? 'Technician' : 'Full access'}</span></div><button type="button">Switch role</button>`;
     const switchButton = wrapper.querySelector('button');
     switchButton.title = `${isTech ? technician + ' · Technician' : 'Manager / Dispatcher'} — Switch role`;
     switchButton.addEventListener('click', () => {
       localStorage.removeItem(ROLE_KEY);
       showSignIn();
     });
-    const railUtilities = getRailUtilities();
     if (railUtilities) {
       wrapper.classList.add('persona-switcher-rail');
       railUtilities.appendChild(wrapper);
@@ -240,7 +242,7 @@
       note.className = 'technician-only-note';
       note.textContent = 'Technician view: update the Stage field to start work, report a blocker, or complete a job. Open a job to review details and add notes.';
       const filters = main.querySelector('[data-filter]')?.parentElement;
-      if (filters) filters.after(note);
+      if (filters) (filters.closest('.queue-command-row') || filters).after(note);
     }
     document.addEventListener('click', event => {
       const field = event.target.closest('[data-field]');
