@@ -696,6 +696,15 @@ input{font-family:var(--font);}
         try { activity = JSON.parse(localStorage.getItem('jobline-job-activity') || '[]'); } catch {}
         activity.unshift({ id:`activity-${Date.now()}`, jobKey:event.data.job.id, customer:event.data.job.customer, text:'Job created.', author:'System', createdAt:new Date().toISOString() });
         localStorage.setItem('jobline-job-activity', JSON.stringify(activity));
+        if (event.data.job.aiAssisted) {
+          const approvedAt = event.data.job.aiApprovedAt || new Date().toISOString();
+          const auditId = `ai-audit-create-${Date.now()}`;
+          let audit = [];
+          try { audit = JSON.parse(localStorage.getItem('jobline-ai-audit') || '[]'); } catch {}
+          audit.unshift({id:auditId,jobKey:event.data.job.id,customer:event.data.job.customer,kind:'create',action:'Create job from request',decision:'Approved',approvedBy:event.data.job.aiApprovedBy || 'Manager / Dispatcher',approvedAt,source:'Customer request parsed by simulated AI — human reviewed',before:null,after:{stage:event.data.job.stage,technician:event.data.job.technician,promisedDate:event.data.job.promised,promisedTime:event.data.job.time,description:event.data.job.description},changes:[{field:'Job record',before:'Not created',after:`${event.data.job.type} · ${event.data.job.stage}`}],review:event.data.job.aiReviewMeta});
+          localStorage.setItem('jobline-ai-audit',JSON.stringify(audit.slice(0,100)));
+          sessionStorage.setItem('jobline-ai-confirmation',JSON.stringify({title:'AI-assisted job approved',message:`${event.data.job.customer} was created after human review. The decision is recorded in AI activity.`,auditId,undoAllowed:false}));
+        }
         sessionStorage.setItem('jobline-created-message', `New job created for ${event.data.job.customer}`);
         location.reload();
       }
@@ -799,7 +808,7 @@ input{font-family:var(--font);}
 })();
 </script>
 <script src="persona.js?v=5"></script>
-<script src="ai-suggestions.js?v=8"></script>
+<script src="ai-suggestions.js?v=9"></script>
 <script src="operations-overview.js?v=1"></script>
 </body>
 </html>

@@ -57,7 +57,9 @@ body.modal-mode>div{min-height:auto !important;background:#fff !important;}
 .modal-actions{display:flex;justify-content:flex-end;gap:8px;position:sticky;bottom:0;background:#fff;padding:10px 0 2px;}
 .modal-primary{height:36px;padding:0 18px;border:0;border-radius:4px;background:var(--brand);color:#fff;font-weight:600;}
 .ai-create-box{border:1px solid var(--brand-tint-20);border-radius:8px;background:var(--brand-tint-10);padding:16px}.ai-create-tabs{display:flex;gap:4px;margin-bottom:12px}.ai-create-tab{height:34px;border:0;border-radius:4px;background:transparent;color:var(--fg2);padding:0 12px;font-weight:600}.ai-create-tab.active{background:#fff;color:var(--brand);box-shadow:var(--shadow4)}.ai-request-panel textarea{width:100%;min-height:92px;border:1px solid var(--stroke1);border-radius:5px;padding:10px;font:inherit;resize:vertical;background:#fff}.ai-request-actions{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:10px}.ai-analyze{height:36px;border:0;border-radius:4px;background:var(--brand);color:#fff;padding:0 14px;font-weight:600}.ai-analysis-status{font-size:12px;color:var(--fg3)}.ai-analysis-status.ready{color:#0e7c3f;font-weight:600}.ai-analysis-status.error{color:#c4314b}.ai-review-banner{display:none;margin-top:12px;padding:10px;border-radius:6px;background:#fff;border:1px solid var(--stroke2);font-size:12px;color:var(--fg2)}.ai-review-banner.show{display:block}.modal-field.ai-missing>input,.modal-field.ai-missing>select,.modal-field.ai-missing>textarea{border-color:#c4314b;background:#fff8f8}.modal-field.ai-uncertain>input,.modal-field.ai-uncertain>select,.modal-field.ai-uncertain>textarea{border-color:#9d5d00;background:#fffdf5}.ai-field-state{font-size:10px;font-weight:600;margin-left:5px}.ai-missing .ai-field-state{color:#c4314b}.ai-uncertain .ai-field-state{color:#9d5d00}.ai-extracted .ai-field-state{color:#0e7c3f}
+.ai-create-proposal{margin-top:12px;border:1px solid var(--stroke2);border-radius:8px;background:#fff;overflow:hidden}.ai-create-proposal-head{display:flex;justify-content:space-between;align-items:center;padding:12px;border-bottom:1px solid var(--stroke2)}.ai-create-proposal-head strong,.ai-create-proposal-head span{display:block}.ai-create-proposal-head span{font-size:11px;color:var(--fg3)}.ai-proposal-label{border-radius:999px;background:var(--brand-tint-20);color:var(--brand)!important;padding:2px 8px;font-weight:700;text-transform:uppercase}.ai-extraction-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:1px;background:var(--stroke2)}.ai-extraction-grid>div{display:grid;grid-template-columns:1fr auto;gap:2px 8px;background:#fff;padding:10px 12px}.ai-extraction-grid span{font-size:10px;color:var(--fg3)}.ai-extraction-grid strong{font-size:12px}.ai-extraction-grid em{grid-column:2;grid-row:1/3;align-self:center;font-size:9px;font-style:normal;font-weight:700}.ai-extraction-grid em.high{color:#0e7c3f}.ai-extraction-grid em.medium{color:#8a5417}.ai-extraction-grid em.missing{color:#c4314b}.ai-duplicate-check{padding:12px;border-top:1px solid var(--stroke2)}.ai-duplicate-check>strong{font-size:12px}.ai-duplicate-check>p{margin:3px 0 8px;color:var(--fg3);font-size:11px}.ai-duplicate-check>div{display:grid;grid-template-columns:120px 1fr auto;gap:8px;padding:7px 0;border-top:1px solid var(--stroke2);font-size:10px}.ai-duplicate-check>div span{color:var(--fg2)}.ai-duplicate-check>div em{color:#8a5417;font-style:normal;font-weight:700}.ai-review-confirm{display:flex;align-items:flex-start;gap:8px;padding:12px;border-top:1px solid var(--stroke2);font-size:11px;font-weight:600}.ai-review-confirm input{margin-top:2px}
 @media (max-width:600px){body.modal-mode main{padding:14px !important;}.card{padding:18px;}.seg{flex-wrap:wrap;}.seg-opt{min-width:45%;}}
+@media (max-width:600px){.ai-extraction-grid{grid-template-columns:1fr}.ai-duplicate-check>div{grid-template-columns:1fr}.ai-request-actions{align-items:stretch;flex-direction:column}}
 </style>
 </head>
 <body>
@@ -205,7 +207,7 @@ body.modal-mode>div{min-height:auto !important;background:#fff !important;}
   document.body.classList.add('modal-mode');
   const formColumn = document.querySelector('.formcol');
   formColumn.innerHTML = `<form class="modal-job-form" id="modalJobForm">
-    <section class="ai-create-box"><div class="ai-create-tabs"><button class="ai-create-tab active" type="button" data-create-mode="manual">Enter manually</button><button class="ai-create-tab" type="button" data-create-mode="ai">Create from request with AI</button></div><div class="ai-request-panel" id="aiRequestPanel" hidden><label class="modal-field full" for="aiRequestText">Customer request or call summary</label><textarea id="aiRequestText" placeholder="Example: Meadowbrook HOA called. The AC is not cooling. Please send someone tomorrow afternoon. This is urgent."></textarea><div class="ai-request-actions"><span class="ai-analysis-status" id="aiAnalysisStatus">AI creates a draft; it will not create or assign the job.</span><button class="ai-analyze" id="aiAnalyzeRequest" type="button">Prepare job draft</button></div><div class="ai-review-banner" id="aiReviewBanner" role="status"></div></div></section>
+    <section class="ai-create-box"><div class="ai-create-tabs"><button class="ai-create-tab active" type="button" data-create-mode="manual">Enter manually</button><button class="ai-create-tab" type="button" data-create-mode="ai">Create from request with AI</button></div><div class="ai-request-panel" id="aiRequestPanel" hidden><label class="modal-field full" for="aiRequestText">Customer request or call summary</label><textarea id="aiRequestText" placeholder="Example: Meadowbrook HOA called. The AC is not cooling. Please send someone tomorrow afternoon. This is urgent."></textarea><div class="ai-request-actions"><span class="ai-analysis-status" id="aiAnalysisStatus">AI creates a draft; it will not create or assign the job.</span><button class="ai-analyze" id="aiAnalyzeRequest" type="button">Prepare job draft</button></div><div class="ai-review-banner" id="aiReviewBanner" role="status"></div><section class="ai-create-proposal" id="aiCreateProposal" aria-label="AI extraction review" hidden></section></div></section>
     <section class="modal-section"><h3>Customer</h3><div class="modal-grid">
       <label class="modal-field full">Customer<input name="customer" id="modalCustomer" required autocomplete="off" placeholder="Enter customer or business name"></label>
       <label class="modal-field">Contact person<input name="contactName" id="modalContact" required placeholder="Enter contact name"></label>
@@ -247,8 +249,10 @@ body.modal-mode>div{min-height:auto !important;background:#fff !important;}
   let aiMode = false;
   let aiAnalyzed = false;
   let aiSourceText = '';
+  let aiReviewMeta = null;
   const form = document.getElementById('modalJobForm');
   const fieldFor = name => form.elements.namedItem(name);
+  const escapeHtml = value => String(value ?? '').replace(/[&<>"']/g, character => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[character]));
   function clearAiStates() {
     form.querySelectorAll('.modal-field').forEach(label => {
       label.classList.remove('ai-missing','ai-uncertain','ai-extracted');
@@ -275,7 +279,7 @@ body.modal-mode>div{min-height:auto !important;background:#fff !important;}
     document.querySelectorAll('[data-create-mode]').forEach(tab => tab.classList.toggle('active', tab === button));
     document.getElementById('aiRequestPanel').hidden = !aiMode;
     document.getElementById('modalCreateButton').textContent = aiMode ? 'Create reviewed job' : 'Create Job';
-    if (!aiMode) clearAiStates();
+    if (!aiMode) { clearAiStates(); document.getElementById('aiCreateProposal').hidden = true; }
   }));
   document.getElementById('aiAnalyzeRequest').addEventListener('click', () => {
     const request = document.getElementById('aiRequestText').value.trim();
@@ -323,10 +327,29 @@ body.modal-mode>div{min-height:auto !important;background:#fff !important;}
       else markField(name,'extracted',matchedCustomer && ['contactName','phone','email','street','city','state','zip'].includes(name) ? 'From customer record' : 'From request');
     });
     markField('technician','uncertain','Optional — assign later');
+    const parentRows = [...window.parent.document.querySelectorAll('.jq-row')];
+    const requestTerms = new Set(lower.split(/[^a-z0-9]+/).filter(word => word.length > 4));
+    const duplicates = parentRows.map(row => {
+      const existingCustomer = row.dataset.customer || '';
+      const description = row.querySelector('[data-field="description"]')?.textContent.trim() || '';
+      const overlap = description.toLowerCase().split(/[^a-z0-9]+/).filter(word => requestTerms.has(word)).length;
+      const exactCustomer = customerName && existingCustomer.toLowerCase() === customerName.toLowerCase();
+      return {customer:existingCustomer,description,stage:row.dataset.stage || '',score:(exactCustomer ? 60 : 0) + Math.min(35,overlap * 12)};
+    }).filter(item => item.score >= 24).sort((a,b) => b.score-a.score).slice(0,3);
+    const extracted = [
+      ['Customer',fieldFor('customer').value,matchedCustomer ? 98 : customerName ? 76 : 0],
+      ['Job type',fieldFor('type').value,82],['Priority',fieldFor('priority').value,79],
+      ['Promised date',fieldFor('promised').value || 'Missing',promised ? 84 : 0],['Time window',fieldFor('time').value || 'Missing',fieldFor('time').value ? 78 : 0]
+    ];
+    aiReviewMeta = {missingCount,uncertainCount,duplicates,extracted};
+    const proposal = document.getElementById('aiCreateProposal');
+    proposal.innerHTML = `<div class="ai-create-proposal-head"><div><strong>AI-generated draft</strong><span>Review extracted values before approval</span></div><span class="ai-proposal-label">Proposal</span></div><div class="ai-extraction-grid">${extracted.map(([label,value,confidence]) => `<div><span>${escapeHtml(label)}</span><strong>${escapeHtml(value || 'Missing')}</strong><em class="${confidence >= 90 ? 'high' : confidence ? 'medium' : 'missing'}">${confidence ? `${confidence}% confidence` : 'Required'}</em></div>`).join('')}</div><div class="ai-duplicate-check"><strong>Possible duplicate check</strong>${duplicates.length ? `<p>${duplicates.length} possible ${duplicates.length === 1 ? 'match' : 'matches'} found. Confirm this is a separate request.</p>${duplicates.map(item => `<div><b>${escapeHtml(item.customer)}</b><span>${escapeHtml(item.description)} · ${escapeHtml(item.stage)}</span><em>${item.score}% similarity</em></div>`).join('')}` : '<p>No likely duplicates found in the active Job Queue.</p>'}</div><label class="ai-review-confirm"><input id="aiReviewConfirmed" type="checkbox" required> I reviewed the extracted, missing, uncertain, and possible duplicate information.</label>`;
+    proposal.hidden = false;
     status.textContent = 'Draft prepared. Review every highlighted field.';
     status.className = 'ai-analysis-status ready';
     banner.innerHTML = `<strong>Review required:</strong> ${missingCount} missing required ${missingCount === 1 ? 'field' : 'fields'} and ${uncertainCount} inferred ${uncertainCount === 1 ? 'value' : 'values'}. AI did not invent contact details, address, pricing, or availability.`;
     banner.classList.add('show');
+    document.getElementById('modalCreateButton').textContent = 'Approve & create job';
   });
   document.getElementById('modalCustomer').addEventListener('input', event => {
     const typedName = event.target.value.trim().toLowerCase();
@@ -353,6 +376,13 @@ body.modal-mode>div{min-height:auto !important;background:#fff !important;}
       status.className = 'ai-analysis-status error';
       return;
     }
+    if (aiMode && !document.getElementById('aiReviewConfirmed')?.checked) {
+      const status = document.getElementById('aiAnalysisStatus');
+      status.textContent = 'Confirm that you reviewed the AI proposal before creating the job.';
+      status.className = 'ai-analysis-status error';
+      document.getElementById('aiReviewConfirmed')?.focus();
+      return;
+    }
     const data = Object.fromEntries(new FormData(event.currentTarget));
     const promisedDate = data.promised ? new Date(`${data.promised}T12:00:00`) : null;
     const promisedShort = promisedDate ? promisedDate.toLocaleDateString('en-US', { month:'short', day:'numeric' }) : 'TBD';
@@ -368,7 +398,10 @@ body.modal-mode>div{min-height:auto !important;background:#fff !important;}
       time:data.time || 'Time TBD',
       createdAt:new Date(data.createdLocal).toISOString(),
       aiAssisted:aiMode,
-      aiSourceText:aiMode ? aiSourceText : ''
+      aiSourceText:aiMode ? aiSourceText : '',
+      aiReviewMeta:aiMode ? aiReviewMeta : null,
+      aiApprovedAt:aiMode ? new Date().toISOString() : null,
+      aiApprovedBy:aiMode ? 'Manager / Dispatcher' : null
     };
     window.parent.postMessage({ type:'jobline-create-job', job }, '*');
   });
