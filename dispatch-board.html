@@ -224,12 +224,12 @@ button{font-family:var(--font);cursor:pointer;}
     { customer:'Alvarez Family', description:'AC unit not cooling, urgent', stage:'In Progress', technician:'Marcus Reyes', fee:340, time:'9:00 AM', priority:'High' },
     { customer:'Meadowbrook HOA', description:'Quarterly irrigation inspection', stage:'Scheduled', technician:'Dana Kim', fee:180, time:'8:30 AM', priority:'Medium' },
     { customer:'Chen Residence', description:'Water heater leak in garage', stage:'Blocked', technician:'Unassigned', fee:410, time:'Waiting on part', priority:'High' },
-    { customer:'Rosalind Kerr', description:'Add second thermostat zone', stage:'Unassigned', technician:'Unassigned', fee:95, time:'10:30 AM', priority:'Low' },
+    { customer:'Rosalind Kerr', description:'Add second thermostat zone', stage:'New', technician:'Unassigned', fee:95, time:'10:30 AM', priority:'Low' },
     { customer:'Okafor & Sons Bakery', description:'Monthly HVAC filter service', stage:'Scheduled', technician:'Sana Patel', fee:120, time:'2:30 PM', priority:'Medium' },
     { customer:'Tobias Lindqvist', description:'Cancel fall gutter cleaning', stage:'Done', technician:'Marcus Reyes', fee:0, time:'4:10 PM', priority:'Low' },
     { customer:'Dana Whitfield', description:"Furnace won't ignite", stage:'In Progress', technician:'Dana Kim', fee:275, time:'Started 9:45 AM', priority:'High' },
     { customer:'Priya Natarajan', description:'Replace kitchen faucet', stage:'Done', technician:'Sana Patel', fee:210, time:'2:50 PM', priority:'Medium' },
-    { customer:'Marcus Webb', description:'Reschedule sprinkler tune-up', stage:'Scheduled', technician:'Unassigned', fee:150, time:'1:00 PM', priority:'Low' }
+    { customer:'Marcus Webb', description:'Reschedule sprinkler tune-up', stage:'New', technician:'Unassigned', fee:150, time:'1:00 PM', priority:'Low' }
   ].map(job => ({ ...job, jobKey:job.customer }));
   function readCreatedJobs() {
     try { return JSON.parse(localStorage.getItem('jobline-created-jobs') || '[]').map(job => ({ ...job, jobKey:job.id })); }
@@ -252,7 +252,7 @@ button{font-family:var(--font);cursor:pointer;}
   function readUpdates() {
     try {
       const updates = JSON.parse(localStorage.getItem(storageKey) || '{}');
-      Object.values(updates).forEach(update => { if (update.stage === 'New Lead') update.stage = 'Unassigned'; });
+      Object.values(updates).forEach(update => { if (update.stage === 'New Lead' || update.stage === 'Unassigned') update.stage = 'New'; });
       return updates;
     }
     catch { return {}; }
@@ -261,6 +261,7 @@ button{font-family:var(--font);cursor:pointer;}
     try { localStorage.setItem(storageKey, JSON.stringify(updates)); } catch {}
   }
   function boardStatus(job) {
+    if (job.stage === 'Blocked' || job.stage === 'Done') return job.stage;
     if (!job.technician || job.technician === 'Unassigned') return 'Unassigned';
     if (job.stage === 'New Lead' || job.stage === 'Unassigned' || job.stage === 'New') return 'Unassigned';
     return columns.some(column => column.key === job.stage) ? job.stage : 'Unassigned';
@@ -282,7 +283,7 @@ button{font-family:var(--font);cursor:pointer;}
     const jobs = [...baseJobs, ...readCreatedJobs()].map(job => ({ ...job, ...(updates[job.jobKey] || {}) }));
     let normalized = false;
     jobs.forEach(job => {
-      if (job.technician && job.technician !== 'Unassigned' && (job.stage === 'New Lead' || job.stage === 'Unassigned')) {
+      if (job.technician && job.technician !== 'Unassigned' && (job.stage === 'New Lead' || job.stage === 'Unassigned' || job.stage === 'New')) {
         job.stage = 'Scheduled';
         updates[job.jobKey] = { ...(updates[job.jobKey] || {}), stage:'Scheduled' };
         normalized = true;
@@ -321,7 +322,7 @@ button{font-family:var(--font);cursor:pointer;}
           showToast('Assign a technician before scheduling or starting this job.');
           return;
         }
-        const nextStage = column.key;
+        const nextStage = column.key === 'Unassigned' ? 'New' : column.key;
         updates[jobKey] = { ...(updates[jobKey] || {}), stage:nextStage };
         if (column.key === 'Unassigned') updates[jobKey].technician = 'Unassigned';
         writeUpdates(updates);

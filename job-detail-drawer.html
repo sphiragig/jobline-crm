@@ -135,7 +135,7 @@ button{font-family:var(--font);cursor:pointer;}
         <span style="font-size:14px;font-weight:600;">Rosalind Kerr</span>
         <span style="font-size:13px;color:var(--fg2);">Add second thermostat zone</span>
         <span style="font-size:13px;color:var(--fg3);">Change Request</span>
-        <span class="badge" style="background:var(--neutral-bg);color:var(--neutral-fg);">Unassigned</span>
+        <span class="badge" style="background:var(--brand-tint-20);color:var(--brand);">New</span>
         <div style="display:flex;align-items:center;gap:8px;"><div style="width:22px;height:22px;border-radius:50%;border:1.5px dashed var(--stroke1);flex-shrink:0;"></div><span style="font-size:13px;color:var(--danger-fg);font-weight:600;">Unassigned</span></div>
         <span style="font-size:13px;font-weight:600;text-align:right;">$95</span>
         <span style="font-size:13px;color:var(--fg2);text-align:right;">0d</span>
@@ -190,7 +190,7 @@ button{font-family:var(--font);cursor:pointer;}
         <span style="font-size:14px;font-weight:600;">Marcus Webb</span>
         <span style="font-size:13px;color:var(--fg2);">Reschedule sprinkler tune-up</span>
         <span style="font-size:13px;color:var(--fg3);">Change Request</span>
-        <span class="badge" style="background:var(--brand-tint-20);color:var(--brand);">Scheduled</span>
+        <span class="badge" style="background:var(--brand-tint-20);color:var(--brand);">New</span>
         <div style="display:flex;align-items:center;gap:8px;"><div style="width:22px;height:22px;border-radius:50%;border:1.5px dashed var(--stroke1);flex-shrink:0;"></div><span style="font-size:13px;color:var(--danger-fg);font-weight:600;">Unassigned</span></div>
         <span style="font-size:13px;font-weight:600;text-align:right;">$150</span>
         <span style="font-size:13px;color:var(--fg2);text-align:right;">2d</span>
@@ -279,12 +279,12 @@ button{font-family:var(--font);cursor:pointer;}
     'Alvarez Family': { id: 'JB-2041', type: 'New Job', stage: 'In Progress', priority: 'High', fee: 340, promisedDate: '2026-09-03', promisedTime: '12-4 PM', address: '214 Sycamore Lane, Unit B, Fairview Heights', technician: 'Marcus Reyes' },
     'Meadowbrook HOA': { id: 'JB-2038', type: 'Recurring Visit', stage: 'Scheduled', priority: 'Medium', fee: 180, promisedDate: '2026-09-02', promisedTime: '8 AM-12 PM', address: '880 Meadowbrook Drive, Fairview Heights', technician: 'Dana Kim' },
     'Chen Residence': { id: 'JB-2034', type: 'New Job', stage: 'Blocked', priority: 'High', fee: 410, promisedDate: '2026-09-01', promisedTime: 'Any time', address: '47 Harbor View Court, Fairview Heights', technician: 'Unassigned' },
-    'Rosalind Kerr': { id: 'JB-2046', type: 'Change Request', stage: 'Unassigned', priority: 'Low', fee: 95, promisedDate: '2026-09-10', promisedTime: 'Any time', address: '19 Wren Street, Fairview Heights', technician: 'Unassigned' },
+    'Rosalind Kerr': { id: 'JB-2046', type: 'Change Request', stage: 'New', priority: 'Low', fee: 95, promisedDate: '2026-09-10', promisedTime: 'Any time', address: '19 Wren Street, Fairview Heights', technician: 'Unassigned' },
     'Okafor & Sons Bakery': { id: 'JB-2032', type: 'Recurring Visit', stage: 'Scheduled', priority: 'Medium', fee: 120, promisedDate: '2026-09-03', promisedTime: '8 AM-12 PM', address: '302 Market Street, Fairview Heights', technician: 'Sana Patel' },
     'Tobias Lindqvist': { id: 'JB-2029', type: 'Cancellation', stage: 'Done', priority: 'Low', fee: 0, promisedDate: '2026-08-28', promisedTime: 'Any time', address: '61 Alder Avenue, Fairview Heights', technician: 'Marcus Reyes' },
     'Dana Whitfield': { id: 'JB-2042', type: 'New Job', stage: 'In Progress', priority: 'High', fee: 275, promisedDate: '2026-09-03', promisedTime: '12-4 PM', address: '725 Northgate Road, Fairview Heights', technician: 'Dana Kim' },
     'Priya Natarajan': { id: 'JB-2027', type: 'New Job', stage: 'Done', priority: 'Medium', fee: 210, promisedDate: '2026-08-27', promisedTime: '8 AM-12 PM', address: '146 Willow Bend, Fairview Heights', technician: 'Sana Patel' },
-    'Marcus Webb': { id: 'JB-2040', type: 'Change Request', stage: 'Scheduled', priority: 'Low', fee: 150, promisedDate: '2026-09-05', promisedTime: 'Any time', address: '930 Crestline Way, Fairview Heights', technician: 'Unassigned' }
+    'Marcus Webb': { id: 'JB-2040', type: 'Change Request', stage: 'New', priority: 'Low', fee: 150, promisedDate: '2026-09-05', promisedTime: 'Any time', address: '930 Crestline Way, Fairview Heights', technician: 'Unassigned' }
   };
   const baseDescriptions = { 'Alvarez Family':'AC unit not cooling, urgent', 'Meadowbrook HOA':'Quarterly irrigation inspection', 'Chen Residence':'Water heater leak in garage', 'Rosalind Kerr':'Add second thermostat zone', 'Okafor & Sons Bakery':'Monthly HVAC filter service', 'Tobias Lindqvist':'Cancel fall gutter cleaning', 'Dana Whitfield':"Furnace won't ignite", 'Priya Natarajan':'Replace kitchen faucet', 'Marcus Webb':'Reschedule sprinkler tune-up' };
   Object.entries(baseDescriptions).forEach(([name, description]) => jobs[name].description = description);
@@ -298,7 +298,7 @@ button{font-family:var(--font);cursor:pointer;}
   const selectedJob = createdJob || historyJob;
   const customer = selectedJob?.customer || (jobs[requestedCustomer] ? requestedCustomer : 'Alvarez Family');
   const jobKey = selectedJob?.id || customer;
-  if (selectedJob) jobs[customer] = { ...(jobs[customer] || { id:selectedJob.id, type:selectedJob.type, stage:'Unassigned', priority:'Medium', fee:0, promisedDate:'', promisedTime:'Any time', address:'', technician:'Unassigned' }), ...selectedJob, promisedDate:selectedJob.promised || selectedJob.promisedDate || jobs[customer]?.promisedDate || '', promisedTime:selectedJob.time || selectedJob.promisedTime || 'Any time' };
+  if (selectedJob) jobs[customer] = { ...(jobs[customer] || { id:selectedJob.id, type:selectedJob.type, stage:'New', priority:'Medium', fee:0, promisedDate:'', promisedTime:'Any time', address:'', technician:'Unassigned' }), ...selectedJob, promisedDate:selectedJob.promised || selectedJob.promisedDate || jobs[customer]?.promisedDate || '', promisedTime:selectedJob.time || selectedJob.promisedTime || 'Any time' };
 
   function escapeHtml(value) { return String(value ?? '').replace(/[&<>"']/g, char => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char])); }
   if (selectedJob) {
@@ -323,7 +323,7 @@ button{font-family:var(--font);cursor:pointer;}
   function readUpdates() {
     try {
       const updates = JSON.parse(localStorage.getItem(storageKey) || '{}');
-      Object.values(updates).forEach(update => { if (update.stage === 'New Lead') update.stage = 'Unassigned'; });
+      Object.values(updates).forEach(update => { if (update.stage === 'New Lead' || update.stage === 'Unassigned') update.stage = 'New'; });
       return updates;
     }
     catch { return {}; }
@@ -460,6 +460,13 @@ button{font-family:var(--font);cursor:pointer;}
       const isCurrent = selectedJob ? row.dataset.jobKey === jobKey : row.children[1]?.textContent.trim() === customer;
       row.style.background = isCurrent ? 'var(--brand-tint-10)' : '';
       if (!isCurrent) return;
+      const rowStageColors = { 'New':['var(--brand-tint-20)','var(--brand)'], 'Scheduled':['var(--brand-tint-20)','var(--brand)'], 'In Progress':['var(--warning-bg)','var(--warning-fg)'], 'Blocked':['var(--danger-bg)','var(--danger-fg)'], 'Done':['var(--success-bg)','var(--success-fg)'] };
+      const rowStageColor = rowStageColors[record.stage] || rowStageColors.New;
+      row.children[2].textContent = record.description || 'No description';
+      row.children[3].textContent = record.type || 'New Job';
+      row.children[4].textContent = record.stage || 'New';
+      row.children[4].style.background = rowStageColor[0];
+      row.children[4].style.color = rowStageColor[1];
       const profile = techProfiles[record.technician];
       if (profile) row.children[5].innerHTML = `<div class="avatar" style="width:22px;height:22px;font-size:10px;background:${profile.bg};color:${profile.color};">${profile.initials}</div><span style="font-size:13px;color:var(--fg2);">${record.technician}</span>`;
       else row.children[5].innerHTML = '<div style="width:22px;height:22px;border-radius:50%;border:1.5px dashed var(--stroke1);flex-shrink:0;"></div><span style="font-size:13px;color:var(--danger-fg);font-weight:600;">Unassigned</span>';

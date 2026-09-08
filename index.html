@@ -222,7 +222,7 @@ input{font-family:var(--font);}
         <span style="font-size:14px;font-weight:600;color:var(--fg1);">Rosalind Kerr</span>
         <span style="font-size:13px;color:var(--fg2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Add second thermostat zone</span>
         <span style="font-size:13px;color:var(--fg3);">Change Request</span>
-        <span class="badge" style="background:var(--neutral-bg);color:var(--neutral-fg);">Unassigned</span>
+        <span class="badge" style="background:var(--brand-tint-20);color:var(--brand);">New</span>
         <div style="display:flex;align-items:center;gap:8px;">
           <div style="width:22px;height:22px;border-radius:50%;border:1.5px dashed var(--stroke1);flex-shrink:0;"></div>
           <span style="font-size:13px;color:var(--danger-fg);font-weight:600;">Unassigned</span>
@@ -302,7 +302,7 @@ input{font-family:var(--font);}
         <span style="font-size:14px;font-weight:600;color:var(--fg1);">Marcus Webb</span>
         <span style="font-size:13px;color:var(--fg2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Reschedule sprinkler tune-up</span>
         <span style="font-size:13px;color:var(--fg3);">Change Request</span>
-        <span class="badge" style="background:var(--brand-tint-20);color:var(--brand);">Scheduled</span>
+        <span class="badge" style="background:var(--brand-tint-20);color:var(--brand);">New</span>
         <div style="display:flex;align-items:center;gap:8px;">
           <div style="width:22px;height:22px;border-radius:50%;border:1.5px dashed var(--stroke1);flex-shrink:0;"></div>
           <span style="font-size:13px;color:var(--danger-fg);font-weight:600;">Unassigned</span>
@@ -405,7 +405,7 @@ input{font-family:var(--font);}
   function readUpdates() {
     try {
       const updates = JSON.parse(localStorage.getItem(storageKey) || '{}');
-      Object.values(updates).forEach(update => { if (update.stage === 'New Lead') update.stage = 'Unassigned'; });
+      Object.values(updates).forEach(update => { if (update.stage === 'New Lead' || update.stage === 'Unassigned') update.stage = 'New'; });
       return updates;
     }
     catch { return {}; }
@@ -641,7 +641,12 @@ input{font-family:var(--font);}
       } else if (field === 'technician') {
         const profile = techProfiles[value];
         cell.innerHTML = profile ? technicianMarkup(value, profile.initials, profile.bg, profile.color) : unassignedMarkup();
-        if (value !== 'Unassigned' && (row.dataset.stage === 'Unassigned' || row.dataset.stage === 'New')) {
+        if (value === 'Unassigned' && row.dataset.stage === 'Scheduled') {
+          row.dataset.stage = 'New';
+          const stageCell = row.querySelector('[data-field="stage"]');
+          renderStage(stageCell, 'New');
+          saveInlineValue(row, 'stage', 'New');
+        } else if (value !== 'Unassigned' && (row.dataset.stage === 'Unassigned' || row.dataset.stage === 'New')) {
           row.dataset.stage = 'Scheduled';
           const stageCell = row.querySelector('[data-field="stage"]');
           renderStage(stageCell, 'Scheduled');
@@ -652,6 +657,7 @@ input{font-family:var(--font);}
       } else cell.textContent = value;
       saveInlineValue(row, field, field === 'fee' ? Number(value || 0) : value);
       applyFilters();
+      row.dispatchEvent(new Event('change', { bubbles:true }));
     };
     cell.replaceChildren(control);
     control.focus();
@@ -772,6 +778,7 @@ input{font-family:var(--font);}
         renderStage(row.querySelector('[data-field="stage"]'), 'Scheduled');
       }
       updates[row.dataset.jobKey] = { ...(updates[row.dataset.jobKey] || {}), technician: technicianName, ...profile, ...(shouldSchedule ? { stage:'Scheduled' } : {}) };
+      row.dispatchEvent(new Event('change', { bubbles:true }));
     });
     writeUpdates(updates);
     document.getElementById('bulkToastText').textContent = `${chosenRows.length} ${chosenRows.length === 1 ? 'job' : 'jobs'} assigned successfully`;
