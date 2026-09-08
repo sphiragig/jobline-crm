@@ -1,4 +1,7 @@
 (() => {
+  // Keep the complete AI workflow available without competing with the
+  // operational overview during the primary demo. Add ?show-ai=1 to preview it.
+  const queueAiVisible = new URLSearchParams(window.location.search).get('show-ai') === '1';
   const table = document.querySelector('.jq-table-wrap');
   if (!table) return;
   const role = localStorage.getItem('jobline-demo-persona') || 'manager';
@@ -108,7 +111,7 @@
   }
 
   const head = table.querySelector('.jq-head');
-  if (head) {
+  if (head && queueAiVisible) {
     head.classList.add('ai-enabled');
     const label = document.createElement('span');
     label.className = 'ai-head';
@@ -119,25 +122,27 @@
   proposalNotice.className = 'ai-table-notice';
   proposalNotice.setAttribute('role','note');
   proposalNotice.innerHTML = '<strong>AI suggestions</strong><span>Simulated proposals only. Review and approve before any job data changes.</span>';
-  table.before(proposalNotice);
-  table.querySelectorAll('.jq-row').forEach(row => {
-    row.classList.add('ai-enabled');
-    const proposal = recommendationFor(row);
-    const cell = document.createElement('div');
-    cell.className = 'ai-suggest-cell';
-    const button = document.createElement('button');
-    button.type = 'button';
-    button.className = 'ai-suggest-btn';
-    button.textContent = proposal.label;
-    button.setAttribute('aria-label', `${proposal.label} for ${row.dataset.customer}`);
-    button.addEventListener('click', event => {
-      event.preventDefault();
-      event.stopPropagation();
-      openReview(row, recommendationFor(row));
+  if (queueAiVisible) {
+    table.before(proposalNotice);
+    table.querySelectorAll('.jq-row').forEach(row => {
+      row.classList.add('ai-enabled');
+      const proposal = recommendationFor(row);
+      const cell = document.createElement('div');
+      cell.className = 'ai-suggest-cell';
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.className = 'ai-suggest-btn';
+      button.textContent = proposal.label;
+      button.setAttribute('aria-label', `${proposal.label} for ${row.dataset.customer}`);
+      button.addEventListener('click', event => {
+        event.preventDefault();
+        event.stopPropagation();
+        openReview(row, recommendationFor(row));
+      });
+      cell.appendChild(button);
+      row.appendChild(cell);
     });
-    cell.appendChild(button);
-    row.appendChild(cell);
-  });
+  }
   if (role === 'technician') {
     let sharedActivity = [];
     try { sharedActivity = JSON.parse(localStorage.getItem('jobline-job-activity') || '[]'); } catch {}
@@ -198,7 +203,7 @@
   function closeAudit() { auditScrim.classList.remove('open'); }
   auditScrim.querySelector('.ai-audit-close').addEventListener('click',closeAudit);
   auditScrim.addEventListener('click',event => { if (event.target === auditScrim) closeAudit(); });
-  if (role === 'manager') {
+  if (role === 'manager' && queueAiVisible) {
     const toolbar = document.querySelector('.toolbar-left');
     if (toolbar) {
       const auditButton = document.createElement('button');
