@@ -39,6 +39,26 @@
   let activeProposal = null;
   const auditKey = 'jobline-ai-audit';
 
+  // Keep AI assistance discoverable without permanently adding another table
+  // column. The user can reveal or hide the guided actions from the toolbar.
+  const toolbar = document.querySelector('.toolbar-left');
+  if (toolbar) {
+    const toggleButton = document.createElement('button');
+    toggleButton.className = 'ghost-btn ai-actions-toggle';
+    toggleButton.type = 'button';
+    toggleButton.setAttribute('aria-pressed', String(queueAiVisible));
+    toggleButton.innerHTML = `<svg aria-hidden="true" width="16" height="16" viewBox="0 0 20 20" fill="currentColor"><path d="M9.18 2.73a.85.85 0 0 1 1.64 0l.67 2.47a4.8 4.8 0 0 0 3.31 3.31l2.47.67a.85.85 0 0 1 0 1.64l-2.47.67a4.8 4.8 0 0 0-3.31 3.31l-.67 2.47a.85.85 0 0 1-1.64 0l-.67-2.47a4.8 4.8 0 0 0-3.31-3.31l-2.47-.67a.85.85 0 0 1 0-1.64l2.47-.67A4.8 4.8 0 0 0 8.51 5.2l.67-2.47Z"/></svg><span>${queueAiVisible ? 'Hide AI actions' : 'AI actions'}</span>`;
+    toggleButton.addEventListener('click', () => {
+      const nextUrl = new URL(location.href);
+      if (queueAiVisible) nextUrl.searchParams.delete('show-ai');
+      else nextUrl.searchParams.set('show-ai', '1');
+      nextUrl.searchParams.delete('open-ai-audit');
+      location.href = nextUrl.href;
+    });
+    const divider = toolbar.querySelector('div');
+    toolbar.insertBefore(toggleButton, divider || null);
+  }
+
   function readJson(key, fallback) {
     try { return JSON.parse(localStorage.getItem(key) || JSON.stringify(fallback)); } catch { return fallback; }
   }
@@ -204,7 +224,6 @@
   auditScrim.querySelector('.ai-audit-close').addEventListener('click',closeAudit);
   auditScrim.addEventListener('click',event => { if (event.target === auditScrim) closeAudit(); });
   if (role === 'manager' && queueAiVisible) {
-    const toolbar = document.querySelector('.toolbar-left');
     if (toolbar) {
       const auditButton = document.createElement('button');
       auditButton.className = 'ghost-btn ai-audit-button';
