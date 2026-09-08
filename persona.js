@@ -68,6 +68,37 @@
     } else document.body.appendChild(wrapper);
   }
 
+  function addNotificationCenter() {
+    let all = [];
+    try { all = JSON.parse(localStorage.getItem('jobline-notifications') || '[]'); } catch {}
+    const visible = all.filter(item => role === 'technician' ? item.role === 'technician' && item.recipient === technician : item.role === 'manager' || item.role === 'customer');
+    const unread = visible.filter(item => !item.read).length;
+    const bell = document.createElement('button');
+    bell.type = 'button';
+    bell.className = 'notification-bell';
+    bell.setAttribute('aria-label', `${unread} unread notifications`);
+    bell.innerHTML = `<span aria-hidden="true">♢</span>${unread ? `<b>${unread}</b>` : ''}`;
+    const panel = document.createElement('aside');
+    panel.className = 'notification-panel';
+    panel.hidden = true;
+    panel.innerHTML = `<header><div><h2>Notifications</h2><p>${role === 'technician' ? escapeHtml(technician) : 'Manager / Dispatcher'}</p></div><button type="button" aria-label="Close notifications">×</button></header><div class="notification-list">${visible.length ? visible.map(item => `<a href="job-detail-drawer.html?customer=${encodeURIComponent(item.customer)}&job=${encodeURIComponent(item.jobKey)}" data-notification-id="${escapeHtml(item.id)}" class="notification-item${item.read ? '' : ' unread'}"><span class="notification-dot"></span><span><strong>${escapeHtml(item.title)}</strong><em>${escapeHtml(item.customer)}</em><span>${escapeHtml(item.message)}</span><small>${new Date(item.createdAt).toLocaleString('en-US',{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'})} · ${escapeHtml((item.channels || ['In-product']).join(', '))}${item.simulated ? ' · Preview only' : ''}</small></span></a>`).join('') : '<p class="notification-empty">No notifications yet.</p>'}</div>${unread ? '<button class="notification-read-all" type="button">Mark all as read</button>' : ''}`;
+    document.body.append(bell,panel);
+    const close = () => { panel.hidden = true; bell.setAttribute('aria-expanded','false'); };
+    bell.addEventListener('click', () => { panel.hidden = !panel.hidden; bell.setAttribute('aria-expanded', String(!panel.hidden)); });
+    panel.querySelector('header button').addEventListener('click', close);
+    panel.querySelectorAll('[data-notification-id]').forEach(link => link.addEventListener('click', () => {
+      const item = all.find(entry => entry.id === link.dataset.notificationId);
+      if (item) item.read = true;
+      localStorage.setItem('jobline-notifications', JSON.stringify(all));
+    }));
+    panel.querySelector('.notification-read-all')?.addEventListener('click', () => {
+      const ids = new Set(visible.map(item => item.id));
+      all.forEach(item => { if (ids.has(item.id)) item.read = true; });
+      localStorage.setItem('jobline-notifications', JSON.stringify(all));
+      location.reload();
+    });
+  }
+
   function hideByText(selector, text) {
     document.querySelectorAll(selector).forEach(el => {
       if (el.textContent.trim().includes(text)) el.classList.add('persona-hidden');
@@ -264,10 +295,11 @@
 
   if (!role) { showSignIn(); return; }
   addSwitcher();
+  addNotificationCenter();
   document.documentElement.dataset.persona = role;
   if (role === 'technician') setTimeout(applyTechnicianRole, 0);
   window.addEventListener('storage', event => {
-    if (['jobline-job-updates','jobline-created-jobs','jobline-job-activity'].includes(event.key)) {
+    if (['jobline-job-updates','jobline-created-jobs','jobline-job-activity','jobline-notifications'].includes(event.key)) {
       window.setTimeout(() => location.reload(), 120);
     }
   });
