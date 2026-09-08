@@ -2,6 +2,7 @@
   const icon = (path, size = 20) => `<svg aria-hidden="true" width="${size}" height="${size}" viewBox="0 0 20 20" fill="currentColor"><path d="${path}"/></svg>`;
   const bellIcon = icon('M10 2a4 4 0 0 0-4 4v1.67c0 .79-.24 1.56-.69 2.2L4.1 11.63A1.5 1.5 0 0 0 5.34 14h9.32a1.5 1.5 0 0 0 1.24-2.37l-1.21-1.76A3.85 3.85 0 0 1 14 7.67V6a4 4 0 0 0-4-4Zm0 16a2.5 2.5 0 0 0 2.45-2H7.55A2.5 2.5 0 0 0 10 18Z');
   const dismissIcon = icon('M4.09 4.09a.75.75 0 0 1 1.06 0L10 8.94l4.85-4.85a.75.75 0 1 1 1.06 1.06L11.06 10l4.85 4.85a.75.75 0 1 1-1.06 1.06L10 11.06l-4.85 4.85a.75.75 0 1 1-1.06-1.06L8.94 10 4.09 5.15a.75.75 0 0 1 0-1.06Z');
+  const shieldIcon = icon('M9.44 2.15a1.5 1.5 0 0 1 1.12 0l5 2A1.5 1.5 0 0 1 16.5 5.55v3.7c0 3.65-2.12 6.94-5.43 8.42l-.46.2a1.5 1.5 0 0 1-1.22 0l-.46-.2A9.22 9.22 0 0 1 3.5 9.25v-3.7a1.5 1.5 0 0 1 .94-1.4l5-2ZM13.28 7.5a.75.75 0 0 0-1.06 0L9.25 10.47 7.78 9a.75.75 0 0 0-1.06 1.06l2 2c.3.3.77.3 1.06 0l3.5-3.5a.75.75 0 0 0 0-1.06Z');
   if (window.self !== window.top || new URLSearchParams(location.search).get('modal') === '1') return;
   const ROLE_KEY = 'jobline-demo-persona';
   const TECH_KEY = 'jobline-demo-technician';
@@ -87,7 +88,16 @@
     panel.innerHTML = `<header><div><h2>Notifications</h2><p>${role === 'technician' ? escapeHtml(technician) : 'Manager / Dispatcher'}</p></div><button type="button" aria-label="Close notifications">${dismissIcon}</button></header><div class="notification-list">${visible.length ? visible.map(item => `<a href="job-detail-drawer.html?customer=${encodeURIComponent(item.customer)}&job=${encodeURIComponent(item.jobKey)}" data-notification-id="${escapeHtml(item.id)}" class="notification-item${item.read ? '' : ' unread'}"><span class="notification-dot"></span><span><strong>${escapeHtml(item.title)}</strong><em>${escapeHtml(item.customer)}</em><span>${escapeHtml(item.message)}</span><small>${new Date(item.createdAt).toLocaleString('en-US',{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'})} · ${escapeHtml((item.channels || ['In-product']).join(', '))}${item.simulated ? ' · Preview only' : ''}</small></span></a>`).join('') : '<p class="notification-empty">No notifications yet.</p>'}</div>${unread ? '<button class="notification-read-all" type="button">Mark all as read</button>' : ''}`;
     document.body.append(bell,panel);
     const close = () => { panel.hidden = true; bell.setAttribute('aria-expanded','false'); };
-    bell.addEventListener('click', () => { panel.hidden = !panel.hidden; bell.setAttribute('aria-expanded', String(!panel.hidden)); });
+    bell.addEventListener('click', () => {
+      panel.hidden = !panel.hidden;
+      bell.setAttribute('aria-expanded', String(!panel.hidden));
+      if (!panel.hidden) {
+        const trustPanel = document.querySelector('.prototype-trust-panel');
+        const trustButton = document.querySelector('.prototype-trust-button');
+        if (trustPanel) trustPanel.hidden = true;
+        trustButton?.setAttribute('aria-expanded','false');
+      }
+    });
     panel.querySelector('header button').addEventListener('click', close);
     panel.querySelectorAll('[data-notification-id]').forEach(link => link.addEventListener('click', () => {
       const item = all.find(entry => entry.id === link.dataset.notificationId);
@@ -100,6 +110,37 @@
       localStorage.setItem('jobline-notifications', JSON.stringify(all));
       location.reload();
     });
+  }
+
+  function addPrototypeTrust() {
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.className = 'prototype-trust-button';
+    button.setAttribute('aria-label','Open prototype and trust information');
+    button.setAttribute('aria-expanded','false');
+    button.innerHTML = `${shieldIcon}<span>Demo</span>`;
+    const panel = document.createElement('aside');
+    panel.className = 'prototype-trust-panel';
+    panel.hidden = true;
+    panel.setAttribute('role','dialog');
+    panel.setAttribute('aria-modal','false');
+    panel.setAttribute('aria-labelledby','prototypeTrustTitle');
+    panel.innerHTML = `<header><div><span class="prototype-trust-eyebrow">Prototype disclosure</span><h2 id="prototypeTrustTitle">Trust and system status</h2></div><button type="button" aria-label="Close prototype information">${dismissIcon}</button></header><div class="prototype-trust-body"><section><strong>${shieldIcon} Human control</strong><p>AI suggestions never change job data until a manager or technician reviews and approves them. The manual workflow remains available.</p></section><section><strong>${shieldIcon} Simulated capabilities</strong><p>Role sign-in, AI reasoning, technician availability, inventory, email, and SMS are realistic prototype simulations—not live production services.</p></section><section><strong>${shieldIcon} Data and audit</strong><p>Demo changes are stored only in this browser. Approved AI actions record the approver, time, source, and before/after values.</p></section><section><strong>${shieldIcon} Corrections</strong><p>Reversible AI actions provide Undo. Completed job creation remains editable through the standard job controls.</p></section></div>${role === 'manager' ? '<footer><a href="index.html?open-ai-audit=1">View AI activity</a><span>Demo environment · No external messages sent</span></footer>' : '<footer><span>Demo environment · No external messages sent</span></footer>'}`;
+    document.body.append(button,panel);
+    const close = () => { panel.hidden = true; button.setAttribute('aria-expanded','false'); };
+    button.addEventListener('click',() => {
+      panel.hidden = !panel.hidden;
+      button.setAttribute('aria-expanded',String(!panel.hidden));
+      if (!panel.hidden) {
+        const notificationPanel = document.querySelector('.notification-panel');
+        const notificationButton = document.querySelector('.notification-bell');
+        if (notificationPanel) notificationPanel.hidden = true;
+        notificationButton?.setAttribute('aria-expanded','false');
+        panel.querySelector('header button').focus();
+      }
+    });
+    panel.querySelector('header button').addEventListener('click',close);
+    document.addEventListener('keydown',event => { if (event.key === 'Escape' && !panel.hidden) close(); });
   }
 
   function hideByText(selector, text) {
@@ -299,6 +340,7 @@
   if (!role) { showSignIn(); return; }
   addSwitcher();
   addNotificationCenter();
+  addPrototypeTrust();
   document.documentElement.dataset.persona = role;
   if (role === 'technician') setTimeout(applyTechnicianRole, 0);
   window.addEventListener('storage', event => {

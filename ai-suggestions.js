@@ -112,9 +112,14 @@
     head.classList.add('ai-enabled');
     const label = document.createElement('span');
     label.className = 'ai-head';
-    label.textContent = 'Suggested action';
+    label.textContent = 'AI suggested action';
     head.appendChild(label);
   }
+  const proposalNotice = document.createElement('div');
+  proposalNotice.className = 'ai-table-notice';
+  proposalNotice.setAttribute('role','note');
+  proposalNotice.innerHTML = '<strong>AI suggestions</strong><span>Simulated proposals only. Review and approve before any job data changes.</span>';
+  table.before(proposalNotice);
   table.querySelectorAll('.jq-row').forEach(row => {
     row.classList.add('ai-enabled');
     const proposal = recommendationFor(row);
@@ -183,7 +188,11 @@
   document.body.appendChild(auditScrim);
   function renderAudit() {
     const entries = readJson(auditKey, []);
-    auditScrim.querySelector('.ai-audit-list').innerHTML = entries.length ? entries.map(entry => `<article class="ai-audit-entry"><div class="ai-audit-entry-head"><div><strong>${escapeHtml(entry.action)}</strong><span>${escapeHtml(entry.customer)}</span></div><span class="ai-audit-decision${entry.decision === 'Undone' ? ' undone' : ''}">${escapeHtml(entry.decision || 'Approved')}</span></div><dl><div><dt>Approved by</dt><dd>${escapeHtml(entry.approvedBy)}</dd></div><div><dt>When</dt><dd>${escapeHtml(new Date(entry.approvedAt).toLocaleString('en-US',{month:'short',day:'numeric',year:'numeric',hour:'numeric',minute:'2-digit'}))}</dd></div><div><dt>Source</dt><dd>${escapeHtml(entry.source || 'Simulated AI proposal')}</dd></div></dl>${entry.humanOverride ? `<p class="ai-audit-override"><strong>Human override</strong><span>${escapeHtml(entry.humanOverride.field)}: AI suggested ${escapeHtml(entry.humanOverride.suggested)}; ${escapeHtml(entry.approvedBy)} approved ${escapeHtml(entry.humanOverride.approved)}.</span></p>` : ''}${entry.editedContent ? '<p class="ai-audit-override"><strong>Human edit</strong><span>The AI draft was edited before approval.</span></p>' : ''}${entry.changes?.length ? `<div class="ai-audit-changes">${entry.changes.map(change => `<p><strong>${escapeHtml(change.field)}</strong><span>${escapeHtml(change.before)} → ${escapeHtml(change.after)}</span></p>`).join('')}</div>` : '<p class="ai-audit-no-change">Reviewed content was added to job activity; operational fields were unchanged.</p>'}</article>`).join('') : '<div class="ai-audit-empty"><strong>No approved AI actions yet</strong><span>Approved proposals will appear here with the approver, time, and changes.</span></div>';
+    auditScrim.querySelector('.ai-audit-list').innerHTML = entries.length ? entries.map((entry,index) => {
+      const canUndo = entry.kind !== 'create' && entry.decision === 'Approved' && !entries.slice(0,index).some(newer => newer.jobKey === entry.jobKey && newer.decision === 'Approved');
+      return `<article class="ai-audit-entry"><div class="ai-audit-entry-head"><div><strong>${escapeHtml(entry.action)}</strong><span>${escapeHtml(entry.customer)}</span></div><div class="ai-audit-entry-actions"><span class="ai-audit-decision${entry.decision === 'Undone' ? ' undone' : ''}">${escapeHtml(entry.decision || 'Approved')}</span>${canUndo ? `<button type="button" data-audit-undo="${escapeHtml(entry.id)}">Undo approved action</button>` : ''}</div></div><dl><div><dt>Approved by</dt><dd>${escapeHtml(entry.approvedBy)}</dd></div><div><dt>When</dt><dd>${escapeHtml(new Date(entry.approvedAt).toLocaleString('en-US',{month:'short',day:'numeric',year:'numeric',hour:'numeric',minute:'2-digit'}))}</dd></div><div><dt>Source</dt><dd>${escapeHtml(entry.source || 'Simulated AI proposal')}</dd></div></dl>${entry.humanOverride ? `<p class="ai-audit-override"><strong>Human override</strong><span>${escapeHtml(entry.humanOverride.field)}: AI suggested ${escapeHtml(entry.humanOverride.suggested)}; ${escapeHtml(entry.approvedBy)} approved ${escapeHtml(entry.humanOverride.approved)}.</span></p>` : ''}${entry.editedContent ? '<p class="ai-audit-override"><strong>Human edit</strong><span>The AI draft was edited before approval.</span></p>' : ''}${entry.changes?.length ? `<div class="ai-audit-changes">${entry.changes.map(change => `<p><strong>${escapeHtml(change.field)}</strong><span>${escapeHtml(change.before)} → ${escapeHtml(change.after)}</span></p>`).join('')}</div>` : '<p class="ai-audit-no-change">Reviewed content was added to job activity; operational fields were unchanged.</p>'}</article>`;
+    }).join('') : '<div class="ai-audit-empty"><strong>No approved AI actions yet</strong><span>Approved proposals will appear here with the approver, time, and changes.</span></div>';
+    auditScrim.querySelectorAll('[data-audit-undo]').forEach(button => button.addEventListener('click',() => undoAudit(button.dataset.auditUndo)));
   }
   function openAudit() { renderAudit(); auditScrim.classList.add('open'); auditScrim.querySelector('.ai-audit-close').focus(); }
   function closeAudit() { auditScrim.classList.remove('open'); }
@@ -229,6 +238,7 @@
     sessionStorage.removeItem('jobline-ai-confirmation');
     window.setTimeout(() => showConfirmation(JSON.parse(pendingConfirmation)), 150);
   }
+  if (new URLSearchParams(location.search).get('open-ai-audit') === '1' && role === 'manager') window.setTimeout(openAudit,100);
   const closeReview = () => scrim.classList.remove('open');
   scrim.querySelector('.ai-review-close').addEventListener('click', closeReview);
   scrim.querySelector('.ai-secondary').addEventListener('click', closeReview);
