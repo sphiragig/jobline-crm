@@ -206,7 +206,7 @@ body.modal-mode>div{min-height:auto !important;background:#fff !important;}
   if (new URLSearchParams(window.location.search).get('modal') !== '1') return;
   document.body.classList.add('modal-mode');
   const formColumn = document.querySelector('.formcol');
-  formColumn.innerHTML = `<form class="modal-job-form" id="modalJobForm">
+  formColumn.innerHTML = `<form class="modal-job-form" id="modalJobForm" novalidate>
     <section class="ai-create-box"><div class="ai-create-tabs"><button class="ai-create-tab active" type="button" data-create-mode="manual">Enter manually</button><button class="ai-create-tab" type="button" data-create-mode="ai">Create from request with AI</button></div><div class="ai-request-panel" id="aiRequestPanel" hidden><label class="modal-field full" for="aiRequestText">Customer request or call summary</label><textarea id="aiRequestText" placeholder="Example: Meadowbrook HOA called. The AC is not cooling. Please send someone tomorrow afternoon. This is urgent."></textarea><div class="ai-request-actions"><span class="ai-analysis-status" id="aiAnalysisStatus">AI creates a draft; it will not create or assign the job.</span><button class="ai-analyze" id="aiAnalyzeRequest" type="button">Prepare job draft</button></div><div class="ai-review-banner" id="aiReviewBanner" role="status"></div><section class="ai-create-proposal" id="aiCreateProposal" aria-label="AI extraction review" hidden></section></div></section>
     <section class="modal-section"><h3>Customer</h3><div class="modal-grid">
       <label class="modal-field full">Customer<input name="customer" id="modalCustomer" required autocomplete="off" placeholder="Enter customer or business name"></label>
@@ -244,6 +244,17 @@ body.modal-mode>div{min-height:auto !important;background:#fff !important;}
     'Tobias Lindqvist':['61 Alder Avenue','Fairview Heights','IL','60443','Tobias Lindqvist','(312) 555-0116','tobias.lindqvist@fairviewmail.com'],
     'Marcus Webb':['930 Crestline Way','Fairview Heights','IL','60443','Marcus Webb','(312) 555-0157','marcus.webb@fairviewmail.com']
   };
+  const fallbackJobs = [
+    {customer:'Alvarez Family',description:'AC unit not cooling, urgent',stage:'In Progress'},
+    {customer:'Meadowbrook HOA',description:'Quarterly irrigation inspection',stage:'Scheduled'},
+    {customer:'Chen Residence',description:'Water heater leak in garage',stage:'Blocked'},
+    {customer:'Rosalind Kerr',description:'Add second thermostat zone',stage:'New'},
+    {customer:'Okafor & Sons Bakery',description:'Monthly HVAC filter service',stage:'Scheduled'},
+    {customer:'Tobias Lindqvist',description:'Cancel fall gutter cleaning',stage:'Done'},
+    {customer:'Dana Whitfield',description:"Furnace won't ignite",stage:'In Progress'},
+    {customer:'Priya Natarajan',description:'Replace kitchen faucet',stage:'Done'},
+    {customer:'Marcus Webb',description:'Reschedule sprinkler tune-up',stage:'New'}
+  ];
   const localNow = new Date(Date.now() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 16);
   document.getElementById('modalCreated').value = localNow;
   let aiMode = false;
@@ -278,7 +289,8 @@ body.modal-mode>div{min-height:auto !important;background:#fff !important;}
     aiMode = button.dataset.createMode === 'ai';
     document.querySelectorAll('[data-create-mode]').forEach(tab => tab.classList.toggle('active', tab === button));
     document.getElementById('aiRequestPanel').hidden = !aiMode;
-    document.getElementById('modalCreateButton').textContent = aiMode ? 'Create reviewed job' : 'Create Job';
+    document.getElementById('modalCreateButton').textContent = aiMode ? 'Prepare a draft first' : 'Create Job';
+    document.getElementById('modalCreateButton').disabled = aiMode;
     if (!aiMode) { clearAiStates(); document.getElementById('aiCreateProposal').hidden = true; }
   }));
   document.getElementById('aiAnalyzeRequest').addEventListener('click', () => {
@@ -327,14 +339,20 @@ body.modal-mode>div{min-height:auto !important;background:#fff !important;}
       else markField(name,'extracted',matchedCustomer && ['contactName','phone','email','street','city','state','zip'].includes(name) ? 'From customer record' : 'From request');
     });
     markField('technician','uncertain','Optional — assign later');
-    const parentRows = [...window.parent.document.querySelectorAll('.jq-row')];
+    let existingJobs = fallbackJobs;
+    try {
+      const parentRows = [...window.parent.document.querySelectorAll('.jq-row')];
+      if (parentRows.length) existingJobs = parentRows.map(row => ({customer:row.dataset.customer || '',description:row.querySelector('[data-field="description"]')?.textContent.trim() || '',stage:row.dataset.stage || ''}));
+    } catch {
+      /* Local file iframes have opaque origins; use the same built-in demo records. */
+    }
     const requestTerms = new Set(lower.split(/[^a-z0-9]+/).filter(word => word.length > 4));
-    const duplicates = parentRows.map(row => {
-      const existingCustomer = row.dataset.customer || '';
-      const description = row.querySelector('[data-field="description"]')?.textContent.trim() || '';
+    const duplicates = existingJobs.map(job => {
+      const existingCustomer = job.customer || '';
+      const description = job.description || '';
       const overlap = description.toLowerCase().split(/[^a-z0-9]+/).filter(word => requestTerms.has(word)).length;
       const exactCustomer = customerName && existingCustomer.toLowerCase() === customerName.toLowerCase();
-      return {customer:existingCustomer,description,stage:row.dataset.stage || '',score:(exactCustomer ? 60 : 0) + Math.min(35,overlap * 12)};
+      return {customer:existingCustomer,description,stage:job.stage || '',score:(exactCustomer ? 60 : 0) + Math.min(35,overlap * 12)};
     }).filter(item => item.score >= 24).sort((a,b) => b.score-a.score).slice(0,3);
     const extracted = [
       ['Customer',fieldFor('customer').value,matchedCustomer ? 98 : customerName ? 76 : 0],
@@ -350,6 +368,9 @@ body.modal-mode>div{min-height:auto !important;background:#fff !important;}
     banner.innerHTML = `<strong>Review required:</strong> ${missingCount} missing required ${missingCount === 1 ? 'field' : 'fields'} and ${uncertainCount} inferred ${uncertainCount === 1 ? 'value' : 'values'}. AI did not invent contact details, address, pricing, or availability.`;
     banner.classList.add('show');
     document.getElementById('modalCreateButton').textContent = 'Approve & create job';
+    document.getElementById('modalCreateButton').disabled = false;
+    document.getElementById('aiAnalyzeRequest').textContent = 'Refresh job draft';
+    proposal.scrollIntoView({block:'nearest'});
   });
   document.getElementById('modalCustomer').addEventListener('input', event => {
     const typedName = event.target.value.trim().toLowerCase();
@@ -367,6 +388,21 @@ body.modal-mode>div{min-height:auto !important;background:#fff !important;}
       ['modalStreet','modalCity','modalState','modalZip','modalContact','modalPhone','modalEmail'].forEach(id => document.getElementById(id).value = '');
     }
   });
+  document.getElementById('aiRequestText').addEventListener('input', () => {
+    if (!aiAnalyzed) return;
+    aiAnalyzed = false;
+    aiReviewMeta = null;
+    document.getElementById('aiCreateProposal').hidden = true;
+    document.getElementById('aiAnalyzeRequest').textContent = 'Prepare job draft';
+    document.getElementById('modalCreateButton').textContent = 'Prepare a draft first';
+    document.getElementById('modalCreateButton').disabled = true;
+    const status = document.getElementById('aiAnalysisStatus');
+    status.textContent = 'Request changed. Prepare a new draft before approval.';
+    status.className = 'ai-analysis-status';
+    const createButton = document.getElementById('modalCreateButton');
+    createButton.textContent = 'Prepare a draft first';
+    createButton.disabled = true;
+  });
   document.getElementById('modalCancel').addEventListener('click', () => window.parent.postMessage('jobline-close-new-job', '*'));
   document.getElementById('modalJobForm').addEventListener('submit', event => {
     event.preventDefault();
@@ -381,6 +417,30 @@ body.modal-mode>div{min-height:auto !important;background:#fff !important;}
       status.textContent = 'Confirm that you reviewed the AI proposal before creating the job.';
       status.className = 'ai-analysis-status error';
       document.getElementById('aiReviewConfirmed')?.focus();
+      document.getElementById('aiCreateProposal').hidden = false;
+      document.getElementById('aiCreateProposal').scrollIntoView({block:'center'});
+      return;
+    }
+    const invalidControls = [...form.querySelectorAll('[required]')].filter(control => control.type === 'checkbox' ? !control.checked : !control.checkValidity());
+    if (invalidControls.length) {
+      const first = invalidControls[0];
+      const missingNames = invalidControls.map(control => control.name || control.closest('.modal-field')?.childNodes[0]?.textContent?.trim() || 'required field');
+      const status = document.getElementById('aiAnalysisStatus');
+      status.textContent = `Complete ${invalidControls.length} required ${invalidControls.length === 1 ? 'field' : 'fields'}: ${missingNames.slice(0,3).join(', ')}${missingNames.length > 3 ? '…' : ''}`;
+      status.className = 'ai-analysis-status error';
+      first.closest('.modal-field')?.classList.add('ai-missing');
+      first.scrollIntoView({block:'center'});
+      first.focus();
+      return;
+    }
+    if (!event.currentTarget.checkValidity()) {
+      const invalid = [...event.currentTarget.elements].filter(control => control.willValidate && !control.validity.valid);
+      const labels = invalid.map(control => control.closest('label')?.childNodes[0]?.textContent?.trim() || control.name).filter(Boolean);
+      const status = document.getElementById('aiAnalysisStatus');
+      status.textContent = `Complete ${invalid.length} required ${invalid.length === 1 ? 'field' : 'fields'}: ${labels.slice(0,4).join(', ')}${labels.length > 4 ? '…' : ''}`;
+      status.className = 'ai-analysis-status error';
+      invalid[0]?.focus();
+      invalid[0]?.scrollIntoView({block:'center'});
       return;
     }
     const data = Object.fromEntries(new FormData(event.currentTarget));
