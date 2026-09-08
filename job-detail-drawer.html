@@ -6,6 +6,7 @@
 <link rel="stylesheet" href="fluent2-alignment.css">
 <link rel="stylesheet" href="persona.css">
 <link rel="stylesheet" href="operations-overview.css">
+<link rel="stylesheet" href="accessibility.css">
 <style>
 :root{
   --brand:#0F6CBD;--brand-hover:#115EA3;--brand-pressed:#0B4F8A;
@@ -209,7 +210,7 @@ button{font-family:var(--font);cursor:pointer;}
           <h2 style="margin:0;font-size:18px;font-weight:600;"><a id="drawerCustomerName" href="customer-detail.html" style="color:var(--fg1);">Alvarez Family</a></h2>
           <p id="drawerJobMeta" style="margin:4px 0 0;font-size:12px;color:var(--fg3);">Job #JB-2041 &middot; New Job</p>
         </div>
-        <a href="index.html" style="width:32px;height:32px;border-radius:4px;color:var(--fg3);display:flex;align-items:center;justify-content:center;">
+        <a href="index.html" aria-label="Close job details" style="width:32px;height:32px;border-radius:4px;color:var(--fg3);display:flex;align-items:center;justify-content:center;">
           <svg width="16" height="16" viewBox="0 0 20 20" fill="none"><path d="M5 5L15 15M15 5L5 15" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
         </a>
       </div>
@@ -225,7 +226,7 @@ button{font-family:var(--font);cursor:pointer;}
       <div class="drawer-row"><span class="drawer-lbl">Type</span><span class="drawer-val" id="drawerTypeValue">New Job</span></div>
       <div class="drawer-row"><span class="drawer-lbl">Created</span><span class="drawer-val" id="drawerCreatedValue">Sep 1, 2026 · 8:10 AM</span></div>
       <div class="drawer-row"><span class="drawer-lbl">Priority</span><span class="drawer-val" style="flex:1;"><strong class="editable-value" id="priorityValue">High</strong><select class="edit-control" id="priorityInput"><option>Low</option><option>Medium</option><option selected>High</option></select></span></div>
-      <div class="drawer-row"><span class="drawer-lbl">Promised date</span><span class="drawer-val" style="flex:1;"><strong class="editable-value" id="promisedValue">Sep 3, 2026 &middot; 12-4 PM</strong><div class="edit-control" style="padding:0;border:0;"><input id="promisedDateInput" type="date" value="2026-09-03" style="width:100%;height:34px;border:1px solid var(--stroke1);border-radius:6px;padding:0 9px;"><select id="promisedTimeInput" style="width:100%;height:34px;margin-top:6px;border:1px solid var(--stroke1);border-radius:6px;padding:0 9px;"><option>8 AM-12 PM</option><option selected>12-4 PM</option><option>Any time</option></select></div></span></div>
+      <div class="drawer-row"><span class="drawer-lbl">Promised date</span><span class="drawer-val" style="flex:1;"><strong class="editable-value" id="promisedValue">Sep 3, 2026 &middot; 12-4 PM</strong><div class="edit-control" style="padding:0;border:0;"><input id="promisedDateInput" aria-label="Promised date" type="date" value="2026-09-03" style="width:100%;height:34px;border:1px solid var(--stroke1);border-radius:6px;padding:0 9px;"><select id="promisedTimeInput" aria-label="Promised time window" style="width:100%;height:34px;margin-top:6px;border:1px solid var(--stroke1);border-radius:6px;padding:0 9px;"><option>8 AM-12 PM</option><option selected>12-4 PM</option><option>Any time</option></select></div></span></div>
       <div class="drawer-row"><span class="drawer-lbl">Street</span><span class="drawer-val" style="flex:1;"><strong class="editable-value" id="streetValue"></strong><input class="edit-control" id="streetInput"></span></div>
       <div class="drawer-row"><span class="drawer-lbl">City</span><span class="drawer-val" style="flex:1;"><strong class="editable-value" id="cityValue"></strong><input class="edit-control" id="cityInput"></span></div>
       <div class="drawer-row"><span class="drawer-lbl">State</span><span class="drawer-val" style="flex:1;"><strong class="editable-value" id="stateValue"></strong><input class="edit-control" id="stateInput" maxlength="2"></span></div>
@@ -254,7 +255,7 @@ button{font-family:var(--font);cursor:pointer;}
       <div style="height:1px;background:var(--stroke2);margin:20px 0;"></div>
       <h3 class="sec-label">Notes &amp; Activity</h3>
       <div id="drawerActivity" style="display:flex;flex-direction:column;gap:14px;"></div>
-      <div style="display:flex;gap:8px;margin:14px 0 20px;"><input id="drawerNoteInput" placeholder="Add a note" style="height:34px;flex:1;border:1px solid var(--stroke1);border-radius:6px;padding:0 9px;"><button class="ghost-btn" id="drawerAddNote" type="button" style="background:var(--brand);color:#fff;">Add</button></div>
+      <div style="display:flex;gap:8px;margin:14px 0 20px;"><input id="drawerNoteInput" aria-label="Add a job note" placeholder="Add a note" style="height:34px;flex:1;border:1px solid var(--stroke1);border-radius:6px;padding:0 9px;"><button class="ghost-btn" id="drawerAddNote" type="button" style="background:var(--brand);color:#fff;">Add</button></div>
     </div>
     <div style="flex-shrink:0;border-top:1px solid var(--stroke2);padding:16px 24px;display:flex;justify-content:flex-end;gap:8px;">
       <button class="ghost-btn" id="drawerEditButton" type="button" style="border:1px solid var(--stroke1);">Edit</button>
@@ -556,5 +557,6 @@ button{font-family:var(--font);cursor:pointer;}
 })();
 </script>
 <script src="persona.js?v=6"></script>
+<script src="accessibility.js?v=1"></script>
 </body>
 </html>

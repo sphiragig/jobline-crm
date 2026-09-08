@@ -5,6 +5,7 @@
 <title>Jobline - Customers</title>
 <link rel="stylesheet" href="fluent2-alignment.css">
 <link rel="stylesheet" href="persona.css">
+<link rel="stylesheet" href="accessibility.css">
 <style>
 :root{
   --brand:#0F6CBD;--brand-hover:#115EA3;
@@ -38,6 +39,7 @@ button{font-family:var(--font);cursor:pointer;}
 .stat-lbl{font-size:11px;color:var(--fg3);margin-top:2px;}
 @media (max-width:1180px){ main{padding:20px !important;} .cust-grid{grid-template-columns:repeat(2,1fr);} }
 @media (max-width:760px){ .rail{width:56px !important;} .cust-grid{grid-template-columns:1fr;} }
+@media (max-width:620px){main>div:first-child{flex-direction:column;}main>div:first-child>div:last-child{width:100%;}main>div:first-child>div:last-child>div{width:100%!important;}}
 </style>
 </head>
 <body>
@@ -225,5 +227,6 @@ button{font-family:var(--font);cursor:pointer;}
 })();
 </script>
 <script src="persona.js?v=6"></script>
+<script src="accessibility.js?v=1"></script>
 </body>
 </html>

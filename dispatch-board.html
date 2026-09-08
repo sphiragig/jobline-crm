@@ -6,6 +6,7 @@
 <link rel="stylesheet" href="fluent2-alignment.css">
 <link rel="stylesheet" href="persona.css">
 <link rel="stylesheet" href="operations-overview.css">
+<link rel="stylesheet" href="accessibility.css">
 <style>
 :root{
   --brand:#0F6CBD;--brand-hover:#115EA3;
@@ -277,7 +278,8 @@ button{font-family:var(--font);cursor:pointer;}
     const tech = profile
       ? `<div class="avatar" style="width:20px;height:20px;font-size:9px;background:${profile.bg};color:${profile.color};">${profile.initials}</div>`
       : '<div style="width:20px;height:20px;border-radius:50%;border:1.5px dashed var(--stroke1);"></div>';
-    return `<a class="card-link" href="job-detail-drawer.html?customer=${encodeURIComponent(job.customer)}${job.id?.startsWith('created-') ? `&job=${encodeURIComponent(job.id)}` : ''}" aria-label="Open ${job.customer} job detail"></a><div class="card-top"><span style="display:flex;align-items:center;gap:6px;"><span style="width:7px;height:7px;border-radius:50%;background:${priorityColors[job.priority]};display:inline-block;"></span><span style="font-size:11px;color:var(--fg3);">${job.time}</span></span></div><p class="card-name">${job.customer}</p><p class="card-desc">${job.description}</p><div class="card-bottom">${tech}<span style="font-size:12px;font-weight:600;color:var(--fg2);">$${Number(job.fee).toLocaleString()}</span></div>`;
+    const currentStatus = boardStatus(job);
+    return `<a class="card-link" href="job-detail-drawer.html?customer=${encodeURIComponent(job.customer)}${job.id?.startsWith('created-') ? `&job=${encodeURIComponent(job.id)}` : ''}" aria-label="Open ${job.customer} job detail"></a><div class="card-top"><span style="display:flex;align-items:center;gap:6px;"><span style="width:7px;height:7px;border-radius:50%;background:${priorityColors[job.priority]};display:inline-block;"></span><span style="font-size:11px;color:var(--fg3);">${job.time}</span></span></div><p class="card-name">${job.customer}</p><p class="card-desc">${job.description}</p><div class="card-bottom">${tech}<span style="font-size:12px;font-weight:600;color:var(--fg2);">$${Number(job.fee).toLocaleString()}</span></div><label class="sr-only" for="move-${job.jobKey.replace(/[^a-z0-9]/gi,'-')}">Move ${job.customer} to status</label><select class="dispatch-move" id="move-${job.jobKey.replace(/[^a-z0-9]/gi,'-')}" data-job-key="${job.jobKey}" aria-label="Move ${job.customer} to status">${columns.map(column => `<option${column.key === currentStatus ? ' selected' : ''}>${column.key}</option>`).join('')}</select>`;
   }
   function renderBoard() {
     const updates = readUpdates();
@@ -309,6 +311,22 @@ button{font-family:var(--font);cursor:pointer;}
         if (column.key === 'Done') card.style.opacity = '.6';
         card.innerHTML = cardMarkup(job);
         card.addEventListener('dragstart', event => event.dataTransfer.setData('text/plain', job.jobKey));
+        card.querySelector('.dispatch-move').addEventListener('change', event => {
+          event.stopPropagation();
+          const destination = event.target.value;
+          if ((destination === 'Scheduled' || destination === 'In Progress') && (!job.technician || job.technician === 'Unassigned')) {
+            showToast('Assign a technician before scheduling or starting this job.');
+            window.joblineAnnounce?.('Move not completed. Assign a technician first.');
+            event.target.value = boardStatus(job);
+            return;
+          }
+          updates[job.jobKey] = { ...(updates[job.jobKey] || {}), stage:destination === 'Unassigned' ? 'New' : destination };
+          if (destination === 'Unassigned') updates[job.jobKey].technician = 'Unassigned';
+          writeUpdates(updates);
+          renderBoard();
+          showToast(`${job.customer} moved to ${destination}. Job Queue updated.`);
+          window.joblineAnnounce?.(`${job.customer} moved to ${destination}.`);
+        });
         columnEl.appendChild(card);
       });
       columnEl.addEventListener('dragover', event => { event.preventDefault(); columnEl.classList.add('drag-over'); });
@@ -338,5 +356,6 @@ button{font-family:var(--font);cursor:pointer;}
 </script>
 <script src="persona.js?v=6"></script>
 <script src="operations-overview.js?v=1"></script>
+<script src="accessibility.js?v=1"></script>
 </body>
 </html>
