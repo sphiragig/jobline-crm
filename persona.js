@@ -1,4 +1,7 @@
 (() => {
+  const icon = (path, size = 20) => `<svg aria-hidden="true" width="${size}" height="${size}" viewBox="0 0 20 20" fill="currentColor"><path d="${path}"/></svg>`;
+  const bellIcon = icon('M10 2a4 4 0 0 0-4 4v1.67c0 .79-.24 1.56-.69 2.2L4.1 11.63A1.5 1.5 0 0 0 5.34 14h9.32a1.5 1.5 0 0 0 1.24-2.37l-1.21-1.76A3.85 3.85 0 0 1 14 7.67V6a4 4 0 0 0-4-4Zm0 16a2.5 2.5 0 0 0 2.45-2H7.55A2.5 2.5 0 0 0 10 18Z');
+  const dismissIcon = icon('M4.09 4.09a.75.75 0 0 1 1.06 0L10 8.94l4.85-4.85a.75.75 0 1 1 1.06 1.06L11.06 10l4.85 4.85a.75.75 0 1 1-1.06 1.06L10 11.06l-4.85 4.85a.75.75 0 1 1-1.06-1.06L8.94 10 4.09 5.15a.75.75 0 0 1 0-1.06Z');
   if (window.self !== window.top || new URLSearchParams(location.search).get('modal') === '1') return;
   const ROLE_KEY = 'jobline-demo-persona';
   const TECH_KEY = 'jobline-demo-technician';
@@ -77,11 +80,11 @@
     bell.type = 'button';
     bell.className = 'notification-bell';
     bell.setAttribute('aria-label', `${unread} unread notifications`);
-    bell.innerHTML = `<span aria-hidden="true">♢</span>${unread ? `<b>${unread}</b>` : ''}`;
+    bell.innerHTML = `${bellIcon}${unread ? `<b>${unread}</b>` : ''}`;
     const panel = document.createElement('aside');
     panel.className = 'notification-panel';
     panel.hidden = true;
-    panel.innerHTML = `<header><div><h2>Notifications</h2><p>${role === 'technician' ? escapeHtml(technician) : 'Manager / Dispatcher'}</p></div><button type="button" aria-label="Close notifications">×</button></header><div class="notification-list">${visible.length ? visible.map(item => `<a href="job-detail-drawer.html?customer=${encodeURIComponent(item.customer)}&job=${encodeURIComponent(item.jobKey)}" data-notification-id="${escapeHtml(item.id)}" class="notification-item${item.read ? '' : ' unread'}"><span class="notification-dot"></span><span><strong>${escapeHtml(item.title)}</strong><em>${escapeHtml(item.customer)}</em><span>${escapeHtml(item.message)}</span><small>${new Date(item.createdAt).toLocaleString('en-US',{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'})} · ${escapeHtml((item.channels || ['In-product']).join(', '))}${item.simulated ? ' · Preview only' : ''}</small></span></a>`).join('') : '<p class="notification-empty">No notifications yet.</p>'}</div>${unread ? '<button class="notification-read-all" type="button">Mark all as read</button>' : ''}`;
+    panel.innerHTML = `<header><div><h2>Notifications</h2><p>${role === 'technician' ? escapeHtml(technician) : 'Manager / Dispatcher'}</p></div><button type="button" aria-label="Close notifications">${dismissIcon}</button></header><div class="notification-list">${visible.length ? visible.map(item => `<a href="job-detail-drawer.html?customer=${encodeURIComponent(item.customer)}&job=${encodeURIComponent(item.jobKey)}" data-notification-id="${escapeHtml(item.id)}" class="notification-item${item.read ? '' : ' unread'}"><span class="notification-dot"></span><span><strong>${escapeHtml(item.title)}</strong><em>${escapeHtml(item.customer)}</em><span>${escapeHtml(item.message)}</span><small>${new Date(item.createdAt).toLocaleString('en-US',{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'})} · ${escapeHtml((item.channels || ['In-product']).join(', '))}${item.simulated ? ' · Preview only' : ''}</small></span></a>`).join('') : '<p class="notification-empty">No notifications yet.</p>'}</div>${unread ? '<button class="notification-read-all" type="button">Mark all as read</button>' : ''}`;
     document.body.append(bell,panel);
     const close = () => { panel.hidden = true; bell.setAttribute('aria-expanded','false'); };
     bell.addEventListener('click', () => { panel.hidden = !panel.hidden; bell.setAttribute('aria-expanded', String(!panel.hidden)); });
