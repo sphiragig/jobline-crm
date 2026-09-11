@@ -1,0 +1,75 @@
+:root{
+  --shell-header-height:64px;
+  --shell-nav-width:236px;
+  --shell-canvas:#f5f5f5;
+  --shell-border:#e0e0e0;
+  --shell-text:#242424;
+  --shell-muted:#616161;
+}
+
+body.jobline-shell{padding-top:var(--shell-header-height);background:var(--shell-canvas);color:var(--shell-text)}
+.jobline-shell>div:first-of-type{min-height:calc(100dvh - var(--shell-header-height))!important;background:var(--shell-canvas)!important}
+
+.jobline-shell-header{position:fixed;inset:0 0 auto 0;z-index:70;height:var(--shell-header-height);display:grid;grid-template-columns:var(--shell-nav-width) minmax(300px,1fr) auto;align-items:center;border-bottom:1px solid var(--shell-border);background:#fff}
+.jobline-shell-brand{height:100%;display:flex;align-items:center;gap:10px;padding:0 20px;border-right:1px solid var(--shell-border);color:var(--shell-text);font-size:16px;font-weight:600;text-decoration:none}
+.jobline-shell-brand:hover{color:var(--shell-text)}
+.jobline-shell-mark{width:26px;height:26px;display:grid;place-items:center;border-radius:5px;background:#0f6cbd;color:#fff;font-size:13px;font-weight:700}
+.jobline-shell-center{display:flex;justify-content:center;padding:0 28px}
+.jobline-shell-center .top-search{width:min(520px,100%)!important;height:38px!important;border-color:#d1d1d1!important;border-radius:4px!important;background:#fff!important;box-shadow:0 1px 2px rgba(0,0,0,.04)}
+.jobline-shell-center .search-input{font-size:14px!important;color:var(--shell-text)}
+.jobline-shell-right{height:100%;display:flex;align-items:center;justify-content:flex-end;gap:10px;padding:0 20px}
+
+.jobline-shell nav.rail{position:sticky;top:var(--shell-header-height);width:var(--shell-nav-width)!important;height:calc(100dvh - var(--shell-header-height));align-items:stretch!important;padding:12px 10px!important;background:#fff!important;border-right:1px solid var(--shell-border)!important}
+.jobline-shell nav.rail>a:first-child{display:none!important}
+.jobline-shell nav.rail>div:nth-child(2){width:100%;gap:4px!important;margin-top:0!important}
+.jobline-shell nav.rail>div:last-child:not(.rail-utilities){display:none!important}
+.jobline-shell .rail-btn{position:relative;width:100%!important;height:42px!important;justify-content:flex-start!important;gap:12px;padding:0 14px!important;border-radius:4px!important;color:#424242!important;font-size:14px;font-weight:400;text-decoration:none}
+.jobline-shell .rail-btn::after{content:attr(title);white-space:nowrap}
+.jobline-shell .rail-btn:hover{background:#f5f5f5!important;color:#242424!important}
+.jobline-shell .rail-btn.active{background:#ebf3fc!important;color:#115ea3!important;font-weight:600}
+.jobline-shell .rail-btn.active::before{content:"";position:absolute;left:0;top:8px;bottom:8px;width:3px;border-radius:3px;background:#0f6cbd}
+.jobline-shell .rail-utilities{width:100%;margin-top:auto!important;padding-top:12px!important;border-top:1px solid #e8e8e8!important;align-items:stretch!important}
+.jobline-shell .rail-utilities .prototype-trust-button-rail{width:100%!important;height:40px!important;justify-content:flex-start!important;flex-direction:row!important;gap:12px!important;padding:0 14px!important;color:#616161!important}
+.jobline-shell .rail-utilities .prototype-trust-button-rail span{font-size:12px!important;text-transform:none!important}
+
+.jobline-shell main{padding:28px 36px 40px!important;gap:18px!important;background:var(--shell-canvas)}
+.jobline-shell main h1{font-size:28px!important;line-height:36px!important;font-weight:600!important;letter-spacing:-.01em}
+.jobline-shell main h1+ p{color:var(--shell-muted)!important}
+.jobline-shell :where(.ops-metric,.jq-table-wrap,.cust-card,.card){border-color:#d9d9d9!important;border-radius:8px!important;box-shadow:0 1px 2px rgba(0,0,0,.08)!important}
+.jobline-shell .jq-head{background:#fff!important}
+
+.jobline-shell-header .notification-bell{position:relative!important;inset:auto!important;width:36px!important;height:36px!important;margin:0!important;border-radius:4px!important;box-shadow:none!important;background:transparent!important;color:#424242}
+.jobline-shell-header .notification-bell:hover{background:#f5f5f5!important}
+.jobline-shell-header .persona-switcher{position:relative!important;inset:auto!important;width:auto!important;height:44px!important;display:flex!important;padding:0!important;border:0!important;border-radius:4px!important;box-shadow:none!important;background:transparent!important}
+.jobline-shell-header .persona-switcher button{position:relative!important;inset:auto!important;width:auto!important;height:44px!important;display:flex!important;align-items:center!important;gap:10px;padding:0 8px!important;border:0!important;border-radius:4px!important;background:transparent!important;color:#242424!important;font-size:14px!important}
+.jobline-shell-header .persona-switcher button:hover{background:#f5f5f5!important}
+.shell-profile-avatar{width:32px;height:32px;display:grid;place-items:center;border-radius:50%;background:#0f6cbd;color:#fff;font-size:11px;font-weight:700}
+.shell-profile-copy{display:flex;flex-direction:column;align-items:flex-start;line-height:17px}
+.shell-profile-copy strong{font-size:14px;font-weight:600}
+.shell-profile-copy span{color:#616161;font-size:11px}
+.shell-profile-chevron{color:#616161}
+.jobline-shell .notification-panel{left:auto!important;right:16px!important;top:58px!important;bottom:auto!important}
+.jobline-shell .drawer-scrim{z-index:80!important}
+.jobline-shell .drawer{z-index:81!important}
+
+@media(max-width:900px){
+  :root{--shell-nav-width:64px}
+  .jobline-shell-header{grid-template-columns:64px minmax(180px,1fr) auto}
+  .jobline-shell-brand{justify-content:center;padding:0;border-right:1px solid var(--shell-border)}
+  .jobline-shell-brand>span:last-child,.shell-profile-copy{display:none}
+  .jobline-shell-center{padding:0 16px}
+  .jobline-shell-right{padding:0 10px}
+  .jobline-shell nav.rail{padding:12px 8px!important}
+  .jobline-shell .rail-btn{justify-content:center!important;padding:0!important}
+  .jobline-shell .rail-btn::after,.jobline-shell .rail-utilities .prototype-trust-button-rail span{display:none}
+  .jobline-shell .rail-utilities .prototype-trust-button-rail{justify-content:center!important;padding:0!important}
+  .jobline-shell main{padding:24px!important}
+}
+
+@media(max-width:620px){
+  .jobline-shell-header{grid-template-columns:56px 1fr auto}
+  .jobline-shell-center{padding:0 8px}
+  .jobline-shell-right{gap:2px;padding:0 6px}
+  .shell-profile-chevron{display:none}
+  .jobline-shell main{padding:18px 14px 28px!important}
+}
