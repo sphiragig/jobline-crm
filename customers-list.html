@@ -7,7 +7,7 @@
 <link rel="stylesheet" href="persona.css">
 <link rel="stylesheet" href="accessibility.css">
 <link rel="stylesheet" href="typography-consistency.css">
-<link rel="stylesheet" href="app-shell.css?v=2">
+<link rel="stylesheet" href="app-shell.css?v=3">
 <style>
 :root{
   --brand:#0F6CBD;--brand-hover:#115EA3;
@@ -63,15 +63,6 @@ button{font-family:var(--font);cursor:pointer;}
       <div>
         <h1 style="margin:0;font-size:24px;font-weight:600;color:var(--fg1);">Customers</h1>
         <p style="margin:4px 0 0;font-size:14px;color:var(--fg3);">48 active accounts across 6 territories</p>
-      </div>
-      <div style="display:flex;align-items:center;gap:12px;">
-        <div style="width:240px;height:36px;border:1px solid var(--stroke1);border-radius:8px;background:var(--nbg1);display:flex;align-items:center;gap:8px;padding:0 12px;color:var(--fg3);">
-          <svg width="16" height="16" viewBox="0 0 20 20" fill="none"><circle cx="9" cy="9" r="6" stroke="currentColor" stroke-width="1.5"/><path d="M17 17L13.5 13.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
-          <input class="search-input" id="customerSearch" type="search" placeholder="Search customers..." aria-label="Search customers">
-        </div>
-        <button class="demo-hidden" aria-hidden="true" style="display:inline-flex;align-items:center;gap:6px;height:36px;padding:0 16px;border-radius:4px;border:none;background:var(--brand);color:#fff;font-size:14px;font-weight:600;white-space:nowrap;">
-          <svg width="16" height="16" viewBox="0 0 20 20" fill="none"><path d="M10 4V16M4 10H16" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/></svg>New Customer
-        </button>
       </div>
     </div>
 
@@ -222,14 +213,10 @@ button{font-family:var(--font);cursor:pointer;}
       stats[1].textContent = `$${(baseRevenue + addedRevenue + editedBaseFeeDelta).toLocaleString()}`;
     }
   });
-  document.getElementById('customerSearch').addEventListener('input', event => {
-    const term = event.target.value.trim().toLowerCase();
-    cards.forEach(card => card.style.display = !term || card.textContent.toLowerCase().includes(term) ? 'block' : 'none');
-  });
 })();
 </script>
 <script src="persona.js?v=8"></script>
 <script src="accessibility.js?v=1"></script>
-<script src="app-shell.js?v=2"></script>
+<script src="app-shell.js?v=3"></script>
 </body>
 </html>

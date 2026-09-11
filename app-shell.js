@@ -37,7 +37,16 @@
     searchInput.value = initialSearch;
     searchInput.dispatchEvent(new Event('input', { bubbles:true }));
   }
-  if (page !== 'index.html' && searchInput) {
+  if (page === 'customers-list.html' && searchInput) {
+    searchInput.placeholder = 'Search customers...';
+    searchInput.setAttribute('aria-label', 'Search customers');
+    searchInput.addEventListener('input', event => {
+      const term = event.target.value.trim().toLowerCase();
+      document.querySelectorAll('.cust-card').forEach(card => {
+        card.style.display = !term || card.textContent.toLowerCase().includes(term) ? 'block' : 'none';
+      });
+    });
+  } else if (page !== 'index.html' && searchInput) {
     searchInput.addEventListener('keydown', event => {
       if (event.key !== 'Enter' || !searchInput.value.trim()) return;
       location.href = `index.html?search=${encodeURIComponent(searchInput.value.trim())}`;
