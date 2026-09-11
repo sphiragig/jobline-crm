@@ -5,6 +5,11 @@
   let search = document.querySelector('.top-search');
   if (!rail) return;
 
+  const primaryNavigation = [...rail.children].find(child =>
+    child.querySelector?.(':scope > a.rail-btn')
+  );
+  primaryNavigation?.classList.add('jobline-shell-nav-items');
+
   document.body.classList.add('jobline-shell');
 
   const header = document.createElement('header');

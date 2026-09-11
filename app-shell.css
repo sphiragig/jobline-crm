@@ -8,7 +8,7 @@
 }
 
 body.jobline-shell{padding-top:var(--shell-header-height);background:var(--shell-canvas);color:var(--shell-text)}
-.jobline-shell>div:first-of-type{min-height:calc(100dvh - var(--shell-header-height))!important;background:var(--shell-canvas)!important}
+.jobline-shell>div:first-of-type{min-height:calc(100dvh - var(--shell-header-height))!important;padding-left:var(--shell-nav-width)!important;background:var(--shell-canvas)!important}
 
 .jobline-shell-header{position:fixed;inset:0 0 auto 0;z-index:70;height:var(--shell-header-height);display:grid;grid-template-columns:var(--shell-nav-width) minmax(300px,1fr) auto;align-items:center;border-bottom:1px solid var(--shell-border);background:#fff}
 .jobline-shell-brand{height:100%;display:flex;align-items:center;gap:10px;padding:0 20px;border-right:1px solid var(--shell-border);color:var(--shell-text);font-size:16px;font-weight:600;text-decoration:none}
@@ -19,10 +19,11 @@ body.jobline-shell{padding-top:var(--shell-header-height);background:var(--shell
 .jobline-shell-center .search-input{width:100%;min-width:0;height:100%;padding:0;border:0!important;outline:0;background:transparent;font-size:14px!important;color:var(--shell-text)}
 .jobline-shell-right{height:100%;display:flex;align-items:center;justify-content:flex-end;gap:10px;padding:0 20px}
 
-.jobline-shell nav.rail{position:sticky;top:var(--shell-header-height);width:var(--shell-nav-width)!important;height:calc(100dvh - var(--shell-header-height));align-items:stretch!important;padding:8px 10px 12px!important;background:#fff!important;border-right:1px solid var(--shell-border)!important}
+.jobline-shell nav.rail{position:fixed;left:0;top:var(--shell-header-height);z-index:30;width:var(--shell-nav-width)!important;height:calc(100dvh - var(--shell-header-height));align-items:stretch!important;padding:8px 10px 12px!important;background:#fff!important;border-right:1px solid var(--shell-border)!important}
 .jobline-shell nav.rail>a:first-child{display:none!important}
 .jobline-shell nav.rail>div:nth-child(2){width:100%;gap:4px!important;margin-top:0!important}
 .jobline-shell nav.rail>div[style*="margin-top:32px"]{width:100%!important;gap:4px!important;margin-top:0!important}
+.jobline-shell nav.rail>.jobline-shell-nav-items{width:100%!important;display:flex!important;flex-direction:column!important;gap:4px!important;margin:0!important;padding:0!important;align-self:flex-start!important}
 .jobline-shell nav.rail>div:last-child:not(.rail-utilities){display:none!important}
 .jobline-shell .rail-btn{position:relative;width:100%!important;height:42px!important;justify-content:flex-start!important;gap:12px;padding:0 14px!important;border-radius:4px!important;color:#424242!important;font-size:14px;font-weight:400;text-decoration:none}
 .jobline-shell .rail-btn::after{content:attr(title);white-space:nowrap}
