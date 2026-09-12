@@ -8,7 +8,7 @@
 <link rel="stylesheet" href="operations-overview.css">
 <link rel="stylesheet" href="accessibility.css">
 <link rel="stylesheet" href="typography-consistency.css">
-<link rel="stylesheet" href="app-shell.css?v=3">
+<link rel="stylesheet" href="app-shell.css?v=4">
 <style>
 :root{
   --brand:#0F6CBD;--brand-hover:#115EA3;
@@ -35,16 +35,24 @@ button{font-family:var(--font);cursor:pointer;}
 .ghost-btn{display:inline-flex;align-items:center;gap:6px;height:36px;padding:0 14px;border-radius:4px;border:1px solid var(--stroke1);background:var(--nbg1);color:var(--fg2);font-size:14px;font-weight:600;cursor:pointer;}
 .icon-btn{width:32px;height:32px;border-radius:999px;border:1px solid var(--stroke1);background:var(--nbg1);color:var(--fg2);display:flex;align-items:center;justify-content:center;cursor:pointer;}
 .avatar{border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;flex-shrink:0;border:2px solid #fff;}
-.col{background:var(--nbg3);border-radius:8px;padding:12px;display:flex;flex-direction:column;min-width:0;}
-.col-head{display:flex;align-items:center;justify-content:space-between;padding:2px 4px 12px;}
+.col{background:var(--nbg3);border:1px solid transparent;border-radius:8px;padding:8px;display:flex;flex-direction:column;min-width:0;}
+.col[data-status="Unassigned"]{background:#f5f5f5!important;border-color:#e0e0e0;}
+.col[data-status="Scheduled"]{background:#f3f8fd!important;border-color:#d8e9f8;}
+.col[data-status="In Progress"]{background:#fff9e8!important;border-color:#f5e5b8;}
+.col[data-status="Blocked"]{background:#fdf3f4!important;border-color:#f3d6da;}
+.col[data-status="Done"]{background:#f2f9f1!important;border-color:#d8ead5;}
+.col-head{position:sticky;top:0;z-index:3;min-height:56px!important;display:flex;align-items:center;justify-content:space-between;padding:4px 4px 9px!important;background:inherit;}
+.col-head-copy{min-height:40px!important;}
 .col-title{font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--fg2);}
 .count{display:inline-flex;align-items:center;justify-content:center;min-width:20px;height:20px;padding:0 6px;border-radius:999px;background:#fff;border:1px solid var(--stroke1);font-size:11px;font-weight:700;color:var(--fg2);}
-.card{position:relative;display:block;background:#fff;border:1px solid var(--stroke2);border-radius:8px;padding:12px;box-shadow:var(--shadow4);margin-bottom:10px;}
+.card{position:relative;display:block;background:#fff;border:1px solid var(--stroke2);border-radius:8px;padding:10px;box-shadow:var(--shadow4);margin-bottom:8px;}
 .card-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;}
 .card-name{font-size:14px;font-weight:600;color:var(--fg1);margin:0 0 4px;}
-.card-desc{font-size:12px;color:var(--fg3);margin:0 0 10px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+.card-desc{font-size:12px;color:var(--fg3);margin:0 0 7px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
 .card-bottom{display:flex;align-items:center;justify-content:space-between;}
-.board{display:grid;grid-template-columns:repeat(5,1fr);gap:16px;flex:1;min-height:0;}
+.board{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;flex:1;min-height:0;}
+.dispatch-new-job{border-color:var(--brand)!important;background:var(--brand)!important;color:#fff!important;}
+.dispatch-new-job:hover{border-color:var(--brand-hover)!important;background:var(--brand-hover)!important;color:#fff!important;}
 .card-link{position:absolute;inset:0;}
 .col-head-copy{min-width:0;}
 .col-meaning{font-size:10px;color:var(--fg3);margin-top:3px;line-height:1.3;}
@@ -77,7 +85,7 @@ button{font-family:var(--font);cursor:pointer;}
         <h1 style="margin:0;font-size:24px;font-weight:600;color:var(--fg1);">Dispatch Board</h1>
         <p style="margin:4px 0 0;font-size:14px;color:var(--fg3);">Drag a job to reassign or change its status</p>
       </div>
-      <a class="ghost-btn" href="new-job-form.html"><svg width="16" height="16" viewBox="0 0 20 20" fill="none"><path d="M10 4V16M4 10H16" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/></svg>New Job</a>
+      <a class="ghost-btn dispatch-new-job" href="new-job-form.html"><svg width="16" height="16" viewBox="0 0 20 20" fill="none"><path d="M10 4V16M4 10H16" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/></svg>New Job</a>
     </div>
 
     <div style="display:flex;align-items:center;justify-content:space-between;">
@@ -359,6 +367,6 @@ button{font-family:var(--font);cursor:pointer;}
 <script src="persona.js?v=8"></script>
 <script src="operations-overview.js?v=1"></script>
 <script src="accessibility.js?v=1"></script>
-<script src="app-shell.js?v=3"></script>
+<script src="app-shell.js?v=4"></script>
 </body>
 </html>

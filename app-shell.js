@@ -11,6 +11,29 @@
   primaryNavigation?.classList.add('jobline-shell-nav-items');
 
   document.body.classList.add('jobline-shell');
+  const navigationCollapsed = localStorage.getItem('jobline-nav-collapsed') === 'true';
+  document.body.classList.toggle('shell-nav-collapsed', navigationCollapsed);
+
+  if (primaryNavigation) {
+    const toggleNavigation = document.createElement('button');
+    toggleNavigation.type = 'button';
+    toggleNavigation.className = 'shell-nav-toggle';
+    toggleNavigation.innerHTML = '<svg aria-hidden="true" width="18" height="18" viewBox="0 0 20 20" fill="none"><path d="M12.5 5 7.5 10l5 5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Collapse navigation</span>';
+    const updateNavigationToggle = () => {
+      const collapsed = document.body.classList.contains('shell-nav-collapsed');
+      toggleNavigation.setAttribute('aria-label', collapsed ? 'Expand navigation' : 'Collapse navigation');
+      toggleNavigation.title = collapsed ? 'Expand navigation' : 'Collapse navigation';
+      toggleNavigation.querySelector('span').textContent = collapsed ? 'Expand navigation' : 'Collapse navigation';
+      toggleNavigation.querySelector('svg').style.transform = collapsed ? 'rotate(180deg)' : '';
+    };
+    toggleNavigation.addEventListener('click', () => {
+      document.body.classList.toggle('shell-nav-collapsed');
+      localStorage.setItem('jobline-nav-collapsed', String(document.body.classList.contains('shell-nav-collapsed')));
+      updateNavigationToggle();
+    });
+    primaryNavigation.after(toggleNavigation);
+    updateNavigationToggle();
+  }
 
   const header = document.createElement('header');
   header.className = 'jobline-shell-header';
