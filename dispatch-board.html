@@ -41,7 +41,9 @@ button{font-family:var(--font);cursor:pointer;}
 .col[data-status="In Progress"]{background:#fff9e8!important;border-color:#f5e5b8;}
 .col[data-status="Blocked"]{background:#fdf3f4!important;border-color:#f3d6da;}
 .col[data-status="Done"]{background:#f2f9f1!important;border-color:#d8ead5;}
-.col-head{position:sticky;top:0;z-index:10;min-height:56px!important;display:flex;align-items:center;justify-content:space-between;padding:4px 4px 9px!important;background:inherit;box-shadow:0 1px 0 rgba(0,0,0,.06);}
+.jobline-shell .col{overflow:hidden!important;min-height:0;}
+.col-head{position:relative;flex:0 0 auto;z-index:10;min-height:56px!important;display:flex;align-items:center;justify-content:space-between;padding:4px 4px 9px!important;background:inherit;box-shadow:0 1px 0 rgba(0,0,0,.06);}
+.col-cards{flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;position:relative;isolation:isolate;padding:2px;scrollbar-gutter:stable;}
 .col[data-status="Unassigned"] .col-head{background:#f5f5f5;}
 .col[data-status="Scheduled"] .col-head{background:#f3f8fd;}
 .col[data-status="In Progress"] .col-head{background:#fff9e8;}
@@ -318,6 +320,9 @@ button{font-family:var(--font);cursor:pointer;}
       columnEl.dataset.status = column.key;
       columnEl.setAttribute('aria-label', `${column.key}: ${column.meaning}`);
       columnEl.innerHTML = `<div class="col-head"><div class="col-head-copy"><div class="col-title">${column.key}</div><div class="col-meaning">${column.meaning}</div></div><span class="count">${columnJobs.length}</span></div>`;
+      const cardList = document.createElement('div');
+      cardList.className = 'col-cards';
+      columnEl.appendChild(cardList);
       columnJobs.forEach(job => {
         const card = document.createElement('article');
         card.className = 'card';
@@ -344,7 +349,7 @@ button{font-family:var(--font);cursor:pointer;}
           showToast(`${job.customer} moved to ${destination}. Job Queue updated.`);
           window.joblineAnnounce?.(`${job.customer} moved to ${destination}.`);
         });
-        columnEl.appendChild(card);
+        cardList.appendChild(card);
       });
       columnEl.addEventListener('dragover', event => { event.preventDefault(); columnEl.classList.add('drag-over'); });
       columnEl.addEventListener('dragleave', () => columnEl.classList.remove('drag-over'));
